@@ -1,0 +1,15 @@
+{
+ "argv": [
+  "C:\\Users\\diank\\venv_d4rl\\Scripts\\python.exe",
+  "-m",
+  "ipykernel_launcher",
+  "-f",
+  "{connection_file}"
+ ],
+ "display_name": "Python (venv_d4rl)",
+ "language": "python",
+ "metadata": {
+  "debugger": true
+ },
+ "kernel_protocol_version": "5.5"
+}

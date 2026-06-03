@@ -1,0 +1,234 @@
+\documentclass[12pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{hyperref}
+
+\title{Maze2D Minimal Reference Note}
+\author{Dian Kruger}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Purpose}
+
+This note summarises the main technical facts established in the minimal Maze2D notebook,
+\href{./maze_2d_minimal_plot.ipynb}{\texttt{maze\_2d\_minimal\_plot.ipynb}}.
+The goal is not to reproduce all code details, but to keep a concise record of how Maze2D is structured in D4RL/Minari and what this implies for a generative trajectory model.
+
+\section*{Why Maze2D Was Studied}
+
+The longer-term thesis goal is to use a generative model to produce paths similar to those produced by reinforcement learning in Maze2D. Before designing such a model, it was necessary to understand:
+
+\begin{itemize}[leftmargin=*]
+\item how mazes are defined,
+\item how episodes are stored,
+\item what observations, actions, positions, and velocities mean,
+\item how the MuJoCo physics update state,
+\item and how the reward is defined.
+\end{itemize}
+
+The minimal notebook was created for exactly this purpose: to expose the data structure and environment mechanics with as little extra code as possible.
+
+\section*{Maze Definition}
+
+Maze layouts in D4RL are stored as compact strings. The notebook copies the relevant maze specifications directly from D4RL's
+\href{./d4rl/d4rl/pointmaze/maze_model.py}{\texttt{maze\_model.py}}.
+
+Each maze is represented row by row using characters such as:
+
+\begin{itemize}[leftmargin=*]
+\item \texttt{\#}: wall cell,
+\item \texttt{O}: open cell,
+\item \texttt{G}: goal-designated cell in the layout definition.
+\end{itemize}
+
+In the notebook, a layout string is split into rows and then converted into a list of wall-cell coordinates. Those wall cells are drawn as black rectangles for plotting.
+
+An important practical point is that the plotting frame must match the dataset frame. For the notebook plots, the wall cells are mapped into the dataset coordinate frame rather than plotted in raw maze-string row/column order.
+
+\section*{Dataset Source and Structure}
+
+The notebook reads a local Minari dataset rather than relying on a standalone HDF5 file. In the current example, the dataset identifier is:
+
+\begin{center}
+\texttt{analysis/maze2d/medium-raw-v0}
+\end{center}
+
+One episode contains a sequence of states, actions, and simulator information over time. For the examined Maze2D episode, the important arrays are:
+
+\begin{itemize}[leftmargin=*]
+\item \texttt{episode.observations}: shape \((T,4)\),
+\item \texttt{episode.actions}: shape \((T,2)\),
+\item \texttt{episode.infos["goal"]}: shape \((T,2)\),
+\item \texttt{episode.infos["qpos"]}: shape \((T,2)\),
+\item \texttt{episode.infos["qvel"]}: shape \((T,2)\).
+\end{itemize}
+
+The notebook also displays a table for the first few timesteps so that these fields can be inspected directly.
+
+\section*{Observation, Position, and Velocity}
+
+In Maze2D, the observation is a four-dimensional vector:
+\[
+\texttt{observation} = [x,\; y,\; v_x,\; v_y].
+\]
+
+The simulator state is also stored more explicitly:
+
+\begin{itemize}[leftmargin=*]
+\item \texttt{qpos} contains the MuJoCo position state, here \([x,y]\),
+\item \texttt{qvel} contains the MuJoCo velocity state, here \([v_x,v_y]\).
+\end{itemize}
+
+So in this environment:
+\[
+\texttt{observation}[0:2] \approx \texttt{qpos},
+\qquad
+\texttt{observation}[2:4] \approx \texttt{qvel}.
+\]
+
+This distinction is useful conceptually:
+
+\begin{itemize}[leftmargin=*]
+\item \texttt{observations} are the learning-facing state vectors,
+\item \texttt{qpos} and \texttt{qvel} are the low-level simulator state used for exact replay and debugging.
+\end{itemize}
+
+\section*{Actions}
+
+Each action is two-dimensional:
+\[
+\texttt{action} = [a_x,\; a_y].
+\]
+
+These actions are not endpoint coordinates. They are control inputs passed to the environment at each timestep. In the plots, arrows are drawn with \texttt{matplotlib.quiver}:
+
+\begin{itemize}[leftmargin=*]
+\item the arrow base is the current position,
+\item the arrow direction comes from the stored action vector.
+\end{itemize}
+
+To keep the full-trajectory plot readable, only every \texttt{STRIDE}-th action is plotted.
+
+\section*{Physics and Exact Replay}
+
+The notebook uses MuJoCo directly through D4RL's \texttt{MazeEnv}, which is defined in
+\href{./d4rl/d4rl/pointmaze/maze_model.py}{\texttt{maze\_model.py}}.
+
+For exact replay, the notebook:
+
+\begin{enumerate}[leftmargin=*]
+\item creates a \texttt{MazeEnv} with the chosen maze specification,
+\item sets the initial MuJoCo state with \texttt{env.set\_state(initial\_qpos, initial\_qvel)},
+\item steps through stored actions using \texttt{env.step(action)},
+\item records \texttt{env.sim.data.qpos} and \texttt{env.sim.data.qvel} after each step.
+\end{enumerate}
+
+This mirrors the D4RL approach.
+
+One implementation detail was needed on Windows: a writable local copy of \texttt{mujoco\_py} is used inside the project because the package directory inside the virtual environment was permission-restricted for generated build files.
+
+\section*{Reward Design}
+
+The reward definition comes from the environment code, not from the stored dataset rewards.
+
+In \href{./d4rl/d4rl/pointmaze/maze_model.py}{\texttt{maze\_model.py}}, the \texttt{step()} function defines:
+
+\begin{itemize}[leftmargin=*]
+\item sparse reward:
+\[
+r =
+\begin{cases}
+1 & \text{if } \lVert (x,y)-g \rVert \le 0.5,\\
+0 & \text{otherwise,}
+\end{cases}
+\]
+\item dense reward:
+\[
+r = \exp(-\lVert (x,y)-g \rVert).
+\]
+\end{itemize}
+
+So the dense version rewards proximity to the goal at every timestep, while the sparse version rewards entering a goal region.
+
+However, the stored dataset rewards in
+\href{./d4rl/scripts/generation/generate_maze2d_datasets.py}{\texttt{generate\_maze2d\_datasets.py}}
+are written as zeros during dataset construction. Therefore, if one wants to understand the intended task objective, the environment code is the relevant source.
+
+\section*{Cumulative Reward vs Greedy Reward}
+
+The reward is designed per step, but reinforcement learning policies are generally trained to maximise cumulative discounted return, not merely the immediate reward of the next action.
+
+This matters in mazes. A purely greedy one-step rule could attempt to move directly toward the goal and become trapped against a wall. Cumulative return allows a policy to prefer action sequences that may temporarily move sideways or away from the goal if they eventually yield higher long-term reward by reaching the goal area.
+
+That said, Maze2D's dense reward does not by itself encode an explicit step penalty such as \(-1\) per timestep. So ``reach the goal as fast as possible'' is not written directly into the reward formula; it is encouraged indirectly through finite horizons and discounted return.
+
+\section*{What the Minimal Notebook Shows}
+
+The notebook produces three kinds of useful diagnostic views:
+
+\begin{itemize}[leftmargin=*]
+\item a full-episode path over the maze geometry,
+\item stored action arrows drawn along that path,
+\item a zoomed-in local replay over a few timesteps showing:
+  current state,
+  next state after applying the stored action,
+  current velocity,
+  and next velocity.
+\end{itemize}
+
+These plots help separate three ideas that are easy to conflate:
+
+\begin{itemize}[leftmargin=*]
+\item where the agent is,
+\item what control input is applied,
+\item and how MuJoCo updates position and velocity in response.
+\end{itemize}
+
+\section*{Implications for a Generative Thesis Model}
+
+For a generative trajectory model, the main takeaway is that Maze2D trajectories are naturally sequential data. At each timestep there is a structured relation between:
+
+\begin{itemize}[leftmargin=*]
+\item current state \((x,y,v_x,v_y)\),
+\item action \((a_x,a_y)\),
+\item next state,
+\item and a fixed or slowly varying goal.
+\end{itemize}
+
+This suggests several possible modelling choices:
+
+\begin{itemize}[leftmargin=*]
+\item model only positions if the aim is geometric path generation,
+\item model state--action pairs if the aim is to stay close to environment dynamics,
+\item or model full state transitions if the aim is to generate physically plausible trajectories under control inputs.
+\end{itemize}
+
+The notebook supports the following conclusion: Maze2D is not just a shortest-path graph problem. It is a continuous control problem with walls, velocities, actions, MuJoCo dynamics, and a reward defined relative to a goal. Any generative replacement for RL should therefore be explicit about which level it is modelling:
+
+\begin{itemize}[leftmargin=*]
+\item path geometry only,
+\item policy-like action sequences,
+\item or full dynamical trajectories.
+\end{itemize}
+
+\section*{Practical Summary}
+
+The most important facts to remember are:
+
+\begin{enumerate}[leftmargin=*]
+\item Maze layouts are encoded as simple strings and converted into wall cells for plotting.
+\item A Maze2D observation is \([x,y,v_x,v_y]\).
+\item \texttt{qpos} is simulator position and \texttt{qvel} is simulator velocity.
+\item Actions are 2D control inputs, not target coordinates.
+\item Exact replay can be done by restoring \texttt{qpos}/\texttt{qvel} and stepping \texttt{MazeEnv} with stored actions.
+\item The environment reward is defined in \texttt{maze\_model.py}, not in the dataset rewards.
+\item Dense reward encourages closeness to the goal; sparse reward only rewards entering the goal region.
+\item RL optimises cumulative return, so wall avoidance must come from planning over future reward rather than greedy one-step motion.
+\end{enumerate}
+
+\end{document}

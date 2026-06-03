@@ -1,0 +1,102 @@
+\documentclass[12pt]{article}
+
+\usepackage{longtable}
+
+\title{Project Plan: Planning as Autoregressive Sequence Modelling}
+\author{Dian Kruger \\ Shane Josias}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Project Plan}
+
+\begin{longtable}{|p{3cm}|p{11cm}|}
+\hline
+\textbf{Date} & \textbf{Planned Progress} \\
+\hline
+
+7 April &
+Implementation of a minimal end-to-end experimental pipeline. This includes a simple 2D gridworld environment, generation of shortest paths using A*, training of a basic autoregressive trajectory model on the generated paths, and implementation of at least one decoding strategy to produce trajectories from the learned model. The environment will be kept deliberately simple to validate the modelling and decoding pipeline while avoiding triviality. \\
+\hline
+
+4 May &
+Development of a more robust gridworld environment with configurable obstacles, start and goal states, and automated generation of shortest-path trajectories using A*. The environment should support systematic experimentation and dataset generation. \\
+\hline
+
+19 May &
+Implementation of two decoding strategies (e.g., greedy decoding and stochastic sampling) and integration with the autoregressive trajectory model. Initial experiments verifying that trajectories can be generated reliably from the trained model. \\
+\hline
+
+26 May &
+Preliminary evaluation of decoding strategies in the experimental environment. Initial analysis of trajectory quality and success rate. Identification of limitations of the current environment and model. \\
+\hline
+
+2 June &
+Integration of the Maze2D dataset from the D4RL benchmark and adaptation of the modelling pipeline to support training and evaluation on this dataset. Verification that the autoregressive model and decoding procedures operate correctly on the benchmark data. \\
+\hline
+
+10 June &
+Implementation refinements and additional experiments comparing decoding strategies. Collection of experimental results and figures to be included in the interim report. \\
+\hline
+
+16 June &
+Drafting of the interim report, including description of the experimental setup, modelling approach, decoding strategies, and preliminary results. \\
+\hline
+
+20 June &
+Revision and refinement of the interim report. Preparation of figures, tables, and final formatting. \\
+\hline
+
+24 June &
+Final proofreading and preparation for submission of the interim report. \\
+\hline
+
+20 July &
+Submission of the interim report. \\
+\hline
+
+20--24 July &
+Interim presentations. \\
+\hline
+
+8 August &
+Implementation of improvements to the autoregressive trajectory model to better capture trajectory structure in the dataset. Initial experiments validating the training procedure and model behaviour. \\
+\hline
+
+20 August &
+Implementation and integration of additional decoding strategies, allowing systematic comparison with previously implemented decoding methods. \\
+\hline
+
+30 August &
+Execution of the main experimental evaluation. This will involve systematic comparison of decoding strategies across multiple parameter settings, analysing metrics such as trajectory success rate, path optimality, diversity, and computational cost. \\
+\hline
+
+5 September &
+Analysis of experimental results and preparation of figures and tables summarising the performance of the different decoding strategies. \\
+\hline
+
+10 September &
+Writing and revision of the first full draft of the report describing the modelling approach, decoding strategies, experimental setup, and results obtained so far. \\
+\hline
+
+20 October &
+Implementation of an application demonstrating the practical use of the proposed planning framework. This may involve applying the trained model and decoding procedures to a more complex navigation or planning scenario. Completion and refinement of the final written report will also occur during this stage. \\
+\hline
+
+30 October &
+Submission of final report. \\
+\hline
+
+6 November &
+Submission of the project summary document. \\
+\hline
+
+16--20 November &
+Final project presentation. \\
+\hline
+
+\end{longtable}
+
+\end{document}
