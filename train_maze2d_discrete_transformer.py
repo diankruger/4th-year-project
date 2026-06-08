@@ -250,6 +250,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dropout", type=float, default=0.1)
     parser.add_argument("--max-train-episodes", type=int, default=4096)
     parser.add_argument("--max-val-episodes", type=int, default=512)
+    parser.add_argument("--use-predefined-split", action="store_true")
+    parser.add_argument("--train-mask-key", type=str, default="train_mask")
+    parser.add_argument("--val-mask-key", type=str, default="eval_mask")
+    parser.add_argument("--cv-fold", type=int, default=None)
+    parser.add_argument("--fold-ids-key", type=str, default="fold_ids")
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--output", type=Path, default=Path("checkpoints/maze2d_discrete_transformer_tiny.pt"))
     return parser.parse_args()
@@ -262,11 +267,35 @@ def main() -> None:
 
     data = np.load(args.dataset, allow_pickle=True)
     num_episodes = int(data["input_ids"].shape[0])
-    perm = np.random.RandomState(args.seed).permutation(num_episodes)
-    val_count = min(args.max_val_episodes, max(1, num_episodes // 10))
-    train_count = min(args.max_train_episodes, num_episodes - val_count)
-    train_idx = perm[:train_count]
-    val_idx = perm[train_count : train_count + val_count]
+
+    if args.cv_fold is not None:
+        if args.fold_ids_key not in data.files:
+            raise KeyError(f"Requested cv fold split, but dataset is missing {args.fold_ids_key!r}.")
+        fold_ids = np.asarray(data[args.fold_ids_key], dtype=np.int32)
+        train_idx_all = np.flatnonzero(fold_ids != int(args.cv_fold))
+        val_idx_all = np.flatnonzero(fold_ids == int(args.cv_fold))
+        train_count = min(args.max_train_episodes, int(train_idx_all.size))
+        val_count = min(args.max_val_episodes, int(val_idx_all.size))
+        train_idx = train_idx_all[:train_count]
+        val_idx = val_idx_all[:val_count]
+    elif args.use_predefined_split:
+        if args.train_mask_key not in data.files or args.val_mask_key not in data.files:
+            raise KeyError(
+                f"Requested predefined split, but dataset is missing {args.train_mask_key!r} "
+                f"or {args.val_mask_key!r}."
+            )
+        train_idx_all = np.flatnonzero(np.asarray(data[args.train_mask_key], dtype=np.bool_))
+        val_idx_all = np.flatnonzero(np.asarray(data[args.val_mask_key], dtype=np.bool_))
+        train_count = min(args.max_train_episodes, int(train_idx_all.size))
+        val_count = min(args.max_val_episodes, int(val_idx_all.size))
+        train_idx = train_idx_all[:train_count]
+        val_idx = val_idx_all[:val_count]
+    else:
+        perm = np.random.RandomState(args.seed).permutation(num_episodes)
+        val_count = min(args.max_val_episodes, max(1, num_episodes // 10))
+        train_count = min(args.max_train_episodes, num_episodes - val_count)
+        train_idx = perm[:train_count]
+        val_idx = perm[train_count : train_count + val_count]
 
     train_ds = MazeTokenDataset(args.dataset, train_idx)
     val_ds = MazeTokenDataset(args.dataset, val_idx)

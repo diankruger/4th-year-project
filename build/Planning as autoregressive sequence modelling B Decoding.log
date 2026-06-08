@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.3.2)  8 MAR 2026 22:24
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.3.2)  8 JUN 2026 13:40
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -109,24 +109,24 @@ LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 9.
 LaTeX Font Info:    ... okay on input line 9.
  [1
 
-{C:/Users/diank/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}] [2] (c:\4th year\project\build\Planning as autoregressive sequence modelling B Decoding.aux)
+{C:/Users/diank/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}] [2] [3] (c:\4th year\project\build\Planning as autoregressive sequence modelling B Decoding.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 1168 strings out of 467871
- 18630 string characters out of 5418377
- 439733 words of memory out of 5000000
- 30104 multiletter control sequences out of 15000+600000
- 630635 words of font info for 50 fonts, out of 8000000 for 9000
+ 1194 strings out of 467871
+ 18932 string characters out of 5418377
+ 441733 words of memory out of 5000000
+ 30121 multiletter control sequences out of 15000+600000
+ 634982 words of font info for 65 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 56i,6n,65p,1210b,208s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on "c:\4th year\project\build\Planning as autoregressive sequence modelling B Decoding.pdf" (2 pages, 64871 bytes).
+ 56i,6n,65p,1210b,206s stack positions out of 10000i,1000n,20000p,200000b,200000s
+<C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti12.pfb>
+Output written on "c:\4th year\project\build\Planning as autoregressive sequence modelling B Decoding.pdf" (3 pages, 79180 bytes).
 PDF statistics:
- 29 PDF objects out of 1000 (max. 8388607)
+ 37 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

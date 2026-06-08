@@ -1,0 +1,8 @@
+discuss generative models
+introduce planning problem
+If were using a generative model to solve the problem, hpow to generate trajectories
+maybe related work (leave for later)
+
+methodology section after background section
+ results section after
+
