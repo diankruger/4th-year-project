@@ -1,0 +1,290 @@
+%% Adapted from arxiv style template by R Roux 31/01/2019%%
+%% Modified by N Hale 09/12/2025%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%% DO NOT CHANGE ANYTHING IN THE PREAMBLE, 
+%%%%%%% OTHER THAN ADDING ADDITIONAL PACKAGES/MACROS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{xcolor}
+\usepackage{hyperref}       % remove comment to add hyperlinks
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	filecolor=blue,    
+	citecolor=blue,  
+	urlcolor=blue,
+	pdftitle={},
+	pdfpagemode=FullScreen,
+}
+\usepackage{url}            % simple URL typesetting
+\urlstyle{same}
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{lipsum}
+\usepackage[sort,numbers]{natbib} %bibliography settings
+\bibliographystyle{plainnat}
+\usepackage[title]{appendix}
+\usepackage{listings}      % For including code.
+
+% For theorems/definitions etc
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% page layout specifications - 
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% for 25 mm margins all around (left, right and bottom to text, top to header)
+
+\newlength{\extraspace}
+\setlength{\extraspace}{\lineskip}
+
+%vertical margins
+%==================
+% page height is: 297mm
+\voffset -1in
+\topmargin 25mm
+% from header down height is: 272mm
+\headheight 4.3mm %just a little higher than 12pt = 12x0.3527 = 4.2324
+\headsep 4mm
+% from text down height is: 263.7mm
+\textheight 238.7mm % compensate for 25mm bottom margin
+\addtolength{\headsep}{2.5mm} %removes annoying lineskip below last line of text on page
+
+%horizontal margins
+%==================
+% page width is: 210mm
+\hoffset -1in
+\marginparwidth 0mm
+\marginparsep 0mm
+\evensidemargin 25mm
+\oddsidemargin 25mm
+\textwidth 160mm
+
+
+% Set paragraph behaviour
+%========================
+\parindent 0mm
+\parskip 2mm plus 1pt
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%% %%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%% YOU MAY NOW MAKE CHANGES! 
+%%%%%%%%%%%%%%%%%%%%% %%%%%%%%%%%%%%%%%%%%%%%%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{A template for Applied Mathematics Honours project}
+
+\author{A.S.\ tu Dent\\ % Put your name here. Note the \ after . prevents a large white space.
+\hspace*{0cm}\\
+Supervisor: Dr S.\ Omebody}
+\date{} %Do not add date
+
+\begin{document}
+\maketitle % Leave this.
+
+\begin{abstract}
+Type abstract here.
+\lipsum[1]
+\end{abstract}
+
+%%---------------------------------------------------------------------------------------------------------------------------------------------%%
+%% Introduction section containing problem statement                                                                                                           %%
+%%---------------------------------------------------------------------------------------------------------------------------------------------%%
+\section{Introduction}
+\lipsum[2]
+\lipsum[3]
+
+%%---------------------------------------------------------------------------------------------------------------------------------------------%%
+%% Examples of heading levels. Add sections as necessary                                                                                                    %%
+%%---------------------------------------------------------------------------------------------------------------------------------------------%%
+\section{Headings: first level}
+\label{sec:headings}
+
+\lipsum[4] See Section \ref{sec:headings}.
+
+\subsection{Headings: second level}
+\lipsum[5] 
+
+\subsubsection{Headings: third level}
+\lipsum[6]
+
+\paragraph{Paragraph}
+\lipsum[7]
+
+\newpage % Try to avoid using newpage. Latex will usually do its best to make things pretty autmomatically.
+
+\section{Equations \& Theorems}
+
+\subsection{Equations}
+
+Short equations cane be written inline, such as $e^{i\pi} = -1$. Longer equations should have their own line. However, if equations are not part of sentences, the probability that it will be frowned upon is
+\begin{equation}\label{eqn:frown}
+	\xi _{ij}(t)=P(x_{t}=i,x_{t+1}=j|y,v,w;\theta)= {\frac {\alpha _{i}(t)a^{w_t}_{ij}\beta _{j}(t+1)b^{v_{t+1}}_{j}(y_{t+1})}{\sum _{i=1}^{N} \sum _{j=1}^{N} \alpha _{i}(t)a^{w_t}_{ij}\beta _{j}(t+1)b^{v_{t+1}}_{j}(y_{t+1})}}.
+\end{equation}
+Use \verb+\label+ and \verb+\ref+ to automatically refer to equations and figures, like Equation~(\ref{eqn:frown}), Figure~\ref{fig:fig1}, and Table~\ref{tab:table}. % Pro tip. The ~ between the word and the reference makes sure it keeps a nice space and does not drop to a new line.
+
+Using \verb+\begin{equation}...\end{equation}+ will automatically number an equation. Using \verb+\[...\]+ or \verb+$$...$$+ will not.
+
+\subsection{Definitions and Theorems}
+The {\tt amsthm} package provides a theorem environment. Theorems, definitions, etc, will be numbered automatically, like equations.
+
+\begin{definition}[Lipschitz continuity]
+	A function $f:\mathbb{R}\to\mathbb{R}$ is \emph{Lipschitz continuous} if there exists a constant $L\ge 0$ such that
+	\begin{equation}
+	|f(x)-f(y)| \le L|x-y| \quad \text{for all } x,y\in\mathbb{R}.
+	\end{equation}
+\end{definition}
+
+\begin{theorem}
+	Let $f:\mathbb{R}\to\mathbb{R}$ be Lipschitz continuous with constant $L$. Then $f$ is continuous on $\mathbb{R}$.
+\end{theorem}
+
+\begin{proof}
+	Let $x\in\mathbb{R}$ and let $\varepsilon>0$ be given. Choose $\delta=\varepsilon/L$ if $L>0$ (and any $\delta>0$ if $L=0$).
+	If $|x-y|<\delta$, then by the Lipschitz condition,
+	\begin{equation}
+	|f(x)-f(y)| \le L|x-y| < L\delta = \varepsilon.
+	\end{equation}
+	Hence $f$ is continuous at $x$. Since $x$ was arbitrary, $f$ is continuous on $\mathbb{R}$.
+\end{proof}
+
+%%---------------------------------------------------------------------------------------------------------------------------------------------%%
+%% Examples of citations, figures, tables abd references. Add sections as necessary                                                          %%
+%%---------------------------------------------------------------------------------------------------------------------------------------------%%
+\section{Examples of citations, figures, tables, references}
+\label{sec:others}
+\lipsum[8] \cite{dabney2009linear,kour2014fast} and see \citet[page 9]{hadash2018estimate}.
+
+The documentation for \verb+natbib+ may be found at
+\begin{center}
+  \url{http://mirrors.ctan.org/macros/latex/contrib/natbib/natnotes.pdf}
+\end{center}
+Of note is the command \verb+\citet+, which produces citations
+appropriate for use in inline text.  For example,
+\begin{verbatim}
+   \citet{hasselmo} investigated\dots
+\end{verbatim}
+produces
+\begin{quote}
+  Hasselmo, et al.\ (1995) investigated\dots
+\end{quote}
+
+\begin{center}
+  \url{https://www.ctan.org/pkg/booktabs}
+\end{center}
+
+
+\subsection{Figures}
+
+See Figure \ref{fig:fig1}. Also, here is how you add footnotes.\footnote{The footnote should go after the sentence ends, without a space.} 
+
+\begin{figure}[t!]
+  \centering
+  %\includegraphics{}
+  \fbox{\rule[-.5cm]{4cm}{4cm} \rule[-.5cm]{4cm}{0cm}}
+  \caption{Sample figure caption.}
+  \label{fig:fig1}
+\end{figure}
+
+You have {\em some} control over where a figure appears by using \verb+\begin{figure}[h]+ (here) or  \verb+\begin{figure}[t]+ (top of page), but results may vary.
+
+\subsection{Tables}
+\lipsum[12]
+See awesome Table~\ref{tab:table}.
+
+\begin{table}
+ \caption{Sample table title}
+  \centering
+  \begin{tabular}{lll}
+    \toprule
+    \multicolumn{2}{c}{Part}                   \\
+    \cmidrule(r){1-2}
+    Name     & Description     & Size ($\mu$m) \\
+    \midrule
+    Dendrite & Input terminal  & $\sim$100     \\
+    Axon     & Output terminal & $\sim$10      \\
+    Soma     & Cell body       & up to $10^6$  \\
+    \bottomrule
+  \end{tabular}
+  \label{tab:table}
+\end{table}
+
+\subsection{Lists}
+\begin{itemize}
+\item Lorem ipsum dolor sit amet.
+\item consectetur adipiscing elit. 
+\item Aliquam dignissim blandit est, in dictum tortor gravida eget. In ac rutrum magna.
+\end{itemize}
+Alternatively, 
+\begin{enumerate}
+	\item Lorem ipsum dolor sit amet.
+	\item consectetur adipiscing elit. 
+	\item Aliquam dignissim blandit est, in dictum tortor gravida eget. In ac rutrum magna.
+\end{enumerate}
+
+%%---------------------------------------------------------------------------------------------------------------------------------------------%%
+%% Future work                                                                                                                                                                        %%
+%%---------------------------------------------------------------------------------------------------------------------------------------------%%
+\section{Future work}
+
+\lipsum[13]
+
+%%---------------------------------------------------------------------------------------------------------------------------------------------%%
+%% Conclusion                                                                                                                                                                          %%
+%%---------------------------------------------------------------------------------------------------------------------------------------------%%
+\section{Conclusion}
+
+\lipsum[14]
+
+\section{AI usage declaration (example)}
+
+Sections 2 and 4 were initially drafted with assistance from OpenAI's GPT-4. These 
+sections were subsequently substantially revised, expanded, and edited to 
+incorporate my own analysis and ensure alignment with my research findings. All 
+statistical interpretations, conclusions, and key arguments represent my 
+independent work and critical assessment of the data.
+
+%%---------------------------------------------------------------------------------------------------------------------------------------------%%
+%% References                                                                                                                                                                        %%
+%%---------------------------------------------------------------------------------------------------------------------------------------------%%
+
+%% There are different styles available.
+%\bibliographystyle{abbrv}  
+%\bibliographystyle{plain} 
+%\bibliographystyle{alpha}
+%\bibliographystyle{siam}
+\bibliography{references}
+
+
+
+%%---------------------------------------------------------------------------------------------------------------------------------------------%%
+%% Appendices                                                                                                                                                                         %%
+%%---------------------------------------------------------------------------------------------------------------------------------------------%%
+%% Please begin each appendix on a new page
+
+\newpage
+
+\begin{appendices}
+\section{Project plan}
+
+\newpage
+\section{Something else}
+\end{appendices}
+\end{document}

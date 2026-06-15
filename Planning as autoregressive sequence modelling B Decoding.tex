@@ -1,11 +1,63 @@
-\documentclass[12pt]{article}
+\documentclass[12pt,a4paper]{article}
 
-\usepackage{amsmath}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	filecolor=blue,
+	citecolor=blue,
+	urlcolor=blue, 
+	pdftitle={},
+	pdfpagemode=FullScreen,
+}
 \usepackage{url}
+\urlstyle{same}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{nicefrac}
+\usepackage[sort,numbers]{natbib}
+\bibliographystyle{plainnat}
+\usepackage[title]{appendix}
+\usepackage{listings}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+\newlength{\extraspace}
+\setlength{\extraspace}{\lineskip}
+
+\voffset -1in
+\topmargin 25mm
+\headheight 4.3mm
+\headsep 4mm
+\textheight 238.7mm
+\addtolength{\headsep}{2.5mm}
+
+\hoffset -1in
+\marginparwidth 0mm
+\marginparsep 0mm
+\evensidemargin 25mm
+\oddsidemargin 25mm
+\textwidth 160mm
+
+\parindent 0mm
+\parskip 2mm plus 1pt
+
 \title{Planning as Autoregressive Sequence Modelling: Decoding Strategies}
 \author{Dian Kruger \\ Shane Josias}
 \date{}
-\setlength{\parindent}{0pt}
 \begin{document}
 
 \maketitle
@@ -22,7 +74,12 @@ The central question of this project is how different decoding strategies affect
 Generative models are types of machine learning systems that aim to represent a probability distribution over data,
 or to draw samples from that distribution \cite[p.~493]{goodfellow2016deep}.
 Specifically, if $\mathbf{x}$ is a collection of features observed from an object or event, like words in a sentence or coordinates in a maze, and $p(\mathbf{x})$ is the true joint distribution of those features, a generative model learns an approximation $\hat{p}(\mathbf{x})$ of this distribution from training observations \cite{goodfellow2016deep}.
+
 Once such a distribution has been learned, it can be used to generate new observations that are similar to the observations in the training data by sampling from $\hat{p}(\mathbf{x})$ \cite[p.~102]{goodfellow2016deep}.
+
+In practice, assumptions are often made to simplify the learning problem, such as assuming a particular parametric form for the distribution (e.g., Gaussian), so instead of learning an arbitrary distribution, the model learns a specific family of distributions parameterised by $\theta$. The learning process then involves finding the parameters $\theta$ that best fit the training data. 
+
+We thus assume that the data's true distribution $p(\mathbf{x})$ belongs to a family of distributions $\{p_\theta(\mathbf{x})\}$, and the model learns the parameters $\theta$ that maximise the likelihood of the training data under $p_\theta(\mathbf{x})$.
 \subsection*{The Planning Problem}
 Broadly, automated planning is the field of research addressing the problem of finding an ordered or partially ordered series of actions that changes an environment from its initial state to a desired goal state \cite{Alarnaouti2023planning}.
 
@@ -30,7 +87,12 @@ In this work, the planning problem is to generate a valid trajectory from a give
 
 In this environment, a trajectory refers to a sequence of maze positions connecting a start location to a goal location without passing through walls. Assuming a discrete grid-based representation, maze coordinates are integers identifying grid cells. A trajectory can therefore be represented as a sequence of coordinates in which each consecutive pair corresponds to adjacent non-wall cells, with adjacency restricted to horizontal and vertical moves.
 
-\textit{insert visualisation of the maze environment and example of a valid trajectory here. keeping this blank untill I've finalised what level of discrete representation I want to use.}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.4\textwidth]{example_trajectory.png}
+	\caption{Example of a valid trajectory in a discrete 2D maze environment}
+	\label{fig:example_trajectory}
+\end{figure}
 
 \subsection*{Generative Modelling for Planning}
 
@@ -48,6 +110,125 @@ where $z_t$ denotes the $t$th token in the trajectory sequence, which may corres
 This simplifies the supervised learning problem to modelling $p(z_t \mid z_{<t})$, so given a series of states and actions in a trajectory, estimate the probability of the next token in the sequence. 
 
 A complete trajectory is then generated autoregressively by repeatedly predicting the next token until a full plan is produced, with the decoding strategy determining how each next-token choice is made. The choice of decoding strategy is important because the model’s predicted distribution may assign non-negligible probability mass to multiple valid continuations at each step, and the continuation selected during decoding can significantly affect both the quality of the final trajectory and the computational cost of generation \cite{janner2021trajectory}. Since the learned distribution is only an approximation to the true trajectory distribution, it may also assign non-negligible probability to invalid continuations. As a result, the decoding strategy can influence whether a valid trajectory is generated at all. Even when multiple valid trajectories are possible, some may be more desirable than others, for example because they require fewer steps, and the decoding strategy can therefore affect whether a more optimal trajectory is produced \cite{janner2021trajectory,jurafsky2026speech}.
+\subsection*{Transformer Architecture}
+
+The Transformer architecture is a type of neural network that has become the standard for sequence modelling tasks, notably in natural language processing. \cite[p.~173]{jurafsky2026speech}
+Even though the original Transformer was designed for language, the fact that it models sequences of tokens makes it applicable to our trajectory modelling problem, where the tokens could be states and/or actions in a trajectory. \cite{janner2021trajectory}.
+
+The key components of the Transformer architecture are now briefly introduced. For intuition, the discussion refers 
+primarily to natural language processing examples, where the role of these components is often easier to 
+interpret than in trajectory modelling.
+
+\textbf{1. Input Representation}:
+
+Before raw data enters the Transformer, it must be converted into a high dimensional vector representation. 
+\begin{itemize}
+\item \textbf{Tokenisation}:
+
+The first step involves tokenisation, where the input sequence is broken down into discrete tokens. In an NLP scenario, 
+this could invlolde splitting text into words, subwords or characters \cite{jurafsky2026speech}. For the purposes of this discussion, it is assumed that 
+the input has been tokenised at the word level.
+
+\item \textbf{Embeddings} ($E$): Each token ID is used to index into an embedding matrix $E$, which maps 
+the discrete ID to a dense vector of dimensionality $d$. This matrix has shape $|V| \times d$, where $|V|$ is 
+the vocabulary size, i.e.\ the total number of distinct tokens that the model can represent \cite{jurafsky2026speech}.
+When tokens correspond to words, the embedding can be interpreted as capturing semantic and syntactic properties of 
+those words. Intuitively, words with similar meanings, such as ``big'' and ``large,'' may be represented by vectors 
+that are close to one another in the embedding space \cite{jurafsky2026speech}.
+
+\item \textbf{Positional Encoding}: Since the Transformer architecture processes sequences in parrallel, it does not 
+inherently encode the order of tokens, so a positional encoding is added to the token embeddings to ensure that the 
+position of each token in the sequence is represented. This is done by adding a positional encoding vector to each
+token embedding \cite{jurafsky2026speech}.
+
+\item \textbf{Input Formation}: For a sequence of $N$ tokens, the individual $d$-dimensional vector embeddings are 
+placed into a single matrix $X$ of size $N \times d$. This matrix serves as the input for the model \cite{jurafsky2026speech}.
+\end{itemize}
+
+\textbf{2. Transformer Blocks}:
+
+Each block consits of a multi-head self-attention mechanism followed by a feedforward neural network, with each sublayer
+followed by a layer normalisation and a residual connection \cite{jurafsky2026speech}. 
+
+A usefull mental model is that everytime the input passes through a sublayer, the model adjusts the embeddings
+of the token to better capture the relevant information for the task at hand. For example, in an NLP context, the 
+model may adjust the embedding of a word to better capture its meaning in the context of the sentence \cite{jurafsky2026speech}.
+
+\begin{itemize}
+\item \textbf{Layer Normalisation}:
+
+For training stability, layer normalisation is applied to ensure the values in the sublayers remain within a reasonable range.
+
+For a vector $x$, it is calculated as:
+\[
+\mathrm{LayerNorm}(x) = \gamma \odot \frac{x - \mu}{\sigma} + \beta
+\]
+where $\mu$ is the mean, $\sigma$ the standard deviation of the vector's elements, and $\gamma$ and $\beta$ are 
+learned parameters that scale and shift the normalized output. \cite{jurafsky2026speech}.
+
+
+\item \textbf{Multi-Head Self-Attention}: 
+
+This is the core mechanism that allows the model incorporate information from all tokens in the sequence
+when processing each token \cite{jurafsky2026speech}. Under the interpretation that each sub-layer progressively 
+refines word representations, the self-attention mechanism allows the representation of each word to be updated in 
+light of the representations of all other words in the sequence. For example, if the word ``fly'' is preceded by the 
+word ``the'', the model may adjust its representation in a way that reflects the nominal sense of ``fly'' (the insect)
+rather than the verbal sense.
+Each input vector $x_i$ is mapped into three learned representations: a Query ($Q$), a Key ($K$), and a Value ($V$).
+
+The attention for a single head is computed as:
+\[
+\mathrm{Attention}(Q, K, V) = \mathrm{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
+\]
+
+The scaling factor $\sqrt{d_k}$ prevents the dot products from growing too large and causing numerical 
+instability. In causal (left-to-right) models, such as predicting the next word in a sentence, or the next position
+in a trajectory, a mask is applied to ensure that tokens can only attend to the 
+past, preventing the model from ``cheating'' by looking at future tokens during training \cite{jurafsky2026speech}.
+
+\item \textbf{Feedforward Neural Network}:
+
+After the attention layer incorporates information across tokens, the Feedforward Network (FFN) processes each token position 
+independently and in parallel. It is usually a two-layer network with a non-linear activation such as ReLU:
+\[
+\mathrm{FFN}(x) = \mathrm{ReLU}(xW_1 + b_1)W_2 + b_2
+\]
+This layer allows the model to perform more complex transformations of the contextualised information
+gathered by the attention heads. 
+
+Returning to the intuitive picture introduced earlier, the attention mechanism can be viewed as first 
+updating each word representation using information from the other words in the sequence. The FFN then 
+further refines each of these updated representations independently at each position, using transformations 
+learned from many training sequences.
+\end{itemize}
+
+\textbf{3. Prediction Head}:
+
+After the data passes through the final transformer block, the final representations are passed 
+to the next-token prediction head, which converts them into a probability distribution over possible next 
+tokens in the sequence.
+
+\begin{itemize}
+\item \textbf{Output Projection}: Let $h_t$ denote the final hidden representation at position 
+$t$. This $d$-dimensional vector is projected back into the vocabulary space, often by multiplying 
+it by the transpose of the embedding matrix $E^T$. When the same embedding matrix is reused in this 
+way, the technique is known as weight tying.
+
+\item \textbf{Softmax}: The resulting logits are passed through a softmax function to produce a 
+probability distribution over the next token:
+\[
+\mathbf{p}_t = \mathrm{softmax}(h_t E^T)
+\]
+
+where $\mathbf{p}_t$ is the probability distribution over possible values of $z_t$ given the prefix $z_{<t}$.
+\end{itemize}
+
+In general, this means that the model assigns a probability to each possible next token given the preceding 
+trajectory prefix. In an NLP setting, where tokens correspond to words, this can be interpreted as the model 
+estimating which word is most likely to come next in the sentence. The next token is then selected according 
+to a decoding strategy such as greedy decoding, sampling, or beam search.
+
 \begin{thebibliography}{9}
 
 \bibitem{hart1968astar}
