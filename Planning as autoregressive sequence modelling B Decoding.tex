@@ -72,10 +72,10 @@ The central question of this project is how different decoding strategies affect
 \section*{Background}
 \subsection*{Generative Models}
 Generative models are types of machine learning systems that aim to represent a probability distribution over data,
-or to draw samples from that distribution \cite[p.~493]{goodfellow2016deep}.
+or to draw samples from that distribution \cite{goodfellow2016deep}.
 Specifically, if $\mathbf{x}$ is a collection of features observed from an object or event, like words in a sentence or coordinates in a maze, and $p(\mathbf{x})$ is the true joint distribution of those features, a generative model learns an approximation $\hat{p}(\mathbf{x})$ of this distribution from training observations \cite{goodfellow2016deep}.
 
-Once such a distribution has been learned, it can be used to generate new observations that are similar to the observations in the training data by sampling from $\hat{p}(\mathbf{x})$ \cite[p.~102]{goodfellow2016deep}.
+Once such a distribution has been learned, it can be used to generate new observations that are similar to the observations in the training data by sampling from $\hat{p}(\mathbf{x})$ \cite{goodfellow2016deep}.
 
 In practice, assumptions are often made to simplify the learning problem, such as assuming a particular parametric form for the distribution (e.g., Gaussian), so instead of learning an arbitrary distribution, the model learns a specific family of distributions parameterised by $\theta$. The learning process then involves finding the parameters $\theta$ that best fit the training data \cite{goodfellow2016deep}. 
 
@@ -97,44 +97,59 @@ In this environment, a trajectory refers to a sequence of maze positions connect
 \subsection*{Generative Modelling for Planning}
 
 If a dataset of valid trajectories is available, a generative model can be trained to learn the distribution over these trajectories. Once trained, the model can be used to generate new trajectories by sampling from the learned distribution. This approach treats planning as a problem of inference in a probabilistic model \cite{janner2021trajectory}.
-So if we define a trajectory $\tau$ with $T$ steps as: 
+So if we define a trajectory $\boldsymbol{\tau}$ with $T$ steps as: 
 \[
-\tau = (s_1, a_1, s_2, a_2, \dots, s_T, a_T)
+\boldsymbol{\tau} = (s_1, a_1, s_2, a_2, \dots, s_T, a_T)
 \]
-where $s_t$ is the coordinates (state) at time step $t$ and $a_t$ is the action (moving up, down, left or right) taken at time step $t$, the generative model learns to approximate the distribution $p(\tau)$ over valid trajectories.
-Instead of directly modelling $p(\tau)$, an autoregressive model factorises this distribution into a product of conditional probabilities \cite[p.~705]{goodfellow2016deep}:
+where $s_t$ is the state (coordinates) at time step $t$ and $a_t$ is the action (moving up, down, left or right) taken at time step $t$, the generative model learns to approximate the distribution $p(\boldsymbol{\tau})$ over valid trajectories.
+Instead of directly modelling $p(\boldsymbol{\tau})$, an autoregressive model factorises this distribution into a product of conditional probabilities \cite{goodfellow2016deep}:
 \[
-p(\tau) = \prod_{t=1}^{T} p(z_t \mid z_{<t})
+p(\boldsymbol{\tau}) = \prod_{t=1}^{T} p(z_t \mid z_{<t})
 \]
-where $z_t$ denotes the $t$th token in the trajectory sequence, which may correspond to either a state or an action.
-This simplifies the supervised learning problem to modelling $p(z_t \mid z_{<t})$, so given a series of states and actions in a trajectory, estimate the probability of the next token in the sequence. 
+where $z_t$ denotes the $t^{th}$ token in the trajectory sequence, which may correspond to either a state or an action, 
+and $z_{<t}$ denotes the sequence of preceding tokens up to $z_{t-1}$.
+This simplifies the supervised learning problem to estimating $p(z_t \mid z_{<t})$, so given a prefix 
+of trajectory tokens, predict the probability of the next token in the sequence. 
 
 A complete trajectory is then generated autoregressively by repeatedly predicting the next token until a full plan is produced, with the decoding strategy determining how each next-token choice is made. The choice of decoding strategy is important because the model’s predicted distribution may assign non-negligible probability mass to multiple valid continuations at each step, and the continuation selected during decoding can significantly affect both the quality of the final trajectory and the computational cost of generation \cite{janner2021trajectory}. Since the learned distribution is only an approximation to the true trajectory distribution, it may also assign non-negligible probability to invalid continuations. As a result, the decoding strategy can influence whether a valid trajectory is generated at all. Even when multiple valid trajectories are possible, some may be more desirable than others, for example because they require fewer steps, and the decoding strategy can therefore affect whether a more optimal trajectory is produced \cite{janner2021trajectory,jurafsky2026speech}.
 
 \subsection*{Decoding Methods}
-Direct sampling from $p(\tau)$ is challenging, since the number of possible trajectories grows exponentially with trajectory
-length, so explicitely calculating and storing the probabilities for all complete trajectories quickly  becomes computationally 
-infeasible \cite{goodfellow2016deep}. Furthermore, when a Transformer architecture is used to model trajectories, $p(\tau)$ is not available in closed form \cite{goodfellow2016deep}. 
-This creates a need for decoding algorithms to approximately sample from, or search within $p(\tau)$.
+Direct sampling from $p(\boldsymbol{\tau})$ is challenging, since the number of possible trajectories grows exponentially with trajectory
+length, so explicitly calculating and storing the probabilities for all complete trajectories quickly  becomes computationally 
+infeasible \cite{goodfellow2016deep}. 
+This creates a need for decoding algorithms to approximately sample from, or search within $p(\boldsymbol{\tau})$.
+
 
 
 \subsubsection*{Greedy Decoding}
-Greedy decoding is the simplest method for generating sequences from $p(\tau)$ \cite{jurafsky2026speech}. 
+Greedy decoding is the simplest method for generating sequences from $p(\boldsymbol{\tau})$ \cite{jurafsky2026speech}. 
 At each step $t$ during the autoregressive generation of a trajectory, the algorithm selects the next token $\hat{z}_t$ 
 as follows:
 \[
 \hat{z}_t = \arg\max_{z \in V} p(z \mid z_{<t})
 \]
-where $V$ is the set of all possible tokens, and $z_{<t}$ are the values obtained in the previous steps of greeding decoding.
-Greedy decoding thus always selects the locally optimal choice for the next token in the sequence \cite{jurafsky2026speech}.
+where $V$ is the set of all possible tokens, and $z_{<t}$ denotes the values obtained in the previous steps of greedy decoding.
+Greedy decoding thus always selects the locally optimal choice for the next token in the sequence, 
+meaning it chooses the token with the highest conditional probability given
+the current prefix \cite{jurafsky2026speech}.
 Greedy decoding is therefore deterministic and computationally efficient, but does not necessarily find the globally most probable 
-trajectory. \cite{jurafsky2026speech}
+trajectory, which is the complete trajectory with the highest probability under 
+$p(\boldsymbol{\tau})$ \cite{jurafsky2026speech}.
 
 \subsubsection*{Beam Search}
-Beam search serves as an extension of greedy decoding and explores multiple potential paths through a search space to 
-find a globally high-probability sequence rather than just a locally optimal one \cite{jurafsky2026speech}. The beam search 
-algorithm in the context of trajectory planning can be described as follows:
 
+Beam search extends greedy decoding by retaining multiple candidate sequences at each step rather 
+than only the single most likely continuation \cite{jurafsky2026speech}. The number of retained 
+candidates is fixed in advance and is known as the beam width $B$. At each stage, all valid one-step 
+continuations of the current candidates are scored autoregressively under the model, and the top $B$ 
+highest-scoring sequences are kept. This process is repeated until termination, after which the 
+highest-scoring complete trajectory among the retained candidates is returned.
+
+The beam search algorithm in the context of trajectory planning can be described as follows:
+
+\begin{figure}[t]
+\centering
+\begin{minipage}{0.9\linewidth}
 \begin{flushleft}
 \hrule
 \vspace{0.3em}
@@ -147,20 +162,23 @@ algorithm in the context of trajectory planning can be described as follows:
 1: & \textbf{Require} maximum sequence length $T$, beam width $B$, starting position $s_{\mathrm{start}}$, and goal position $s_{\mathrm{goal}}$ \\[0.3em]
 2: & \textbf{Initialize} $\mathcal{T}_0 = \{(s_{\mathrm{start}})\}$ \\[0.3em]
 3: & \textbf{for} $t = 0, \dots, T-1$ \textbf{do} \\[0.3em]
-4: & \hspace*{1.5em}For each partial trajectory $\tau \in \mathcal{T}_t$, let $\mathcal{V}(\tau)$ denote the set of valid next tokens available from the final state of $\tau$ \\[0.3em]
-5: & \hspace*{1.5em}$C_{t+1} \leftarrow \{\, \mathrm{append}(\tau, z) \mid \tau \in \mathcal{T}_t \text{ and } z \in \mathcal{V}(\tau) \,\}$ \\
+4: & \hspace*{1.5em}For each partial trajectory $\boldsymbol{\tau} \in \mathcal{T}_t$, let $\mathcal{V}(\boldsymbol{\tau})$ denote the set of valid next tokens available from the final state of $\boldsymbol{\tau}$ \\[0.3em]
+5: & \hspace*{1.5em}$C_{t+1} \leftarrow \{\, \mathrm{append}(\boldsymbol{\tau}, z) \mid \boldsymbol{\tau} \in \mathcal{T}_t \text{ and } z \in \mathcal{V}(\boldsymbol{\tau}) \,\}$ \\
    & \hspace*{1.5em}// candidate single-token extensions \\[0.3em]
-6: & \hspace*{1.5em}$\mathcal{T}_{t+1} \leftarrow$ the set of the $B$ highest-scoring sequences in $C_{t+1}$ under $\log p_\theta(\tau)$ \\[0.3em]
-7: & \hspace*{1.5em}\textbf{if} any $\tau \in \mathcal{T}_{t+1}$ ends at $s_{\mathrm{goal}}$ \textbf{then stop} \\[0.3em]
+6: & \hspace*{1.5em}$\mathcal{T}_{t+1} \leftarrow$ the set of the $B$ highest-scoring sequences in $C_{t+1}$ under $\log p_\theta(\boldsymbol{\tau})$ \\[0.3em]
+7: & \hspace*{1.5em}\textbf{if} any $\boldsymbol{\tau} \in \mathcal{T}_{t+1}$ ends at $s_{\mathrm{goal}}$ \textbf{then stop} \\[0.3em]
 8: & \textbf{end for} \\[0.3em]
-9: & \textbf{Return} $\arg\max_{\tau \in \mathcal{T}_{t+1}} \log p_\theta(\tau)$
+9: & \textbf{Return} $\arg\max_{\boldsymbol{\tau} \in \mathcal{T}_{t+1}} \log p_\theta(\boldsymbol{\tau})$
 \end{tabular}
 
 \vspace{0.6em}
 \hrule
 \end{flushleft}
-
-The score $\log p_\theta(\tau)$ can be accumulated autoregressively for each candidate trajectory. 
+\end{minipage}
+\caption{Pseudocode for beam search in the trajectory planning setting.}
+\label{fig:beam_search_pseudocode}
+\end{figure}
+The score $\log p_\theta(\boldsymbol{\tau})$ can be accumulated autoregressively for each candidate trajectory. 
 Since the beam width places an upper bound on the number of candidate trajectories in $C_t$ and retained trajectories in 
 $\mathcal{T}_t$ at each step $t$, maintaining these scores for all candidates remains computationally 
 feasible when the beam width is sufficiently small 
@@ -177,8 +195,8 @@ increases the computational cost of decoding \cite{jurafsky2026speech}.
 
 \subsection*{Transformer Architecture}
 
-The Transformer architecture is a type of neural network that has become the standard for sequence modelling tasks, notably in natural language processing. \cite[p.~173]{jurafsky2026speech}
-Even though the original Transformer was designed for language, the fact that it models sequences of tokens makes it applicable to our trajectory modelling problem, where the tokens could be states and/or actions in a trajectory. \cite{janner2021trajectory}.
+The Transformer architecture is a type of neural network that has become the standard for sequence modelling tasks, notably in natural language processing \cite{jurafsky2026speech}.
+Even though the original Transformer was designed for language, the fact that it models sequences of tokens makes it applicable to our trajectory modelling problem, where the tokens could be states and/or actions in a trajectory \cite{janner2021trajectory}.
 
 The key components of the Transformer architecture are now briefly introduced. For intuition, the discussion refers 
 primarily to natural language processing examples, where the role of these components is often easier to 
@@ -189,7 +207,6 @@ interpret than in trajectory modelling.
 Before raw data enters the Transformer, it must be converted into a high dimensional vector representation. 
 \begin{itemize}
 \item \textbf{Tokenisation}:
-
 The first step involves tokenisation, where the input sequence is broken down into discrete tokens. In an NLP scenario, 
 this could invlolde splitting text into words, subwords or characters \cite{jurafsky2026speech}. For the purposes of this discussion, it is assumed that 
 the input has been tokenised at the word level.
@@ -303,7 +320,7 @@ The objective of this work is to model maze planning as autoregressive inference
 conditional trajectory model trained through next-token prediction. Given a maze layout, a start state, a goal state, and a 
 trajectory prefix, the model must predict the next token in the trajectory sequence.
 
-Since a trajectory $\tau = (z_1, z_2, \dots, z_{2T})$ consists of alternating state and action tokens 
+Since a trajectory $\boldsymbol{\tau} = (z_1, z_2, \dots, z_{2T})$ consists of alternating state and action tokens 
 $(s_1, a_1, s_2, a_2, \dots, s_T, a_T)$, and the state immediately following an action is fully determined by the 
 action and the preceding state, supervision is applied only at action-token positions, so the learning problem is more 
 precisely to predict the next action conditioned on the maze layout, the start state, the goal state,
@@ -314,10 +331,9 @@ The model therefore learns conditional predictions of the form
 \[
 p(z_{t+1} \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}}, z_{\le t}),
 \]
-or equivelanntly since the model only needs to predict actions:
-
+or equivelantly since the model only needs to predict actions:
 \[
-p(a_{t} \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}}, s_1, a_1, \dots, s_t)
+p(a_{t} \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}}, s_1, a_1, \dots, s_t),
 \]
 
 with the goal of generating valid trajectories autoregressively at inference time.
@@ -330,6 +346,80 @@ In particular, the methodology compares greedy decoding and beam search in terms
 path efficiency, and computational cost.
 
 \subsection*{Dataset Construction}
+
+Since the goal is to train a Transformer to predict the next action given a trajectory prefix, 
+the training data must consist of complete trajectories $\boldsymbol{\tau}$. A trajectory token 
+sequence provides multiple supervised training contexts, since for each token position $k$, the prefix
+\[
+(z_1, z_2, \dots, z_{k-1})
+\]
+can be used to predict the next token $z_k$. In this work, supervision is applied only at action-token 
+positions, so the training data must also include the corresponding target action tokens against which 
+the Transformer output is compared when computing the loss.
+
+In addition to the trajectory tokens themselves, the model input must encode which maze the trajectory 
+belongs to, as well as the associated start and goal positions. In the implementation used here, each 
+training example is therefore represented as a padded token sequence containing maze, start, goal, 
+state, and action tokens. The dataset also includes a padding mask indicating which token positions 
+are real and which correspond to padding. This is required because trajectories have different lengths 
+and must be padded to a common sequence length for batch training in PyTorch.
+
+For efficient training, these quantities are represented explicitly as matrices. 
+The tokenised input sequences are stored in an input matrix $X$, the token-type information 
+is stored in a token-type matrix $T$, the target outputs are stored in a label matrix $Y$, and 
+the padding information is stored in a mask matrix $M$. The matrix $T$ has the same shape as $X$, 
+with each entry indicating whether the corresponding token is a maze token, start token, goal token, 
+state token, action token, or padding token. In the label matrix, only action-token positions contain 
+active targets, while all other positions are ignored during loss computation.
+
+To realise the above representation, concrete design choices must be made regarding how states, 
+actions, maze layouts, and the start and goal positions are encoded in matrix form. In this work,
+all of these are represented as discrete integer tokens. Distinct token ranges are reserved for 
+different token classes by defining token offsets, so that maze tokens, state tokens, and action 
+tokens occupy non-overlapping regions of the overall vocabulary.
+
+States are encoded by assigning each grid location a unique integer index. This is done using the
+mapping
+\[
+\text{state\_index} = \text{row} \times (\text{max columns}) + \text{column},
+\]
+where \textit{row} and \textit{column} are the integer indices of the grid location, 
+and \textit{max columns} is the maximum number of columns across all maze layouts. This 
+produces a unique integer identifier for each location in the global grid. A state token 
+is then obtained by adding a fixed state-token offset to this index. Although this indexing 
+scheme assigns identifiers to all grid locations in the global grid, including wall locations, 
+only valid free-cell positions appear in the generated trajectory sequences.
+
+Actions are also encoded as integer tokens. Since the trajectories are restricted to 
+four-connected grid movement, the action vocabulary consists of the four moves up, down, 
+left, and right, with each assigned its own unique token identifier.
+
+In this work, eight different maze layouts are considered, corresponding to the layouts used in 
+the D4RL PointMaze / Maze2D environment. The exact layout definitions can be found in the D4RL 
+repository at
+\url{https://github.com/Farama-Foundation/D4RL/blob/master/d4rl/pointmaze/maze_model.py}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{maze_layouts.png}
+	\caption{Maze layouts used from the D4RL PointMaze / Maze2D environment.}
+	\label{fig:maze_layouts}
+\end{figure}
+
+Each input sequence begins with a maze token, followed by a start-state token, a goal-state 
+token, and the initial state token of the trajectory. The remainder of the sequence alternates 
+between action tokens and subsequent state tokens. In this way, the start and goal positions are 
+not stored separately as raw coordinate values, but are encoded using the same state-token
+mapping as other positions, while their functional role in the sequence is distinguished by 
+their position and token type.
+
+In the training data, the detailed wall structure of a maze is therefore not included explicitly
+in the token sequence. Instead, each trajectory is associated with a single integer maze token
+identifying which of the eight layouts it belongs to. The model must infer the relevant layout 
+constraints from this maze identifier together with the observed trajectory tokens. This design
+choice gives a simple and efficient encoding scheme, but it also means that the model is tied 
+to the set of maze layouts seen during training and cannot directly generalise to previously 
+unseen layouts without additional representation of maze geometry.
 
 \begin{thebibliography}{9}
 

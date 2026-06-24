@@ -1,7 +1,9 @@
+import argparse
 import json
 from pathlib import Path
 
 import numpy as np
+
 
 
 MAZE_SPECS = {
@@ -172,7 +174,25 @@ def build_gallery_notebook():
     }
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Export the discrete Maze2D maze dataset."
+    )
+    parser.add_argument(
+        "--write-notebook",
+        action="store_true",
+        help="Also write the gallery notebook scaffold.",
+    )
+    parser.add_argument(
+        "--overwrite-notebook",
+        action="store_true",
+        help="Allow overwriting an existing gallery notebook when used with --write-notebook.",
+    )
+    return parser.parse_args()
+
+
 def main():
+    args = parse_args()
     maze_names = list(MAZE_SPECS.keys())
     grid_shapes = np.array([grid_shape_for_maze(name) for name in maze_names], dtype=np.int32)
     mazes = np.empty(len(maze_names), dtype=object)
@@ -191,10 +211,17 @@ def main():
     )
 
     notebook_path = Path("maze2d_discrete_8x8_gallery.ipynb")
-    notebook_path.write_text(json.dumps(build_gallery_notebook(), indent=1), encoding="utf-8")
+    notebook_status = "not requested"
+    if args.write_notebook:
+        if notebook_path.exists() and not args.overwrite_notebook:
+            notebook_status = "skipped existing notebook"
+        else:
+            # notebook_path.write_text(json.dumps(build_gallery_notebook(), indent=1), encoding="utf-8")
+            notebook_status = "written"
 
     print("dataset:", dataset_path)
     print("notebook:", notebook_path)
+    print("notebook_status:", notebook_status)
     print("maze names:", maze_names)
     print("stored maze array shape:", mazes.shape)
     print("grid shapes:", grid_shapes.tolist())
