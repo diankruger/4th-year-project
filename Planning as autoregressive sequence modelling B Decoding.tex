@@ -421,6 +421,45 @@ choice gives a simple and efficient encoding scheme, but it also means that the 
 to the set of maze layouts seen during training and cannot directly generalise to previously 
 unseen layouts without additional representation of maze geometry.
 
+As mentioned above, the input matrix $X$ contains complete tokenised trajectories from which the 
+Transformer learns. An important question is therefore how to obtain a sufficiently rich collection 
+of complete trajectories. After discretising the maze layouts shown above, the number of free (non-wall) 
+grid squares in a maze ranges from 7 to 47. If a maze has $n$ free squares, then there are $n(n-1)$ 
+ordered start-goal combinations, since the start and goal positions must be distinct.
+
+For each such start-goal pair, an optimal trajectory is generated using breadth-first search (BFS). 
+Here, optimal means that the resulting path minimises the number of adjacent grid moves required to 
+connect the start and goal positions. Since movement is restricted to adjacent non-wall squares, BFS 
+is sufficient to recover a shortest valid path in this discrete setting. Because the number of 
+start-goal combinations for each maze is relatively small, generating shortest paths for all pairs
+ is computationally inexpensive.
+
+The BFS output provides a sequence of states, that is, a sequence of grid positions forming a 
+shortest path from the start state to the goal state. The corresponding sequence of actions 
+can then be computed directly from consecutive state differences. In this way, each start-goal 
+pair yields a complete trajectory consisting of alternating state and action information, and 
+these trajectories form the basis of the Transformer's training data.
+
+The final form of each row $\boldsymbol{x}$ of the input matrix $X$ is therefore as follows.
+
+$\boldsymbol{x}_1$ is an integer token identifying the maze layout.
+
+$\boldsymbol{x}_2$ is an integer token identifying the start state.
+
+$\boldsymbol{x}_3$ is an integer token identifying the goal state.
+
+$\boldsymbol{x}_4$ is an integer token identifying the initial trajectory state, which in this 
+implementation is equal to the start state.
+
+$\boldsymbol{x}_5$ is an integer token identifying the first action in the trajectory.
+
+$\boldsymbol{x}_6$ is an integer token identifying the second state in the trajectory.
+
+The remaining entries of $\boldsymbol{x}$ then alternate between action tokens and subsequent 
+state tokens until the trajectory terminates at the goal. Any unused entries at the end of the row are filled with padding tokens so that all rows of $X$ have the same length.
+
+
+
 \begin{thebibliography}{9}
 
 \bibitem{hart1968astar}
