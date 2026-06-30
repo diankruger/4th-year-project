@@ -21,6 +21,7 @@
 \usepackage{amsmath}
 \usepackage{float}
 \usepackage{graphicx}
+\usepackage{caption}
 \usepackage{nicefrac}
 \usepackage[sort,numbers]{natbib}
 \bibliographystyle{plainnat}
@@ -81,18 +82,23 @@ In practice, assumptions are often made to simplify the learning problem, such a
 
 We thus assume that the data's true distribution $p(\mathbf{x})$ belongs to a family of distributions $\{p_\theta(\mathbf{x})\}$, and the model learns the parameters $\theta$ that maximise the likelihood of the training data under $p_\theta(\mathbf{x})$.
 \subsection*{The Planning Problem}
+\noindent
+\begin{minipage}[t]{0.65\textwidth}
+\vspace{0pt}
 Broadly, automated planning is the field of research addressing the problem of finding an ordered or partially ordered series of actions that changes an environment from its initial state to a desired goal state \cite{Alarnaouti2023planning}.
 
 In this work, the planning problem is to generate a valid trajectory from a given starting position to a specified goal position in a 2D Maze environment.
-
-In this environment, a trajectory refers to a sequence of maze positions connecting a start location to a goal location without passing through walls. Assuming a discrete grid-based representation, maze coordinates are integers identifying grid cells. A trajectory can therefore be represented as a sequence of coordinates in which each consecutive pair corresponds to adjacent non-wall cells, with adjacency restricted to horizontal and vertical moves.
-
-\begin{figure}[H]
+In this environment, a trajectory consists of a sequence of maze positions from the start location to the goal location, together with the actions connecting consecutive positions, such that the path does not pass through walls. 
+Assuming a discrete grid-based representation, maze coordinates are integers identifying grid cells. A trajectory can therefore be represented as a sequence of coordinates in which each consecutive pair corresponds to adjacent non-wall cells, with adjacency restricted to horizontal and vertical moves.
+\end{minipage}\hfill
+\begin{minipage}[t]{0.30\textwidth}
+\vspace{0pt}
 	\centering
-	\includegraphics[width=0.4\textwidth]{example_trajectory.png}
-	\caption{Example of a valid trajectory in a discrete 2D maze environment}
+	\includegraphics[width=1\linewidth]{example_trajectory.png}
+	\captionsetup{font=small, justification=raggedright, singlelinecheck=false}
+	\captionof{figure}{Example of a valid trajectory in a discrete 2D maze environment}
 	\label{fig:example_trajectory}
-\end{figure}
+\end{minipage}
 
 \subsection*{Generative Modelling for Planning}
 
@@ -107,7 +113,7 @@ Instead of directly modelling $p(\boldsymbol{\tau})$, an autoregressive model fa
 p(\boldsymbol{\tau}) = \prod_{t=1}^{T} p(z_t \mid z_{<t})
 \]
 where $z_t$ denotes the $t^{th}$ token in the trajectory sequence, which may correspond to either a state or an action, 
-and $z_{<t}$ denotes the sequence of preceding tokens up to $z_{t-1}$.
+and the trajectory prefix, $z_{<t}$, denotes the sequence of preceding tokens up to $z_{t-1}$.
 This simplifies the supervised learning problem to estimating $p(z_t \mid z_{<t})$, so given a prefix 
 of trajectory tokens, predict the probability of the next token in the sequence. 
 
@@ -147,7 +153,7 @@ highest-scoring complete trajectory among the retained candidates is returned.
 
 The beam search algorithm in the context of trajectory planning can be described as follows:
 
-\begin{figure}[t]
+\begin{figure}[H]
 \centering
 \begin{minipage}{0.9\linewidth}
 \begin{flushleft}
@@ -189,8 +195,6 @@ the trajectory returned by beam search will typically be at least as highly scor
 returned with a smaller beam width, with a beam width of one corresponding to greedy decoding. This broader search, however,
 requires the model scores of more candidate trajectories to be computed and maintained, so increasing the beam width also 
 increases the computational cost of decoding \cite{jurafsky2026speech}.
-
-
 
 
 \subsection*{Transformer Architecture}
@@ -320,23 +324,39 @@ The objective of this work is to model maze planning as autoregressive inference
 conditional trajectory model trained through next-token prediction. Given a maze layout, a start state, a goal state, and a 
 trajectory prefix, the model must predict the next token in the trajectory sequence.
 
-Since a trajectory $\boldsymbol{\tau} = (z_1, z_2, \dots, z_{2T})$ consists of alternating state and action tokens 
-$(s_1, a_1, s_2, a_2, \dots, s_T, a_T)$, and the state immediately following an action is fully determined by the 
-action and the preceding state, supervision is applied only at action-token positions, so the learning problem is more 
-precisely to predict the next action conditioned on the maze layout, the start state, the goal state,
-and the previously observed trajectory prefix. 
+A trajectory $\boldsymbol{\tau} = (z_1, z_2, \dots, z_{2T})$ consists of alternating state and action 
+tokens, \\ $(s_1, a_1, s_2, a_2, \dots, s_T, a_T)$, where the states represent coordinates in the maze and 
+the actions correspond to the moves (up, down, left, or right) between consecutive states. In this 
+environment, the state immediately following an action is fully determined by that action and the 
+preceding state. Supervision is therefore applied only at action-token positions, so the learning problem 
+is more precisely to predict the next action conditioned on the maze layout, the start state, the goal 
+state, and the previously observed trajectory prefix.
 
 Let $m$ denote a maze layout identifier, let $s_{\mathrm{start}}$ and $s_{\mathrm{goal}}$ denote the start and goal states. 
 The model therefore learns conditional predictions of the form
 \[
 p(z_{t+1} \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}}, z_{\le t}),
 \]
-or equivelantly since the model only needs to predict actions:
+or, since supervision is applied only at action-token positions, equivalently
 \[
 p(a_{t} \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}}, s_1, a_1, \dots, s_t),
 \]
 
-with the goal of generating valid trajectories autoregressively at inference time.
+These conditional predictions define an autoregressive factorisation of the 
+conditional distribution over action sequences:
+
+\[
+p(a_1, a_2, \dots, a_T \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}})
+=
+\prod_{t=1}^{T}
+p(a_t \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}}, s_1, a_1, \dots, s_t).
+\]
+
+Ideally, generating a complete plan would require sampling from the full joint conditional 
+distribution over action sequences above; in practice, the decoding algorithms instead operate on 
+its autoregressive conditional factors.
+
+
 
 A Transformer was selected as the generative model of choice because of its strong performance on sequence modelling tasks, 
 the wide range of Python libraries available for working with it, and its computational efficiency when the architecture is 
@@ -349,32 +369,34 @@ path efficiency, and computational cost.
 
 Since the goal is to train a Transformer to predict the next action given a trajectory prefix, 
 the training data must consist of complete trajectories $\boldsymbol{\tau}$. A trajectory token 
-sequence provides multiple supervised training contexts, since for each token position $k$, the prefix
+sequence provides multiple supervised training examples, since for each token position $k$
+in a given trajectory, the prefix
 \[
 (z_1, z_2, \dots, z_{k-1})
 \]
-can be used to predict the next token $z_k$. In this work, supervision is applied only at action-token 
-positions, so the training data must also include the corresponding target action tokens against which 
-the Transformer output is compared when computing the loss.
+can be used to predict the next token $z_k$.
 
 In addition to the trajectory tokens themselves, the model input must encode which maze the trajectory 
-belongs to, as well as the associated start and goal positions. In the implementation used here, each 
-training example is therefore represented as a padded token sequence containing maze, start, goal, 
-state, and action tokens. The dataset also includes a padding mask indicating which token positions 
-are real and which correspond to padding. This is required because trajectories have different lengths 
-and must be padded to a common sequence length for batch training in PyTorch.
+belongs to, as well as the associated start and goal positions.
 
-For efficient training, these quantities are represented explicitly as matrices. 
-The tokenised input sequences are stored in an input matrix $X$, the token-type information 
-is stored in a token-type matrix $T$, the target outputs are stored in a label matrix $Y$, and 
-the padding information is stored in a mask matrix $M$. The matrix $T$ has the same shape as $X$, 
-with each entry indicating whether the corresponding token is a maze token, start token, goal token, 
-state token, action token, or padding token. In the label matrix, only action-token positions contain 
-active targets, while all other positions are ignored during loss computation.
+In this work, eight different maze layouts are considered, corresponding to the layouts used in 
+the D4RL PointMaze / Maze2D environment. The exact layout definitions can be found in the D4RL 
+repository at
+\url{https://github.com/Farama-Foundation/D4RL/blob/master/d4rl/pointmaze/maze_model.py}.
 
-To realise the above representation, concrete design choices must be made regarding how states, 
-actions, maze layouts, and the start and goal positions are encoded in matrix form. In this work,
-all of these are represented as discrete integer tokens. Distinct token ranges are reserved for 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{maze_layouts.png}
+	\caption{Maze layouts used from the D4RL PointMaze / Maze2D environment.}
+	\label{fig:maze_layouts}
+\end{figure}
+
+In $maze\_model.py$, each maze is defined as a matrix, 
+and the row and column indices of this matrix determine the corresponding grid cells in 
+the discrete maze representations used throughout this work.
+
+To represent the states, actions, and maze layouts as Transformer inputs, 
+each is encoded as a discrete integer token. Distinct token ranges are reserved for 
 different token classes by defining token offsets, so that maze tokens, state tokens, and action 
 tokens occupy non-overlapping regions of the overall vocabulary.
 
@@ -394,26 +416,7 @@ Actions are also encoded as integer tokens. Since the trajectories are restricte
 four-connected grid movement, the action vocabulary consists of the four moves up, down, 
 left, and right, with each assigned its own unique token identifier.
 
-In this work, eight different maze layouts are considered, corresponding to the layouts used in 
-the D4RL PointMaze / Maze2D environment. The exact layout definitions can be found in the D4RL 
-repository at
-\url{https://github.com/Farama-Foundation/D4RL/blob/master/d4rl/pointmaze/maze_model.py}.
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=0.9\textwidth]{maze_layouts.png}
-	\caption{Maze layouts used from the D4RL PointMaze / Maze2D environment.}
-	\label{fig:maze_layouts}
-\end{figure}
-
-Each input sequence begins with a maze token, followed by a start-state token, a goal-state 
-token, and the initial state token of the trajectory. The remainder of the sequence alternates 
-between action tokens and subsequent state tokens. In this way, the start and goal positions are 
-not stored separately as raw coordinate values, but are encoded using the same state-token
-mapping as other positions, while their functional role in the sequence is distinguished by 
-their position and token type.
-
-In the training data, the detailed wall structure of a maze is therefore not included explicitly
+In the training data, the detailed wall structure of a maze is not included explicitly
 in the token sequence. Instead, each trajectory is associated with a single integer maze token
 identifying which of the eight layouts it belongs to. The model must infer the relevant layout 
 constraints from this maze identifier together with the observed trajectory tokens. This design
@@ -421,18 +424,48 @@ choice gives a simple and efficient encoding scheme, but it also means that the 
 to the set of maze layouts seen during training and cannot directly generalise to previously 
 unseen layouts without additional representation of maze geometry.
 
-As mentioned above, the input matrix $X$ contains complete tokenised trajectories from which the 
-Transformer learns. An important question is therefore how to obtain a sufficiently rich collection 
-of complete trajectories. After discretising the maze layouts shown above, the number of free (non-wall) 
-grid squares in a maze ranges from 7 to 47. If a maze has $n$ free squares, then there are $n(n-1)$ 
-ordered start-goal combinations, since the start and goal positions must be distinct.
+The tokenised input sequences are stored in an input matrix $X$ of dimensions $N \times L$, 
+where $N$ is the number of training trajectories and $L$ is the maximum token-sequence length 
+observed in the training dataset.
+
+The final form of each row $\boldsymbol{x}$ of the input matrix $X$ is
+\[
+\boldsymbol{x}
+=
+(
+m,\,
+s_{\mathrm{start}},\,
+s_{\mathrm{goal}},\,
+s_1,\,
+a_1,\,
+s_2,\,
+a_2,\,
+s_3,\,
+\dots,\,
+a_T,\,
+s_{T+1},\,
+0,\,
+\dots,\,
+0
+).
+\]
+
+where $s_{\mathrm{start}}$ and $s_{\mathrm{goal}}$ are represented using the same coordinate encoding 
+as the states appearing in the trajectory. The sequence $(s_1, a_1, s_2, a_2, \dots, s_T, a_T)$ 
+represents the alternating state and action tokens that make up the trajectory. Any unused entries 
+at the end of the row are filled with padding tokens (0) so that all rows of $X$ have the same length.
+
+The trajectories used in the training data were generated through the following process. 
+For the maze layouts used in this work, the number of free (non-wall) grid squares in a maze ranges 
+from 7 to 47. If a maze has $n$ free squares, then there are $n(n-1)$ ordered start-goal combinations, 
+since the start and goal positions must be distinct.
 
 For each such start-goal pair, an optimal trajectory is generated using breadth-first search (BFS). 
 Here, optimal means that the resulting path minimises the number of adjacent grid moves required to 
 connect the start and goal positions. Since movement is restricted to adjacent non-wall squares, BFS 
 is sufficient to recover a shortest valid path in this discrete setting. Because the number of 
 start-goal combinations for each maze is relatively small, generating shortest paths for all pairs
- is computationally inexpensive.
+is computationally inexpensive.
 
 The BFS output provides a sequence of states, that is, a sequence of grid positions forming a 
 shortest path from the start state to the goal state. The corresponding sequence of actions 
@@ -440,23 +473,92 @@ can then be computed directly from consecutive state differences. In this way, e
 pair yields a complete trajectory consisting of alternating state and action information, and 
 these trajectories form the basis of the Transformer's training data.
 
-The final form of each row $\boldsymbol{x}$ of the input matrix $X$ is therefore as follows.
+\subsection*{Transformer Training}
 
-$\boldsymbol{x}_1$ is an integer token identifying the maze layout.
+For efficient training, these quantities are represented explicitly as matrices. 
+The tokenised input sequences are stored in an input matrix $X$, the token-type information 
+is stored in a token-type matrix $T$, the target outputs are stored in a label matrix $Y$, and 
+the padding information is stored in a mask matrix $M$. The matrix $T$ has the same shape as $X$, 
+with each entry indicating whether the corresponding token is a maze token, start token, goal token, 
+state token, action token, or padding token. In the label matrix, only action-token positions contain 
+active targets, while all other positions are ignored during loss computation.
 
-$\boldsymbol{x}_2$ is an integer token identifying the start state.
+A small causal Transformer was trained on the tokenised trajectory dataset described above. In the
+implementation used here, the model receives the input token matrix $X$, the token-type matrix $T$,
+and the padding mask $M$. Token embeddings and token-type embeddings are summed, positional encodings
+are added, and the resulting sequence is processed by a stack of causal self-attention layers so that
+each token can depend only on the current and preceding tokens in the sequence.
 
-$\boldsymbol{x}_3$ is an integer token identifying the goal state.
+The model was kept small for faster training. The architecture used a hidden dimension of 64, 4 attention 
+heads, 2 Transformer layers, a feedforward dimension of 128, and dropout of 0.1. Training was performed using the 
+AdamW optimiser with learning rate $3 \times 10^{-4}$ and weight decay $10^{-4}$.
 
-$\boldsymbol{x}_4$ is an integer token identifying the initial trajectory state, which in this 
-implementation is equal to the start state.
+The training objective was cross-entropy loss applied to next-token prediction, 
+with supervision active only at action-token positions. Cross-entropy was chosen because the 
+target at each supervised position is a discrete action token drawn from a finite vocabulary, 
+so the learning problem is naturally one of categorical prediction. Non-action positions in the 
+label matrix $Y$ were ignored during loss computation. The model was therefore trained to predict 
+the next action conditioned on the maze token, the start token, the goal token, and the trajectory
+prefix observed so far.
 
-$\boldsymbol{x}_5$ is an integer token identifying the first action in the trajectory.
+\subsection*{Decoding}
 
-$\boldsymbol{x}_6$ is an integer token identifying the second state in the trajectory.
+The decoding strategies compared in this work are greedy decoding and beam search with beam widths
+$2$ and $3$. The trained Transformer predicts a distribution over the next action token conditioned
+on the maze token, start token, goal token, and the trajectory prefix generated so far. Decoding
+then determines how these conditional predictions are converted into a complete trajectory.
 
-The remaining entries of $\boldsymbol{x}$ then alternate between action tokens and subsequent 
-state tokens until the trajectory terminates at the goal. Any unused entries at the end of the row are filled with padding tokens so that all rows of $X$ have the same length.
+For a given evaluation query, decoding begins from the token prefix consisting of the maze
+identifier, the start-state token, the goal-state token, and the initial state token. The model is
+then queried autoregressively for the next action token. In the implementation used here, the model's
+logits are not accepted blindly over the full action vocabulary. Instead, at each step, the candidate
+actions are restricted to the actions that lead to valid neighbouring free cells from the current
+state, together with the option of remaining in the same cell. In other words, candidate moves that
+would pass through walls or leave the maze are excluded before the decoding rule is applied. Once an
+action has been selected, the corresponding next state is deterministically computed from the current
+state and appended to the trajectory prefix, and the procedure repeats until the goal is reached or a
+step limit is exceeded.
+
+The rollout horizon is also constrained by the implementation. For a query with ground-truth path
+length $L$, the requested decoding horizon is set to $\max(2L, 16)$ steps, but the actual horizon is
+capped by the maximum number of action predictions permitted by the Transformer's sequence length. In
+the implementation used here, the maximum sequence length is $42$ tokens. Since each decoded step
+adds one action token and one state token to an initial prefix of four tokens, this yields a maximum
+of
+\[
+\left\lfloor \frac{42 - 4}{2} \right\rfloor = 19
+\]
+decoded steps for any rollout.
+
+To compare decoding strategies on unseen queries, the transformer-ready dataset is partitioned using
+5-fold cross-validation. The dataset contains exactly one trajectory for each ordered start-goal pair
+that is connected by a valid shortest path in a given maze. Within each maze separately, the
+trajectories are sorted deterministically by path length and then lexicographically by start and goal
+coordinates. Folds are then assigned in round-robin order over this sorted list. Because each
+start-goal pair appears only once in the dataset, no exact query appears in both the training and
+evaluation portions of a given fold. In the decoding benchmark, evaluation is reported on the five
+maze families \texttt{OPEN}, \texttt{U\_MAZE}, \texttt{SMALL\_MAZE}, \texttt{MEDIUM\_MAZE}, and
+\texttt{LARGE\_MAZE}. The aim of the experiment is therefore to compare how different decoding 
+rules behave on unseen start-goal planning queries under a fixed trained model class. 
+
+Since the Transformer only provides an
+estimated conditional distribution over next actions, a decoding strategy may fail to reach the goal
+within the allowed horizon even when a valid path exists. For this reason, the first evaluation
+metric is \textbf{Completion Rate}, defined as the proportion of evaluation queries for which the
+decoded trajectory reaches the goal within the allowed number of steps.
+
+The second metric is \textbf{Average Steps to Goal}. In the implementation, this is computed as the
+mean number of executed actions, equivalently the number of state transitions, over successful
+queries only. This metric measures the efficiency of the trajectories produced by a decoding
+strategy, conditional on success.	
+
+The remaining two metrics quantify computational cost. For each decoded trajectory, the total wall-clock
+time required to perform decoding is recorded. This yields \textbf{Average Compute Seconds}, defined
+as the mean total decoding time per evaluation query. In addition, the total decoding time for a
+query is divided by the number of decoded actions taken for that query, yielding a per-query seconds
+per step quantity. Averaging this value over evaluation queries gives \textbf{Average Seconds per
+Step}. Together, these four metrics allow the comparison to capture both planning quality and
+computational efficiency.
 
 
 
