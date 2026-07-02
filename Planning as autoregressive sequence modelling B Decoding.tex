@@ -65,6 +65,32 @@
 
 \section*{Introduction}
 
+Planning is a central problem in artificial intelligence, concerned with finding a sequence of
+actions that moves an environment from an initial state to a desired goal state
+\cite{Alarnaouti2023planning}. In this project, the planning problem is studied in a discrete 2D
+maze environment, where the task is to generate a valid trajectory from a given start position to a
+specified goal position without passing through walls.
+
+One way to approach such a problem is to treat trajectories as data and learn a probability
+distribution over successful trajectories from examples. From this perspective, planning can be
+viewed as inference in a learned generative model \cite{janner2021trajectory}. If the model is trained on valid and efficient
+demonstration trajectories, then complete plans can be generated autoregressively by repeatedly
+predicting the next token in a trajectory sequence.
+
+The decoding rule used during this generation process is important. At each step, the learned model
+may assign non-negligible probability to multiple possible continuations, and different decoding
+strategies can therefore produce trajectories with different levels of validity, efficiency, and
+computational cost \cite{jurafsky2026speech,janner2021trajectory}. In the setting considered in
+this work, decoding is based on model probability rather than on a reward-maximising objective, so
+the planning problem is approached through imitation learning rather than offline reinforcement
+learning \cite{janner2021trajectory}.
+
+This report investigates how the choice of decoding strategy affects planning performance under this
+formulation. A Transformer-based trajectory model is trained through next-token prediction on a
+dataset of valid maze trajectories, and the resulting model is evaluated using greedy decoding and
+beam search with different beam widths. The aim is to determine how these decoding rules affect
+goal-reaching success, path efficiency, and computational cost in the maze planning setting.
+
 
 \section*{Background}
 \subsection*{Generative Models}
@@ -74,9 +100,36 @@ Specifically, if $\mathbf{x}$ is a collection of features observed from an objec
 
 Once such a distribution has been learned, it can be used to generate new observations that are similar to the observations in the training data by sampling from $\hat{p}(\mathbf{x})$ \cite{goodfellow2016deep}.
 
-In practice, assumptions are often made to simplify the learning problem, such as assuming a particular parametric form for the distribution (e.g., Gaussian), so instead of learning an arbitrary distribution, the model learns a specific family of distributions parameterised by $\theta$. The learning process then involves finding the parameters $\theta$ that best fit the training data \cite{goodfellow2016deep}. 
+In practice, assumptions are often made to simplify the learning problem, such as assuming a 
+particular parametric form for the distribution (e.g., Gaussian), so instead of learning an arbitrary 
+distribution, the model learns a specific family of distributions parameterised by $\theta$ \cite{goodfellow2016deep}. 
 
-We thus assume that the data's true distribution $p(\mathbf{x})$ belongs to a family of distributions $\{p_\theta(\mathbf{x})\}$, and the model learns the parameters $\theta$ that maximise the likelihood of the training data under $p_\theta(\mathbf{x})$.
+If the data's true distribution $p(\mathbf{x})$ is assumed to belong to a family of distributions
+$\{p_\theta(\mathbf{x})\}$, the model must learn the parameter value $\hat{\theta}$ such that
+$p_{\hat{\theta}}(\mathbf{x})$ is a good approximation of $p(\mathbf{x})$.
+
+One way to formalise this is through the Kullback--Leibler (KL) divergence, which measures how one
+probability distribution diverges from another. It is defined as
+\begin{equation}
+    D_{\mathrm{KL}}(p(\mathbf{x}) \| p_\theta(\mathbf{x})) = \mathbb{E}_{\mathbf{x} \sim p(\mathbf{x})} \left[ \log \frac{p(\mathbf{x})}{p_\theta(\mathbf{x})} \right] \cite{goodfellow2016deep}.
+\end{equation}
+In this setting, learning can be viewed as choosing $\theta$ to minimise
+$D_{\mathrm{KL}}(p(\mathbf{x}) \| p_\theta(\mathbf{x}))$. Expanding this expression gives
+\begin{equation}
+    D_{\mathrm{KL}}(p(\mathbf{x}) \| p_\theta(\mathbf{x}))
+    =
+    \mathbb{E}_{\mathbf{x} \sim p(\mathbf{x})} [\log p(\mathbf{x})]
+    -
+    \mathbb{E}_{\mathbf{x} \sim p(\mathbf{x})} [\log p_\theta(\mathbf{x})].
+\end{equation}
+The first term does not depend on $\theta$, so minimising the KL divergence is equivalent to
+maximising $\mathbb{E}_{\mathbf{x} \sim p(\mathbf{x})} [\log p_\theta(\mathbf{x})]$, that is, the
+expected log-likelihood of the data under the model \cite{goodfellow2016deep}.
+
+The process of finding $\hat{\theta}$ that maximises the likelihood of the training data under
+$p_\theta(\mathbf{x})$ is known as maximum likelihood estimation (MLE), and is a common approach to
+training generative models \cite{goodfellow2016deep}.
+
 \subsection*{The Planning Problem}
 \noindent
 \begin{minipage}[t]{0.65\textwidth}
@@ -122,32 +175,32 @@ So if we define a trajectory $\boldsymbol{\tau}$ with $T$ steps as:
 \[
 \boldsymbol{\tau} = (s_1, a_1, s_2, a_2, \dots, s_T, a_T)
 \]
-where $s_t$ is the state (coordinates) at time step $t$ and $a_t$ is the action (moving up, down, left or right) taken at time step $t$, the generative model learns to approximate the distribution $p(\boldsymbol{\tau})$ over valid trajectories.
-Instead of directly modelling $p(\boldsymbol{\tau})$, an autoregressive model factorises this distribution into a product of conditional probabilities \cite{goodfellow2016deep}:
+where $s_t$ is the state (coordinates) at time step $t$ and $a_t$ is the action (moving up, down, left or right) taken at time step $t$, the trained generative model defines an approximation $p_{\hat{\theta}}(\boldsymbol{\tau})$ to the distribution over valid trajectories.
+Instead of directly modelling $p_{\hat{\theta}}(\boldsymbol{\tau})$, an autoregressive model factorises this distribution into a product of conditional probabilities \cite{goodfellow2016deep}:
 \[
-p(\boldsymbol{\tau}) = \prod_{t=1}^{T} p(z_t \mid z_{<t})
+p_{\hat{\theta}}(\boldsymbol{\tau}) = \prod_{t=1}^{T} p_{\hat{\theta}}(z_t \mid z_{<t})
 \]
 where $z_t$ denotes the $t^{th}$ token in the trajectory sequence, which may correspond to either a state or an action, 
 and the trajectory prefix, $z_{<t}$, denotes the sequence of preceding tokens up to $z_{t-1}$.
-This simplifies the supervised learning problem to estimating $p(z_t \mid z_{<t})$, so given a prefix 
+This simplifies the supervised learning problem to estimating $p_\theta(z_t \mid z_{<t})$, so given a prefix 
 of trajectory tokens, predict the probability of the next token in the sequence. 
 
 A complete trajectory is then generated autoregressively by repeatedly predicting the next token until a full plan is produced, with the decoding strategy determining how each next-token choice is made. The choice of decoding strategy is important because the model’s predicted distribution may assign non-negligible probability mass to multiple valid continuations at each step, and the continuation selected during decoding can significantly affect both the quality of the final trajectory and the computational cost of generation \cite{janner2021trajectory}. Since the learned distribution is only an approximation to the true trajectory distribution, it may also assign non-negligible probability to invalid continuations. As a result, the decoding strategy can influence whether a valid trajectory is generated at all. Even when multiple valid trajectories are possible, some may be more desirable than others, for example because they require fewer steps, and the decoding strategy can therefore affect whether a more optimal trajectory is produced \cite{janner2021trajectory,jurafsky2026speech}.
 
 \subsection*{Decoding Methods}
-Direct sampling from $p(\boldsymbol{\tau})$ is challenging, since the number of possible trajectories grows exponentially with trajectory
+Direct sampling from $p_{\hat{\theta}}(\boldsymbol{\tau})$ is challenging, since the number of possible trajectories grows exponentially with trajectory
 length, so explicitly calculating and storing the probabilities for all complete trajectories quickly  becomes computationally 
 infeasible \cite{goodfellow2016deep}. 
-This creates a need for decoding algorithms to approximately sample from, or search within $p(\boldsymbol{\tau})$.
+This creates a need for decoding algorithms to approximately sample from, or search within $p_{\hat{\theta}}(\boldsymbol{\tau})$.
 
 
 
 \subsubsection*{Greedy Decoding}
-Greedy decoding is the simplest method for generating sequences from $p(\boldsymbol{\tau})$ \cite{jurafsky2026speech}. 
+Greedy decoding is the simplest method for generating sequences from $p_{\hat{\theta}}(\boldsymbol{\tau})$ \cite{jurafsky2026speech}. 
 At each step $t$ during the autoregressive generation of a trajectory, the algorithm selects the next token $\hat{z}_t$ 
 as follows:
 \[
-\hat{z}_t = \arg\max_{z \in V} p(z \mid z_{<t})
+\hat{z}_t = \arg\max_{z \in V} p_{\hat{\theta}}(z \mid z_{<t})
 \]
 where $V$ is the set of all possible tokens, and $z_{<t}$ denotes the values obtained in the previous steps of greedy decoding.
 Greedy decoding thus always selects the locally optimal choice for the next token in the sequence, 
@@ -155,7 +208,7 @@ meaning it chooses the token with the highest conditional probability given
 the current prefix \cite{jurafsky2026speech}.
 Greedy decoding is therefore deterministic and computationally efficient, but does not necessarily find the globally most probable 
 trajectory, which is the complete trajectory with the highest probability under 
-$p(\boldsymbol{\tau})$ \cite{jurafsky2026speech}.
+$p_{\hat{\theta}}(\boldsymbol{\tau})$ \cite{jurafsky2026speech}.
 
 \subsubsection*{Beam Search}
 
@@ -186,10 +239,10 @@ The beam search algorithm in the context of trajectory planning can be described
 4: & \hspace*{1.5em}For each partial trajectory $\boldsymbol{\tau} \in \mathcal{T}_t$, let $\mathcal{V}(\boldsymbol{\tau})$ denote the set of valid next tokens available from the final state of $\boldsymbol{\tau}$ \\[0.3em]
 5: & \hspace*{1.5em}$C_{t+1} \leftarrow \{\, \mathrm{append}(\boldsymbol{\tau}, z) \mid \boldsymbol{\tau} \in \mathcal{T}_t \text{ and } z \in \mathcal{V}(\boldsymbol{\tau}) \,\}$ \\
    & \hspace*{1.5em}// candidate single-token extensions \\[0.3em]
-6: & \hspace*{1.5em}$\mathcal{T}_{t+1} \leftarrow$ the set of the $B$ highest-scoring sequences in $C_{t+1}$ under $\log p_\theta(\boldsymbol{\tau})$ \\[0.3em]
+6: & \hspace*{1.5em}$\mathcal{T}_{t+1} \leftarrow$ the set of the $B$ highest-scoring sequences in $C_{t+1}$ under $\log p_{\hat{\theta}}(\boldsymbol{\tau})$ \\[0.3em]
 7: & \hspace*{1.5em}\textbf{if} any $\boldsymbol{\tau} \in \mathcal{T}_{t+1}$ ends at $s_{\mathrm{goal}}$ \textbf{then stop} \\[0.3em]
 8: & \textbf{end for} \\[0.3em]
-9: & \textbf{Return} $\arg\max_{\boldsymbol{\tau} \in \mathcal{T}_{t+1}} \log p_\theta(\boldsymbol{\tau})$
+9: & \textbf{Return} $\arg\max_{\boldsymbol{\tau} \in \mathcal{T}_{t+1}} \log p_{\hat{\theta}}(\boldsymbol{\tau})$
 \end{tabular}
 
 \vspace{0.6em}
@@ -199,7 +252,7 @@ The beam search algorithm in the context of trajectory planning can be described
 \caption{Pseudocode for beam search in the trajectory planning setting.}
 \label{fig:beam_search_pseudocode}
 \end{figure}
-The score $\log p_\theta(\boldsymbol{\tau})$ can be accumulated autoregressively for each candidate trajectory. 
+The score $\log p_{\hat{\theta}}(\boldsymbol{\tau})$ can be accumulated autoregressively for each candidate trajectory. 
 Since the beam width places an upper bound on the number of candidate trajectories in $C_t$ and retained trajectories in 
 $\mathcal{T}_t$ at each step $t$, maintaining these scores for all candidates remains computationally 
 feasible when the beam width is sufficiently small 
@@ -283,6 +336,11 @@ light of the representations of all other words in the sequence. For example, if
 word ``the'', the model may adjust its representation in a way that reflects the nominal sense of ``fly'' (the insect)
 rather than the verbal sense.
 Each input vector $x_i$ is mapped into three learned representations: a Query ($Q$), a Key ($K$), and a Value ($V$).
+For an input matrix $X$, these are obtained by learned linear projections:
+\[
+Q = XW_Q,\qquad K = XW_K,\qquad V = XW_V
+\]
+where $W_Q$, $W_K$, and $W_V$ are learned weight matrices \cite{jurafsky2026speech}.
 
 The attention for a single head is computed as:
 \[
@@ -317,16 +375,15 @@ to the next-token prediction head, which converts them into a probability distri
 tokens in the sequence.
 
 \begin{itemize}
-\item \textbf{Output Projection}: Let $h_t$ denote the final hidden representation produced after
+\item \textbf{Output Projection}: Let $\mathbf{h}_t$ denote the final hidden representation produced after
 the model has processed the prefix up to position $t$. This $d$-dimensional vector summarises the
 information in the observed prefix and is then projected back into the vocabulary space, often by
-multiplying it by the transpose of the embedding matrix $E^T$. When the same embedding matrix is
-reused in this way, the technique is known as weight tying \cite{jurafsky2026speech}.
+multiplying it by the transpose of the embedding matrix $E^T$ \cite{jurafsky2026speech}.
 
 \item \textbf{Softmax}: The resulting logits are passed through a softmax function to produce a 
 probability distribution over the next token:
 \[
-\mathbf{p}_{t+1} = \mathrm{softmax}(h_t E^T)
+\mathbf{p}_{t+1} = \mathrm{softmax}(\mathbf{h}_t E^T)
 \]
 
 where $\mathbf{p}_{t+1}$ is the probability distribution over possible values of the next token
@@ -360,21 +417,21 @@ state, and the previously observed trajectory prefix.
 Let $m$ denote a maze layout identifier, let $s_{\mathrm{start}}$ and $s_{\mathrm{goal}}$ denote the start and goal states. 
 The model therefore learns conditional predictions of the form
 \[
-p(z_{t+1} \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}}, z_{\le t}),
+p_{\hat{\theta}}(z_{t+1} \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}}, z_{\le t}),
 \]
 or, since supervision is applied only at action-token positions, equivalently
 \[
-p(a_{t} \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}}, s_1, a_1, \dots, s_t),
+p_{\hat{\theta}}(a_{t} \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}}, s_1, a_1, \dots, s_t),
 \]
 
 These conditional predictions define an autoregressive factorisation of the 
 conditional distribution over action sequences:
 
 \[
-p(a_1, a_2, \dots, a_T \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}})
+p_{\hat{\theta}}(a_1, a_2, \dots, a_T \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}})
 =
 \prod_{t=1}^{T}
-p(a_t \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}}, s_1, a_1, \dots, s_t).
+p_{\hat{\theta}}(a_t \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}}, s_1, a_1, \dots, s_t).
 \]
 
 Ideally, generating a complete plan would require sampling from the full joint conditional 
@@ -439,7 +496,7 @@ only valid free-cell positions appear in the generated trajectory sequences.
 
 Actions are also encoded as integer tokens. Since the trajectories are restricted to 
 four-connected grid movement, the action vocabulary consists of the four moves up, down, 
-left, and right, with each assigned its own unique token identifier.
+left, and right, with each assigned its own unique integer token identifier.
 
 In the training data, the detailed wall structure of a maze is not included explicitly
 in the token sequence. Instead, each trajectory is associated with a single integer maze token
@@ -537,9 +594,7 @@ The training objective was cross-entropy loss applied to next-token prediction,
 with supervision active only at action-token positions. Cross-entropy was chosen because the 
 target at each supervised position is a discrete action token drawn from a finite vocabulary, 
 so the learning problem is naturally one of categorical prediction. Non-action positions in the 
-label matrix $Y$ were ignored during loss computation. The model was therefore trained to predict 
-the next action conditioned on the maze token, the start token, the goal token, and the trajectory
-prefix observed so far.
+label matrix $Y$ were ignored during loss computation.
 
 \subsection*{Decoding}
 
@@ -549,11 +604,11 @@ on the maze token, start token, goal token, and the trajectory prefix generated 
 then determines how these conditional predictions are converted into a complete trajectory.
 
 For a given evaluation query, decoding begins from the token prefix consisting of the maze
-identifier, the start-state token, the goal-state token, and the initial state token. The model is
+identifier, the start token, the goal token, and the initial state token. The model is
 then queried autoregressively for the next action token. In the implementation used here, the model's
 logits are not accepted blindly over the full action vocabulary. Instead, at each step, the candidate
 actions are restricted to the actions that lead to valid neighbouring free cells from the current
-state, together with the option of remaining in the same cell. In other words, candidate moves that
+state. In other words, candidate moves that
 would pass through walls or leave the maze are excluded before the decoding rule is applied. Once an
 action has been selected, the corresponding next state is deterministically computed from the current
 state and appended to the trajectory prefix, and the procedure repeats until the goal is reached or a
@@ -564,7 +619,7 @@ action predictions, that a decoding algorithm is allowed to generate for a query
 is forced if the goal has not yet been reached. In the implementation used here, this limit is fixed 
 at $19$ steps for all queries. This value was chosen because the Transformer was trained with a 
 maximum input sequence length of $42$ tokens, while the initial decoding prefix already occupies four 
-tokens: the maze token, the start-state token, the goal-state token, and the initial state token. 
+tokens: the maze token, the start state token, the goal state token, and the initial state token. 
 Each subsequent decoding step appends one action token and one next-state token, so the largest 
 number of decoding steps that can be represented without exceeding the model's maximum sequence 
 length is
