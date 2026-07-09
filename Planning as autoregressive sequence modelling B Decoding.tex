@@ -1,6 +1,9 @@
-\documentclass[12pt,a4paper]{article}
+﻿\documentclass[12pt,a4paper]{article}
 
+\input{glyphtounicode}
+\pdfgentounicode=1
 \usepackage[utf8]{inputenc}
+\usepackage{cmap}
 \usepackage[T1]{fontenc}
 \usepackage{xcolor}
 \usepackage{hyperref}
@@ -27,6 +30,8 @@
 \bibliographystyle{plainnat}
 \usepackage[title]{appendix}
 \usepackage{listings}
+\let\oldcite\cite
+\renewcommand{\cite}[1]{\mbox{\oldcite{#1}}}
 
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
@@ -67,23 +72,23 @@
 
 Planning is a central problem in artificial intelligence, concerned with finding a sequence of
 actions that moves an environment from an initial state to a desired goal state
-\cite{Alarnaouti2023planning}. In this project, the planning problem is studied in a discrete 2D
+~\cite{Alarnaouti2023planning}. In this project, the planning problem is studied in a discrete 2D
 maze environment, where the task is to generate a valid trajectory from a given start position to a
 specified goal position without passing through walls.
 
 One way to approach such a problem is to treat trajectories as data and learn a probability
 distribution over successful trajectories from examples. From this perspective, planning can be
-viewed as inference in a learned generative model \cite{janner2021trajectory}. If the model is trained on valid and efficient
+viewed as inference in a learned generative model ~\cite{janner2021trajectory}. If the model is trained on valid and efficient
 demonstration trajectories, then complete plans can be generated autoregressively by repeatedly
 predicting the next token in a trajectory sequence.
 
 The decoding rule used during this generation process is important. At each step, the learned model
 may assign non-negligible probability to multiple possible continuations, and different decoding
 strategies can therefore produce trajectories with different levels of validity, efficiency, and
-computational cost \cite{jurafsky2026speech,janner2021trajectory}. In the setting considered in
+computational cost ~\cite{jurafsky2026speech,janner2021trajectory}. In the setting considered in
 this work, decoding is based on model probability rather than on a reward-maximising objective, so
 the planning problem is approached through imitation learning rather than offline reinforcement
-learning \cite{janner2021trajectory}.
+learning ~\cite{janner2021trajectory}.
 
 This report investigates how the choice of decoding strategy affects planning performance under this
 formulation. A Transformer-based trajectory model is trained through next-token prediction on a
@@ -95,50 +100,59 @@ goal-reaching success, path efficiency, and computational cost in the maze plann
 \section*{Background}
 \subsection*{Generative Models}
 Generative models are types of machine learning systems that aim to represent a probability distribution over data,
-or to draw samples from that distribution \cite{goodfellow2016deep}.
-Specifically, if $\mathbf{x}$ is a collection of features observed from an object or event, like words in a sentence or coordinates in a maze, and $p(\mathbf{x})$ is the true joint distribution of those features, a generative model learns an approximation $\hat{p}(\mathbf{x})$ of this distribution from training observations \cite{goodfellow2016deep}.
-
-Once such a distribution has been learned, it can be used to generate new observations that are similar to the observations in the training data by sampling from $\hat{p}(\mathbf{x})$ \cite{goodfellow2016deep}.
+or to draw samples from that distribution ~\cite{goodfellow2016deep}.
+Specifically, if $\mathbf{x}$ is a collection of features observed from an object or event, like words in a sentence or coordinates in a maze, and $p(\mathbf{x})$ is the true joint distribution of those features, a generative model learns an approximation $\hat{p}(\mathbf{x})$ of this distribution from training observations ~\cite{goodfellow2016deep}.
+Once such a distribution has been learned, it can be used to generate new observations that are similar to the observations in the training data by sampling from $\hat{p}(\mathbf{x})$ ~\cite{goodfellow2016deep}.
 
 In practice, assumptions are often made to simplify the learning problem, such as assuming a 
 particular parametric form for the distribution (e.g., Gaussian), so instead of learning an arbitrary 
-distribution, the model learns a specific family of distributions parameterised by $\theta$ \cite{goodfellow2016deep}. 
+distribution, the model learns a specific family of distributions parameterised by $\boldsymbol{\theta}$ ~\cite{goodfellow2016deep}. 
 
 If the data's true distribution $p(\mathbf{x})$ is assumed to belong to a family of distributions
-$\{p_\theta(\mathbf{x})\}$, the model must learn the parameter value $\hat{\theta}$ such that
-$p_{\hat{\theta}}(\mathbf{x})$ is a good approximation of $p(\mathbf{x})$.
-
+$\{p_{\boldsymbol{\theta}}(\mathbf{x})\}$, the model must learn the parameter value $\hat{\boldsymbol{\theta}}$ such that
+$p_{\hat{\boldsymbol{\theta}}}(\mathbf{x})$ is a good approximation of $p(\mathbf{x})$.
 One way to formalise this is through the Kullback--Leibler (KL) divergence, which measures how one
-probability distribution diverges from another. It is defined as
+probability distribution diverges from another ~\cite{goodfellow2016deep}. It is defined as
 \begin{equation}
-    D_{\mathrm{KL}}(p(\mathbf{x}) \| p_\theta(\mathbf{x})) = \mathbb{E}_{\mathbf{x} \sim p(\mathbf{x})} \left[ \log \frac{p(\mathbf{x})}{p_\theta(\mathbf{x})} \right] \cite{goodfellow2016deep}.
+    D_{\mathrm{KL}}(p(\mathbf{x}) \| p_{\boldsymbol{\theta}}(\mathbf{x})) = \mathbb{E}_{\mathbf{x} \sim p(\mathbf{x})} \left[ \log \frac{p(\mathbf{x})}{p_{\boldsymbol{\theta}}(\mathbf{x})} \right].
 \end{equation}
-In this setting, learning can be viewed as choosing $\theta$ to minimise
-$D_{\mathrm{KL}}(p(\mathbf{x}) \| p_\theta(\mathbf{x}))$. Expanding this expression gives
+In this setting, learning can be viewed as choosing $\boldsymbol{\theta}$ to minimise
+$D_{\mathrm{KL}}(p(\mathbf{x}) \| p_{\boldsymbol{\theta}}(\mathbf{x}))$. Expanding this expression gives
 \begin{equation}
-    D_{\mathrm{KL}}(p(\mathbf{x}) \| p_\theta(\mathbf{x}))
+    D_{\mathrm{KL}}(p(\mathbf{x}) \| p_{\boldsymbol{\theta}}(\mathbf{x}))
     =
     \mathbb{E}_{\mathbf{x} \sim p(\mathbf{x})} [\log p(\mathbf{x})]
     -
-    \mathbb{E}_{\mathbf{x} \sim p(\mathbf{x})} [\log p_\theta(\mathbf{x})].
+    \mathbb{E}_{\mathbf{x} \sim p(\mathbf{x})} [\log p_{\boldsymbol{\theta}}(\mathbf{x})].
 \end{equation}
-The first term does not depend on $\theta$, so minimising the KL divergence is equivalent to
-maximising $\mathbb{E}_{\mathbf{x} \sim p(\mathbf{x})} [\log p_\theta(\mathbf{x})]$, that is, the
-expected log-likelihood of the data under the model \cite{goodfellow2016deep}.
+The first term does not depend on $\boldsymbol{\theta}$, so minimising the KL divergence is equivalent to
+maximising $\mathbb{E}_{\mathbf{x} \sim p(\mathbf{x})} [\log p_{\boldsymbol{\theta}}(\mathbf{x})]$, that is, the
+expected log-likelihood of the data under the model ~\cite{goodfellow2016deep}.
 
-The process of finding $\hat{\theta}$ that maximises the likelihood of the training data under
-$p_\theta(\mathbf{x})$ is known as maximum likelihood estimation (MLE), and is a common approach to
-training generative models \cite{goodfellow2016deep}.
+The process of finding $\hat{\boldsymbol{\theta}}$ that maximises the likelihood of the training data under
+$p_{\boldsymbol{\theta}}(\mathbf{x})$ is known as maximum likelihood estimation (MLE), and is a common approach to
+training generative models ~\cite{goodfellow2016deep}.
 
 \subsection*{The Planning Problem}
 \noindent
+Broadly, automated planning is the field of research addressing the problem of finding an ordered or 
+partially ordered series of actions that changes an environment from its initial state to a desired goal 
+state ~\cite{Alarnaouti2023planning}.
+
+
+\noindent
 \begin{minipage}[t]{0.65\textwidth}
 \vspace{0pt}
-Broadly, automated planning is the field of research addressing the problem of finding an ordered or partially ordered series of actions that changes an environment from its initial state to a desired goal state \cite{Alarnaouti2023planning}.
+In this work, the planning problem is to generate a valid trajectory from a given starting position to a 
+specified goal position in a 2D maze environment, as shown in Figure~\ref{fig:example_trajectory}.
 
-In this work, the planning problem is to generate a valid trajectory from a given starting position to a specified goal position in a 2D Maze environment.
-In this environment, a trajectory consists of a sequence of maze positions from the start location to the goal location, together with the actions connecting consecutive positions, such that the path does not pass through walls. 
-Assuming a discrete grid-based representation, maze coordinates are integers identifying grid cells. A trajectory can therefore be represented as a sequence of coordinates in which each consecutive pair corresponds to adjacent non-wall cells, with adjacency restricted to horizontal and vertical moves.
+\medskip
+In this environment, a trajectory consists of a sequence of maze positions from the start location to 
+the goal location, together with the actions connecting consecutive positions, such that the path does 
+not pass through walls. 
+Assuming a discrete grid-based representation, maze coordinates are integers identifying grid cells. A 
+trajectory can therefore be represented as a sequence of coordinates in which each consecutive pair 
+corresponds to adjacent non-wall cells, with adjacency restricted to horizontal and vertical moves.
 \end{minipage}\hfill
 \begin{minipage}[t]{0.30\textwidth}
 \vspace{0pt}
@@ -154,80 +168,80 @@ Assuming a discrete grid-based representation, maze coordinates are integers ide
 Reinforcement learning (RL) is a machine learning paradigm in which a system learns to choose
 appropriate sequences of actions by interacting with an environment in order to maximise cumulative reward,
 making it a natural fit for planning problems, since the reward can be defined in terms of 
-reaching a goal state efficiently \cite{sutton2018rl}.
+reaching a goal state efficiently ~\cite{sutton2018rl}.
 
 Offline reinforcement learning is a variant of RL in which the policy that determines the agent's actions
 is learned from a fixed dataset of previously collected trajectories, rather than through repeated
-interaction with the environment \cite{janner2021trajectory}.
+interaction with the environment ~\cite{janner2021trajectory}.
 
-Imitation learning is a related paradigm in which a model learns to reproduce the behavior
+Imitation learning is a related paradigm in which a model learns to reproduce the behaviour
 demonstrated in a dataset. Similarly to offline RL, imitation learning can be applied to a dataset of 
 trajectories, but the objective is to generate trajectories that are similar to those in the dataset,
-as opposed to maximising cumulative reward as in offline RL \cite{janner2021trajectory}.
+as opposed to maximising cumulative reward as in offline RL ~\cite{janner2021trajectory}.
 
 Similarly to RL, imitation learning can solve a planning problem, but only if the dataset
-contains trajectories that are valid and efficient for the planning task at hand \cite{janner2021trajectory}.
+contains trajectories that are valid and efficient for the planning task at hand ~\cite{janner2021trajectory}.
 
 \subsection*{Generative Modelling for Planning}
 
-If a dataset of valid trajectories is available, a generative model can be trained to learn the distribution over these trajectories. Once trained, the model can be used to generate new trajectories by sampling from the learned distribution. This approach treats planning as a problem of inference in a probabilistic model \cite{janner2021trajectory}.
+If a dataset of valid trajectories is available, a generative model can be trained to learn the distribution over these trajectories. Once trained, the model can be used to generate new trajectories by sampling from the learned distribution. This approach treats planning as a problem of inference in a probabilistic model ~\cite{janner2021trajectory}.
 So if we define a trajectory $\boldsymbol{\tau}$ with $T$ steps as: 
-\[
+\begin{equation}
 \boldsymbol{\tau} = (s_1, a_1, s_2, a_2, \dots, s_T, a_T)
-\]
-where $s_t$ is the state (coordinates) at time step $t$ and $a_t$ is the action (moving up, down, left or right) taken at time step $t$, the trained generative model defines an approximation $p_{\hat{\theta}}(\boldsymbol{\tau})$ to the distribution over valid trajectories.
-Instead of directly modelling $p_{\hat{\theta}}(\boldsymbol{\tau})$, an autoregressive model factorises this distribution into a product of conditional probabilities \cite{goodfellow2016deep}:
-\[
-p_{\hat{\theta}}(\boldsymbol{\tau}) = \prod_{t=1}^{T} p_{\hat{\theta}}(z_t \mid z_{<t})
-\]
-where $z_t$ denotes the $t^{th}$ token in the trajectory sequence, which may correspond to either a state or an action, 
-and the trajectory prefix, $z_{<t}$, denotes the sequence of preceding tokens up to $z_{t-1}$.
-This simplifies the supervised learning problem to estimating $p_\theta(z_t \mid z_{<t})$, so given a prefix 
+\end{equation}
+where $s_t$ is the state (coordinates) at time step $t$ and $a_t$ is the action (moving up, down, left or right) taken at time step $t$, the trained generative model defines an approximation $p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau})$ to the distribution over valid trajectories.
+Instead of directly modelling $p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau})$, an autoregressive model factorises this distribution into a product of conditional probabilities:
+\begin{equation}
+p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau}) = \prod_{t=1}^{T} p_{\hat{\boldsymbol{\theta}}}(z_t \mid z_{<t})
+\end{equation}
+where $z_t$ denotes the $t^{\text{th}}$ token in the flattened trajectory sequence, 
+so each $z_t$ corresponds to either a single state token or a single action token, and 
+the trajectory prefix, $z_{<t}$, denotes the sequence of preceding tokens up to $z_{t-1}$ ~\cite{goodfellow2016deep}.
+This simplifies the supervised learning problem to estimating $p_{\boldsymbol{\theta}}(z_t \mid z_{<t})$, so given a prefix 
 of trajectory tokens, predict the probability of the next token in the sequence. 
 
-A complete trajectory is then generated autoregressively by repeatedly predicting the next token until a full plan is produced, with the decoding strategy determining how each next-token choice is made. The choice of decoding strategy is important because the model’s predicted distribution may assign non-negligible probability mass to multiple valid continuations at each step, and the continuation selected during decoding can significantly affect both the quality of the final trajectory and the computational cost of generation \cite{janner2021trajectory}. Since the learned distribution is only an approximation to the true trajectory distribution, it may also assign non-negligible probability to invalid continuations. As a result, the decoding strategy can influence whether a valid trajectory is generated at all. Even when multiple valid trajectories are possible, some may be more desirable than others, for example because they require fewer steps, and the decoding strategy can therefore affect whether a more optimal trajectory is produced \cite{janner2021trajectory,jurafsky2026speech}.
+A complete trajectory is then generated autoregressively by repeatedly predicting the next token until a full plan is produced, with the decoding strategy determining how each next-token choice is made. The choice of decoding strategy is important because the model's predicted distribution may assign non-negligible probability mass to multiple valid continuations at each step, and the continuation selected during decoding can significantly affect both the quality of the final trajectory and the computational cost of generation ~\cite{janner2021trajectory}. Since the learned distribution is only an approximation to the true trajectory distribution, it may also assign non-negligible probability to invalid continuations. As a result, the decoding strategy can influence whether a valid trajectory is generated at all. Even when multiple valid trajectories are possible, some may be more desirable than others, for example because they require fewer steps, and the decoding strategy can therefore affect whether a more efficient trajectory is produced ~\cite{janner2021trajectory,jurafsky2026speech}.
 
 \subsection*{Decoding Methods}
-Direct sampling from $p_{\hat{\theta}}(\boldsymbol{\tau})$ is challenging, since the number of possible trajectories grows exponentially with trajectory
+Direct sampling from $p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau})$ is challenging, since the number of possible trajectories grows exponentially with trajectory
 length, so explicitly calculating and storing the probabilities for all complete trajectories quickly  becomes computationally 
-infeasible \cite{goodfellow2016deep}. 
-This creates a need for decoding algorithms to approximately sample from, or search within $p_{\hat{\theta}}(\boldsymbol{\tau})$.
+infeasible ~\cite{goodfellow2016deep}. 
+This creates a need for decoding algorithms to approximately sample from, or search within $p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau})$.
 
 
 
 \subsubsection*{Greedy Decoding}
-Greedy decoding is the simplest method for generating sequences from $p_{\hat{\theta}}(\boldsymbol{\tau})$ \cite{jurafsky2026speech}. 
+Greedy decoding is the simplest method for generating sequences from $p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau})$ ~\cite{jurafsky2026speech}. 
 At each step $t$ during the autoregressive generation of a trajectory, the algorithm selects the next token $\hat{z}_t$ 
 as follows:
-\[
-\hat{z}_t = \arg\max_{z \in V} p_{\hat{\theta}}(z \mid z_{<t})
-\]
+\begin{equation}
+\hat{z}_t = \arg\max_{z \in V} p_{\hat{\boldsymbol{\theta}}}(z \mid z_{<t})
+\end{equation}
 where $V$ is the set of all possible tokens, and $z_{<t}$ denotes the values obtained in the previous steps of greedy decoding.
 Greedy decoding thus always selects the locally optimal choice for the next token in the sequence, 
 meaning it chooses the token with the highest conditional probability given
-the current prefix \cite{jurafsky2026speech}.
+the current prefix ~\cite{jurafsky2026speech}.
 Greedy decoding is therefore deterministic and computationally efficient, but does not necessarily find the globally most probable 
 trajectory, which is the complete trajectory with the highest probability under 
-$p_{\hat{\theta}}(\boldsymbol{\tau})$ \cite{jurafsky2026speech}.
+$p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau})$ ~\cite{jurafsky2026speech}.
 
 \subsubsection*{Beam Search}
 
 Beam search extends greedy decoding by retaining multiple candidate sequences at each step rather 
-than only the single most likely continuation \cite{jurafsky2026speech}. The number of retained 
+than only the single most likely continuation ~\cite{jurafsky2026speech}. The number of retained 
 candidates is fixed in advance and is known as the beam width $B$. At each stage, all valid one-step 
 continuations of the current candidates are scored autoregressively under the model, and the top $B$ 
 highest-scoring sequences are kept. This process is repeated until termination, after which the 
 highest-scoring complete trajectory among the retained candidates is returned.
 
-The beam search algorithm in the context of trajectory planning can be described as follows:
+The beam search algorithm used in this work is summarised in Listing~\ref{lst:beam_search_pseudocode}.
 
-\begin{figure}[H]
-\centering
+\begin{center}
 \begin{minipage}{0.9\linewidth}
 \begin{flushleft}
 \hrule
 \vspace{0.3em}
-\textbf{Beam Search} \cite{janner2021trajectory}
+\textbf{Beam Search} ~\cite{janner2021trajectory}
 \vspace{0.3em}
 \hrule
 \vspace{0.6em}
@@ -239,30 +253,33 @@ The beam search algorithm in the context of trajectory planning can be described
 4: & \hspace*{1.5em}For each partial trajectory $\boldsymbol{\tau} \in \mathcal{T}_t$, let $\mathcal{V}(\boldsymbol{\tau})$ denote the set of valid next tokens available from the final state of $\boldsymbol{\tau}$ \\[0.3em]
 5: & \hspace*{1.5em}$C_{t+1} \leftarrow \{\, \mathrm{append}(\boldsymbol{\tau}, z) \mid \boldsymbol{\tau} \in \mathcal{T}_t \text{ and } z \in \mathcal{V}(\boldsymbol{\tau}) \,\}$ \\
    & \hspace*{1.5em}// candidate single-token extensions \\[0.3em]
-6: & \hspace*{1.5em}$\mathcal{T}_{t+1} \leftarrow$ the set of the $B$ highest-scoring sequences in $C_{t+1}$ under $\log p_{\hat{\theta}}(\boldsymbol{\tau})$ \\[0.3em]
+6: & \hspace*{1.5em}$\mathcal{T}_{t+1} \leftarrow$ the set of the $B$ highest-scoring sequences in $C_{t+1}$ under $\log p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau})$ \\[0.3em]
 7: & \hspace*{1.5em}\textbf{if} any $\boldsymbol{\tau} \in \mathcal{T}_{t+1}$ ends at $s_{\mathrm{goal}}$ \textbf{then stop} \\[0.3em]
 8: & \textbf{end for} \\[0.3em]
-9: & \textbf{Return} $\arg\max_{\boldsymbol{\tau} \in \mathcal{T}_{t+1}} \log p_{\hat{\theta}}(\boldsymbol{\tau})$
+9: & \textbf{Return} $\arg\max_{\boldsymbol{\tau} \in \mathcal{T}_{t+1}} \log p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau})$
 \end{tabular}
 
 \vspace{0.6em}
 \hrule
 \end{flushleft}
 \end{minipage}
-\caption{Pseudocode for beam search in the trajectory planning setting.}
-\label{fig:beam_search_pseudocode}
-\end{figure}
-The score $\log p_{\hat{\theta}}(\boldsymbol{\tau})$ can be accumulated autoregressively for each candidate trajectory. 
+\captionsetup{type=lstlisting}
+\captionof{lstlisting}{Pseudocode for beam search in the trajectory planning setting.}
+\label{lst:beam_search_pseudocode}
+\end{center}
+Here, $t$ denotes the current decoding step, $\mathcal{T}_t$ the set of retained partial
+trajectories at step $t$ and $C_t$ the corresponding set of candidate trajectories.
+The score $\log p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau})$ can be accumulated autoregressively for each candidate trajectory. 
 Since the beam width places an upper bound on the number of candidate trajectories in $C_t$ and retained trajectories in 
 $\mathcal{T}_t$ at each step $t$, maintaining these scores for all candidates remains computationally 
 feasible when the beam width is sufficiently small 
-\cite{jurafsky2026speech}.
+~\cite{jurafsky2026speech}.
 
 Larger beam widths allow the algorithm to consider a greater number of candidate trajectories. As a result, 
 the trajectory returned by beam search will typically be at least as highly scored under the model as the trajectory 
 returned with a smaller beam width, with a beam width of one corresponding to greedy decoding. This broader search, however,
 requires the model scores of more candidate trajectories to be computed and maintained, so increasing the beam width also 
-increases the computational cost of decoding \cite{jurafsky2026speech}.
+increases the computational cost of decoding ~\cite{jurafsky2026speech}.
 
 Both greedy decoding and beam search, as defined above, aim to find trajectories with high probability
 under the learned model, and therefore correspond naturally to an imitation learning setting. 
@@ -271,124 +288,121 @@ than model probability alone, then the same decoding procedures can instead be u
 offline reinforcement learning setting.
 
 
-\subsection*{Transformer Architecture}
+\subsection*{Transformer Based Generative Models}
 
-The Transformer architecture is a type of neural network that has become the standard for sequence modelling tasks, notably in natural language processing \cite{jurafsky2026speech}.
-Even though the original Transformer was designed for language, the fact that it models sequences of tokens makes it applicable to our trajectory modelling problem, where the tokens could be states and/or actions in a trajectory \cite{janner2021trajectory}.
+The Transformer is a type of neural network that has become the standard for sequence modelling tasks, notably in natural language processing ~\cite{jurafsky2026speech}.
+Even though the original Transformer was designed for language, the fact that it models sequences of tokens makes it applicable to our trajectory modelling problem, where the tokens could be states and/or actions in a trajectory ~\cite{janner2021trajectory}.
 
-The key components of the Transformer architecture are now briefly introduced. For intuition, the discussion refers 
+The key components of the Transformer are now briefly introduced. For intuition, the discussion refers 
 primarily to natural language processing examples, where the role of these components is often easier to 
 interpret than in trajectory modelling. 
 
 \textbf{1. Input Representation}:
 
-Before raw data enters the Transformer, it must be converted into a high dimensional vector representation. 
-\begin{itemize}
-\item \textbf{Tokenisation}:
+Before raw data enters the Transformer, it must be converted into a high dimensional vector representation
+as follows.
+
+\textbf{Tokenisation}:
 The first step involves tokenisation, where the input sequence is broken down into discrete tokens. In an NLP scenario, 
-this could invlolde splitting text into words, subwords or characters \cite{jurafsky2026speech}. For the purposes of this discussion, it is assumed that 
+this could involve splitting text into words, subwords or characters ~\cite{jurafsky2026speech}. For the purposes of this discussion, it is assumed that 
 the input has been tokenised at the word level.
 
-\item \textbf{Embeddings} ($E$): Each token ID is used to index into an embedding matrix $E$, which maps 
+\textbf{Embeddings} ($E$): Each token ID is used to index into an embedding matrix $E$, which maps 
 the discrete ID to a dense vector of dimensionality $d$. This matrix has shape $|V| \times d$, where $|V|$ is 
-the vocabulary size, i.e.\ the total number of distinct tokens that the model can represent \cite{jurafsky2026speech}.
+the vocabulary size, i.e.\ the total number of distinct tokens that the model can represent ~\cite{jurafsky2026speech}.
 When tokens correspond to words, the embedding can be interpreted as capturing semantic and syntactic properties of 
 those words. Intuitively, words with similar meanings, such as ``big'' and ``large,'' may be represented by vectors 
-that are close to one another in the embedding space \cite{jurafsky2026speech}.
+that are close to one another in the embedding space ~\cite{jurafsky2026speech}.
 
-\item \textbf{Positional Encoding}: Since the Transformer architecture processes sequences in parrallel, it does not 
+\textbf{Positional Encoding}: Since the Transformer processes sequences in parallel, it does not 
 inherently encode the order of tokens, so a positional encoding is added to the token embeddings to ensure that the 
 position of each token in the sequence is represented. This is done by adding a positional encoding vector to each
-token embedding \cite{jurafsky2026speech}.
+token embedding ~\cite{jurafsky2026speech}.
 
-\item \textbf{Input Formation}: For a sequence of $N$ tokens, the individual $d$-dimensional vector embeddings are 
-placed into a single matrix $X$ of size $N \times d$. This matrix serves as the input for the model \cite{jurafsky2026speech}.
-\end{itemize}
+\textbf{Input Formation}: For a sequence of $N$ tokens, the individual $d$-dimensional vector embeddings are 
+placed into a single matrix $X$ of size $N \times d$. This matrix serves as the input for the model ~\cite{jurafsky2026speech}.
 
 \textbf{2. Transformer Blocks}:
 
-Each block consits of a multi-head self-attention mechanism followed by a feedforward neural network, with each sublayer
-followed by a layer normalisation and a residual connection \cite{jurafsky2026speech}. 
+Each block consists of a multi-head self-attention mechanism followed by a feedforward neural network, with each sublayer
+followed by a layer normalisation and a residual connection ~\cite{jurafsky2026speech}. 
 
-A useful mental model is that each time the input passes through a sub-layer, the model 
+A useful mental model is that each time the input passes through a sublayer, the model 
 updates the token representations so that they better capture the information relevant to 
 the task at hand. For example, in an NLP context, the model may refine the representation of a 
-word so that it better reflects its meaning in the context of the sentence \cite{jurafsky2026speech}.
-\begin{itemize}
-\item \textbf{Layer Normalisation}:
+word so that it better reflects its meaning in the context of the sentence ~\cite{jurafsky2026speech}.
+Each block is described as follows.
+
+\textbf{Layer Normalisation}:
 
 For training stability, layer normalisation is applied to ensure the values in the sublayers remain within a reasonable range.
-
 For a vector $x$, it is calculated as:
-\[
+\begin{equation}
 \mathrm{LayerNorm}(x) = \gamma \odot \frac{x - \mu}{\sigma} + \beta
-\]
+\end{equation}
 where $\mu$ is the mean, $\sigma$ the standard deviation of the vector's elements, and $\gamma$ and $\beta$ are 
-learned parameters that scale and shift the normalized output. \cite{jurafsky2026speech}.
+learned parameters that scale and shift the normalised output ~\cite{jurafsky2026speech}.
 
 
-\item \textbf{Multi-Head Self-Attention}: 
+\textbf{Multi-Head Self-Attention}: 
 
-This is the core mechanism that allows the model incorporate information from all tokens in the sequence
-when processing each token \cite{jurafsky2026speech}. Under the interpretation that each sub-layer progressively 
+This is the core mechanism that allows the model to incorporate information from all tokens in the sequence
+when processing each token ~\cite{jurafsky2026speech}. Under the interpretation that each sublayer progressively 
 refines word representations, the self-attention mechanism allows the representation of each word to be updated in 
 light of the representations of all other words in the sequence. For example, if the word ``fly'' is preceded by the 
 word ``the'', the model may adjust its representation in a way that reflects the nominal sense of ``fly'' (the insect)
 rather than the verbal sense.
 Each input vector $x_i$ is mapped into three learned representations: a Query ($Q$), a Key ($K$), and a Value ($V$).
 For an input matrix $X$, these are obtained by learned linear projections:
-\[
+\begin{equation}
 Q = XW_Q,\qquad K = XW_K,\qquad V = XW_V
-\]
-where $W_Q$, $W_K$, and $W_V$ are learned weight matrices \cite{jurafsky2026speech}.
+\end{equation}
+where $W_Q$, $W_K$, and $W_V$ are learned weight matrices ~\cite{jurafsky2026speech}.
 
 The attention for a single head is computed as:
-\[
+\begin{equation}
 \mathrm{Attention}(Q, K, V) = \mathrm{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
-\]
+\end{equation}
 
 The scaling factor $\sqrt{d_k}$ prevents the dot products from growing too large and causing numerical 
 instability. In causal (left-to-right) models, such as predicting the next word in a sentence, or the next position
 in a trajectory, a mask is applied to ensure that tokens can only attend to the 
-past, preventing the model from ``cheating'' by looking at future tokens during training \cite{jurafsky2026speech}.
+past, preventing the model from ``cheating'' by looking at future tokens during training ~\cite{jurafsky2026speech}.
 
-\item \textbf{Feedforward Neural Network}:
+\textbf{Feedforward Neural Network}:
 
 After the attention layer incorporates information across tokens, the Feedforward Network (FFN) processes each token position 
-independently and in parallel \cite{jurafsky2026speech}. It is usually a two-layer network with a non-linear activation such as ReLU:
-\[
+independently and in parallel ~\cite{jurafsky2026speech}. It is usually a two-layer network with a non-linear activation such as ReLU:
+\begin{equation}
 \mathrm{FFN}(x) = \mathrm{ReLU}(xW_1 + b_1)W_2 + b_2
-\]
+\end{equation}
 This layer allows the model to perform more complex transformations of the contextualised information
-gathered by the attention heads \cite{jurafsky2026speech}. 
+gathered by the attention heads ~\cite{jurafsky2026speech}. 
 
 Returning to the intuitive picture introduced earlier, the attention mechanism can be viewed as first 
 updating each word representation using information from the other words in the sequence. The FFN then 
 further refines each of these updated representations independently at each position, using transformations 
 learned from many training sequences.
-\end{itemize}
 
 \textbf{3. Prediction Head}:
 
 After the data passes through the final transformer block, the final representations are passed 
 to the next-token prediction head, which converts them into a probability distribution over possible next 
-tokens in the sequence.
+tokens in the sequence. This is done through the following steps.
 
-\begin{itemize}
-\item \textbf{Output Projection}: Let $\mathbf{h}_t$ denote the final hidden representation produced after
+\textbf{Output Projection}: Let $\mathbf{h}_t$ denote the final hidden representation produced after
 the model has processed the prefix up to position $t$. This $d$-dimensional vector summarises the
 information in the observed prefix and is then projected back into the vocabulary space, often by
-multiplying it by the transpose of the embedding matrix $E^T$ \cite{jurafsky2026speech}.
+multiplying it by the transpose of the embedding matrix $E^T$ ~\cite{jurafsky2026speech}.
 
-\item \textbf{Softmax}: The resulting logits are passed through a softmax function to produce a 
+\textbf{Softmax}: The resulting logits are passed through a softmax function to produce a 
 probability distribution over the next token:
-\[
+\begin{equation}
 \mathbf{p}_{t+1} = \mathrm{softmax}(\mathbf{h}_t E^T)
-\]
+\end{equation}
 
 where $\mathbf{p}_{t+1}$ is the probability distribution over possible values of the next token
-$z_{t+1}$ given the prefix $z_{\le t}$ \cite{jurafsky2026speech}.
-\end{itemize}
+$z_{t+1}$ given the prefix $z_{\le t}$ ~\cite{jurafsky2026speech}.
 
 In general, this means that the model assigns a probability to each possible next token given the preceding 
 trajectory prefix. In an NLP setting, where tokens correspond to words, this can be interpreted as the model 
@@ -416,23 +430,23 @@ state, and the previously observed trajectory prefix.
 
 Let $m$ denote a maze layout identifier, let $s_{\mathrm{start}}$ and $s_{\mathrm{goal}}$ denote the start and goal states. 
 The model therefore learns conditional predictions of the form
-\[
-p_{\hat{\theta}}(z_{t+1} \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}}, z_{\le t}),
-\]
+\begin{equation}
+p_{\hat{\boldsymbol{\theta}}}(z_{t+1} \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}}, z_{\le t}),
+\end{equation}
 or, since supervision is applied only at action-token positions, equivalently
-\[
-p_{\hat{\theta}}(a_{t} \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}}, s_1, a_1, \dots, s_t),
-\]
+\begin{equation}
+p_{\hat{\boldsymbol{\theta}}}(a_{t} \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}}, s_1, a_1, \dots, s_t),
+\end{equation}
 
 These conditional predictions define an autoregressive factorisation of the 
 conditional distribution over action sequences:
 
-\[
-p_{\hat{\theta}}(a_1, a_2, \dots, a_T \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}})
+\begin{equation}
+p_{\hat{\boldsymbol{\theta}}}(a_1, a_2, \dots, a_T \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}})
 =
 \prod_{t=1}^{T}
-p_{\hat{\theta}}(a_t \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}}, s_1, a_1, \dots, s_t).
-\]
+p_{\hat{\boldsymbol{\theta}}}(a_t \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}}, s_1, a_1, \dots, s_t).
+\end{equation}
 
 Ideally, generating a complete plan would require sampling from the full joint conditional 
 distribution over action sequences above; in practice, the decoding algorithms instead operate on 
@@ -453,18 +467,16 @@ Since the goal is to train a Transformer to predict the next action given a traj
 the training data must consist of complete trajectories $\boldsymbol{\tau}$. A trajectory token 
 sequence provides multiple supervised training examples, since for each token position $k$
 in a given trajectory, the prefix
-\[
+\begin{equation}
 (z_1, z_2, \dots, z_{k-1})
-\]
+\end{equation}
 can be used to predict the next token $z_k$.
-
 In addition to the trajectory tokens themselves, the model input must encode which maze the trajectory 
 belongs to, as well as the associated start and goal positions.
 
 In this work, eight different maze layouts are considered, corresponding to the layouts used in 
-the D4RL PointMaze / Maze2D environment. The exact layout definitions can be found in the D4RL 
-repository at
-\url{https://github.com/Farama-Foundation/D4RL/blob/master/d4rl/pointmaze/maze_model.py}.
+the D4RL PointMaze / Maze2D environment. The exact layout definitions can be found in the D4RL
+repository's \texttt{maze\_model.py} file ~\cite{d4rlrepo}.
 
 \begin{figure}[H]
 	\centering
@@ -473,7 +485,7 @@ repository at
 	\label{fig:maze_layouts}
 \end{figure}
 
-In $maze\_model.py$, each maze is defined as a matrix, 
+Each maze is defined as a matrix, 
 and the row and column indices of this matrix determine the corresponding grid cells in 
 the discrete maze representations used throughout this work.
 
@@ -484,9 +496,9 @@ tokens occupy non-overlapping regions of the overall vocabulary.
 
 States are encoded by assigning each grid location a unique integer index. This is done using the
 mapping
-\[
+\begin{equation}
 \text{state\_index} = \text{row} \times (\text{max columns}) + \text{column},
-\]
+\end{equation}
 where \textit{row} and \textit{column} are the integer indices of the grid location, 
 and \textit{max columns} is the maximum number of columns across all maze layouts. This 
 produces a unique integer identifier for each location in the global grid. A state token 
@@ -496,7 +508,7 @@ only valid free-cell positions appear in the generated trajectory sequences.
 
 Actions are also encoded as integer tokens. Since the trajectories are restricted to 
 four-connected grid movement, the action vocabulary consists of the four moves up, down, 
-left, and right, with each assigned its own unique integer token identifier.
+left, or right, with each assigned its own unique integer token identifier.
 
 In the training data, the detailed wall structure of a maze is not included explicitly
 in the token sequence. Instead, each trajectory is associated with a single integer maze token
@@ -511,7 +523,7 @@ where $N$ is the number of training trajectories and $L$ is the maximum token-se
 observed in the training dataset.
 
 The final form of each row $\boldsymbol{x}$ of the input matrix $X$ is
-\[
+\begin{equation}
 \boldsymbol{x}
 =
 (
@@ -530,7 +542,7 @@ s_{T+1},\,
 \dots,\,
 0
 ).
-\]
+\end{equation}
 
 where $s_{\mathrm{start}}$ and $s_{\mathrm{goal}}$ are represented using the same coordinate encoding 
 as the states appearing in the trajectory. The sequence $(s_1, a_1, s_2, a_2, \dots, s_T, a_T)$ 
@@ -541,7 +553,6 @@ The trajectories used in the training data were generated through the following 
 For the maze layouts used in this work, the number of free (non-wall) grid squares in a maze ranges 
 from 7 to 47. If a maze has $n$ free squares, then there are $n(n-1)$ ordered start-goal combinations, 
 since the start and goal positions must be distinct.
-
 For each such start-goal pair, an optimal trajectory is generated using breadth-first search (BFS). 
 Here, optimal means that the resulting path minimises the number of adjacent grid moves required to 
 connect the start and goal positions. Since movement is restricted to adjacent non-wall squares, BFS 
@@ -559,16 +570,16 @@ To compare decoding strategies on unseen queries, the transformer-ready dataset 
 5-fold cross-validation. The dataset contains exactly one trajectory for each ordered start-goal pair
 that is connected by a valid shortest path in a given maze. Within each maze separately, the
 trajectories are sorted deterministically by path length and then lexicographically by start and goal
-coordinates. Folds are then assigned in round-robin order over this sorted list. Because each
+coordinates. Folds are then assigned in round-robin order over this sorted list. This deterministic
+procedure was chosen to make the cross-validation split reproducible. Because each
 start-goal pair appears only once in the dataset, no exact query appears in both the training and
-evaluation portions of a given fold. In the decoding benchmark, evaluation is reported on the five
-maze families \texttt{OPEN}, \texttt{U\_MAZE}, \texttt{SMALL\_MAZE}, \texttt{MEDIUM\_MAZE}, and
-\texttt{LARGE\_MAZE}. The aim of the experiment is therefore to compare how different decoding 
+evaluation portions of a given fold. In the decoding benchmark, evaluation is reported on the eight
+maze families as seen in Figure~\ref{fig:maze_layouts}. The aim of the experiment is therefore to compare how different decoding 
 rules behave on unseen start-goal planning queries under a fixed trained model class. 
 
 \subsection*{Transformer Training}
 
-In addition to the input matrix $X$, the tokenised input sequences are stored in an input matrix $X$, 
+In addition to the input matrix $X$,
 the token-type information is stored in a token-type matrix $T$, 
 the target outputs are stored in a label matrix $Y$, and 
 the padding information is stored in a mask matrix $M$. $T$, $Y$ and $M$ are all of the same shape as $X$.
@@ -617,17 +628,11 @@ step limit is exceeded.
 The step limit refers to the maximum number of decoding steps, equivalently the maximum number of 
 action predictions, that a decoding algorithm is allowed to generate for a query before termination 
 is forced if the goal has not yet been reached. In the implementation used here, this limit is fixed 
-at $19$ steps for all queries. This value was chosen because the Transformer was trained with a 
-maximum input sequence length of $42$ tokens, while the initial decoding prefix already occupies four 
-tokens: the maze token, the start state token, the goal state token, and the initial state token. 
-Each subsequent decoding step appends one action token and one next-state token, so the largest 
-number of decoding steps that can be represented without exceeding the model's maximum sequence 
-length is
-\[
-\left\lfloor \frac{42 - 4}{2} \right\rfloor = 19.
-\]
-The fixed step limit of $19$ therefore ensures that decoding remains consistent with the Transformer's 
-input size while allowing the longest rollout permitted by the model.
+at $19$ steps for all queries. This value was chosen as it is the maximum number of actions to reach the 
+goal found in the training dataset across all maze layouts.
+
+\subsection*{Evaluation Metrics}
+
 
 Since the Transformer only provides an
 estimated conditional distribution over next actions, a decoding strategy may fail to reach the goal
@@ -648,42 +653,60 @@ per step quantity. Averaging this value over evaluation queries gives \textbf{Av
 Step}. Together, these four metrics allow the comparison to capture both planning quality and
 computational efficiency.
 
-\section*{Results}
+\section*{Results and Discussion}
 
-The following table reports the overall decoding performance across all eight maze layouts, 
-aggregated over the full cross-validation evaluation.
+Table~\ref{tab:completion_rate_all8} and Table~\ref{tab:avg_steps_all8} report decoding performance across the eight maze layouts, aggregated over the
+full cross-validation evaluation. The main text focuses on completion rate and average steps to goal.
+The full set of results, including completion rate, average steps to goal, average compute time, and average 
+time per step, is reported in Appendix~\ref{app:per_maze_results}.
 
 \begin{table}[H]
 \centering
-\caption{Dataset-wide decoding results aggregated across all eight maze layouts.}
-\label{tab:decoding_results_all8}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lcccc}
+\caption{Completion rate across all eight maze layouts.}
+\label{tab:completion_rate_all8}
+\small
+\begin{tabular}{lccc}
 \hline
-Strategy & Completion Rate & Avg. Steps to Goal & Avg. Compute Time (s) & Avg. Time per Step (s) \\
+Maze Layout & Greedy & Beam 2 & Beam 3 \\
 \hline
-Greedy   & 0.6916 & 7.7205 & 0.01766 & 0.00155 \\
-Beam 2   & 0.9100 & 7.0771 & 0.01401 & 0.00167 \\
-Beam 3   & 0.9754 & 6.9058 & 0.01298 & 0.00173 \\
+OPEN & 0.8292 & 0.9500 & 0.9958 \\
+U\_MAZE & 0.7333 & 0.9778 & 1.0000 \\
+U\_MAZE\_EVAL & 0.8667 & 1.0000 & 1.0000 \\
+SMALL\_MAZE & 1.0000 & 1.0000 & 1.0000 \\
+MEDIUM\_MAZE & 0.7492 & 0.9338 & 0.9892 \\
+MEDIUM\_MAZE\_EVAL & 0.6292 & 0.9015 & 0.9677 \\
+LARGE\_MAZE & 0.6657 & 0.9092 & 0.9850 \\
+LARGE\_MAZE\_EVAL & 0.6901 & 0.8941 & 0.9598 \\
 \hline
-\end{tabular}%
-}
+\end{tabular}
+\normalsize
 \end{table}
 
-Across all five cross-validation folds, the evaluation set contained 
-5976 trajectory records in total, distributed as follows: 
-OPEN (240), U\_MAZE (90), U\_MAZE\_EVAL (90), SMALL\_MAZE (24), MEDIUM\_MAZE (650), 
-MEDIUM\_MAZE\_EVAL (650), \\ LARGE\_MAZE (2070), and LARGE\_MAZE\_EVAL (2162). 
+\begin{table}[H]
+\centering
+\caption{Average steps to goal across all eight maze layouts.}
+\label{tab:avg_steps_all8}
+\small
+\begin{tabular}{lccc}
+\hline
+Maze Layout & Greedy & Beam 2 & Beam 3 \\
+\hline
+OPEN & 5.7839 & 3.9825 & 3.3724 \\
+U\_MAZE & 4.0152 & 3.7159 & 3.6889 \\
+U\_MAZE\_EVAL & 4.3718 & 3.6667 & 3.6667 \\
+SMALL\_MAZE & 2.2500 & 1.6667 & 1.6667 \\
+MEDIUM\_MAZE & 6.4784 & 5.3674 & 5.2022 \\
+MEDIUM\_MAZE\_EVAL & 6.0513 & 5.3737 & 5.1669 \\
+LARGE\_MAZE & 8.6016 & 8.1722 & 7.9971 \\
+LARGE\_MAZE\_EVAL & 8.4551 & 7.8081 & 7.6361 \\
+\hline
+\end{tabular}
+\normalsize
+\end{table}
 
-Larger mazes consequently contribute more records to the overall evaluation, so the
-aggregated results in Table~\ref{tab:decoding_results_all8} are dominated by the performance 
-on the larger maze layouts. Appendix~\ref{app:per_maze_results} reports the performance of the 
-decoding strategies for each individual maze layout.
 
-\section*{Discussion and Conclusion}
-
-It is observed in Table~\ref{tab:decoding_results_all8} that beam search with width $B=2$ and
-$B=3$ outperforms greedy decoding in terms of both completion rate and average steps to goal,
+It is observed in Tables~\ref{tab:completion_rate_all8} and~\ref{tab:avg_steps_all8} that beam
+search with width $B=2$ and $B=3$ outperforms greedy decoding in terms of both completion rate and average steps to goal,
 with the larger beam width yielding the best overall performance. This is consistent with the
 expectation that a broader search over candidate trajectories yields trajectories with higher
 probability under the learned model, and since the model was trained on optimal trajectories,
@@ -691,10 +714,11 @@ these higher-probability trajectories are more likely to correspond to valid and
 to the goal.
 
 The trade-off typically associated with beam search, relative to greedy decoding, and with
-increasing beam width, is that the broader search requires more computation. The average time per
-step shown in Table~\ref{tab:decoding_results_all8} is indeed higher for beam search than for
-greedy decoding, and in the aggregate it also increases with beam width. However, in this
-implementation the average total compute time per query is lower for beam search than for greedy
+increasing beam width, is that the broader search requires more computation. In the aggregate, the
+average time per step is indeed higher for beam search than for greedy decoding, and it also
+increases with beam width. However, in this
+implementation the average total compute time per query as reported in Appendix~\ref{app:per_maze_results} 
+is lower for beam search than for greedy
 decoding, and is also lower for $B=3$ than for $B=2$. This can be explained by the fact that
 broader searches reach the goal in fewer steps on average, so the reduction in the number of
 decoded steps outweighs the increase in time per step, yielding a lower total compute time.
@@ -712,17 +736,20 @@ average steps to goal of the broader searches were close to, or equal to, those 
 searches. In those cases, the additional per-step cost of the broader search was not always offset
 by a shorter decoded trajectory.
 
-In conclusion, the results demonstrate that beam search is a more effective decoding strategy than
-greedy decoding for the maze planning problem under the learned trajectory model, both in terms of
+\section*{Conclusion and Future Work}
+
+This work investigated the effect of decoding strategy on planning performance when maze planning is
+formulated as autoregressive sequence modelling under a learned generative model. In particular,
+greedy decoding and beam search were compared in terms of goal-reaching success, path efficiency,
+and computational cost in a discrete 2D maze setting.
+
+The results demonstrate that beam search is a more effective decoding strategy than greedy
+decoding for the maze planning problem under the learned trajectory model, both in terms of
 goal-reaching success and path efficiency. The strongest results were obtained with beam width
 $B=3$, which achieved the highest completion rate and the lowest average steps to goal across the
 full evaluation.
 
-\section*{Future Work}
-
-The current work has focused on comparing decoding strategies, specifically greedy decoding and beam
-search, when solving the maze planning problem through imitation learning under a learned trajectory
-model. One underlying assumption is that the model has been trained on optimal trajectories, so that
+One underlying assumption throughout this work is that the model has been trained on optimal trajectories, so that
 higher-probability trajectories under the model are more likely to correspond to valid and efficient
 paths to the goal. In future work, it would be interesting to explore the performance of different
 decoding strategies when the model is trained on sub-optimal trajectories. The expectation is that,
@@ -743,12 +770,6 @@ compared with greedy decoding and beam search.
 
 
 \begin{thebibliography}{9}
-
-\bibitem{hart1968astar}
-P. E. Hart, N. J. Nilsson, and B. Raphael.
-A formal basis for the heuristic determination of minimum cost paths.
-\textit{IEEE Transactions on Systems Science and Cybernetics},
-4(2):100--107, 1968.
 
 \bibitem{sutton2018rl}
 Richard S. Sutton and Andrew G. Barto.
@@ -776,6 +797,11 @@ MIT Press, 2016.
 Diaeddin Alarnaouti, George Baryannis, Mauro Vallati.
 \textit{Reformulation techniques for automated planning: a systematic review}.
 \textit{The Knowledge Engineering Review}, 38, 2023.
+
+\bibitem{d4rlrepo}
+Farama Foundation.
+\textit{D4RL repository, \texttt{d4rl/pointmaze/maze\_model.py}}.
+\url{https://github.com/Farama-Foundation/D4RL/blob/master/d4rl/pointmaze/maze_model.py}.
 
 
 \end{thebibliography}
@@ -922,3 +948,8 @@ Beam 3 & 0.959759 & 7.636145 & 0.014605 & 0.001736 \\
 }
 \end{table}
 \end{document}
+
+
+
+
+
