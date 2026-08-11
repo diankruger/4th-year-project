@@ -467,7 +467,7 @@ of previous actions and explicit coordinates of previous states in the maze, the
 predicts the next action in the trajectory sequence. At inference time, decoding algorithms are
 then used to construct complete trajectories by selecting continuations with high probability 
 under the learned model. Since decoding is based on model probability rather than a reward-maximising 
-objective, this amounts to using imitation learning to solve the planning problem.
+objective, this amounts to using imitation learning to solve the planning problem.gi
 
 A trajectory $\boldsymbol{\tau} = (z_1, z_2, \dots, z_{2T})$ consists of alternating state and action 
 tokens, \\ $(s_1, a_1, s_2, a_2, \dots, s_T, a_T)$, where the states represent coordinates in the maze and 
