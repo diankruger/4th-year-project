@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-08-11T13:28:58.665725+00:00",
+  "experiment": {
+    "output_root": "experiment_runs",
+    "folds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "mazes": [
+      "OPEN",
+      "U_MAZE",
+      "U_MAZE_EVAL",
+      "SMALL_MAZE",
+      "MEDIUM_MAZE",
+      "MEDIUM_MAZE_EVAL",
+      "LARGE_MAZE",
+      "LARGE_MAZE_EVAL"
+    ],
+    "scripts": {
+      "train": "train_maze2d_discrete_transformer.py",
+      "evaluate": "benchmark_partial_observation_cv_decoding.py"
+    },
+    "training": {
+      "epochs": 20,
+      "max_train_episodes": 1000000,
+      "max_val_episodes": 1000000,
+      "batch_size": 128,
+      "d_model": 64,
+      "nhead": 4,
+      "num_layers": 2,
+      "ffn_dim": 128,
+      "dropout": 0.1,
+      "lr": 0.0003,
+      "weight_decay": 0.0001,
+      "seed": 7
+    },
+    "evaluation": {
+      "queries_per_maze": 10000,
+      "max_steps": 19
+    },
+    "name": "cv5_partial_obs_3x3_optimal_4act",
+    "dataset": "maze2d_partial_obs_3x3_optimal_4act_cv5.npz"
+  },
+  "resolved_training_dataset": {
+    "path": "C:\\Users\\User\\Documents\\4th year\\project\\maze2d_partial_obs_3x3_optimal_4act_cv5.npz",
+    "sha256": "9626194cb08754a1dcd9c5e855473cf4d917d820d4b64e0aa50965290ea22da8",
+    "episodes": 5976,
+    "sequence_length": 100,
+    "available_folds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "available_mazes": [
+      "OPEN",
+      "U_MAZE",
+      "U_MAZE_EVAL",
+      "SMALL_MAZE",
+      "MEDIUM_MAZE",
+      "MEDIUM_MAZE_EVAL",
+      "LARGE_MAZE",
+      "LARGE_MAZE_EVAL"
+    ],
+    "requested_fold_counts": {
+      "0": 1196,
+      "1": 1196,
+      "2": 1195,
+      "3": 1195,
+      "4": 1194
+    }
+  },
+  "resolved_evaluation_dataset": {
+    "path": "C:\\Users\\User\\Documents\\4th year\\project\\maze2d_partial_obs_3x3_optimal_4act_cv5.npz",
+    "sha256": "9626194cb08754a1dcd9c5e855473cf4d917d820d4b64e0aa50965290ea22da8",
+    "episodes": 5976,
+    "sequence_length": 100,
+    "available_folds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "available_mazes": [
+      "OPEN",
+      "U_MAZE",
+      "U_MAZE_EVAL",
+      "SMALL_MAZE",
+      "MEDIUM_MAZE",
+      "MEDIUM_MAZE_EVAL",
+      "LARGE_MAZE",
+      "LARGE_MAZE_EVAL"
+    ],
+    "requested_fold_counts": {
+      "0": 1196,
+      "1": 1196,
+      "2": 1195,
+      "3": 1195,
+      "4": 1194
+    }
+  },
+  "python_executable": "c:\\Users\\User\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+  "python_version": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+  "commands": [
+    {
+      "fold": 0,
+      "train": "c:\\Users\\User\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe \"C:\\Users\\User\\Documents\\4th year\\project\\train_maze2d_discrete_transformer.py\" --dataset \"C:\\Users\\User\\Documents\\4th year\\project\\maze2d_partial_obs_3x3_optimal_4act_cv5.npz\" --cv-fold 0 --output \"C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_0\\checkpoint.pt\" --epochs 20 --max-train-episodes 1000000 --max-val-episodes 1000000 --batch-size 128 --d-model 64 --nhead 4 --num-layers 2 --ffn-dim 128 --dropout 0.1 --lr 0.0003 --weight-decay 0.0001 --seed 7",
+      "evaluate": "c:\\Users\\User\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe \"C:\\Users\\User\\Documents\\4th year\\project\\benchmark_partial_observation_cv_decoding.py\" --dataset \"C:\\Users\\User\\Documents\\4th year\\project\\maze2d_partial_obs_3x3_optimal_4act_cv5.npz\" --checkpoint \"C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_0\\checkpoint.pt\" --cv-fold 0 --results-csv \"C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_0\\results.csv\" --summary-csv \"C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_0\\summary.csv\" --per-maze-summary-csv \"C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_0\\per_maze_summary.csv\" --queries-per-maze 10000 --max-steps 19 --mazes OPEN U_MAZE U_MAZE_EVAL SMALL_MAZE MEDIUM_MAZE MEDIUM_MAZE_EVAL LARGE_MAZE LARGE_MAZE_EVAL",
+      "training_executed": false,
+      "evaluation_executed": false
+    },
+    {
+      "fold": 1,
+      "train": "c:\\Users\\User\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe \"C:\\Users\\User\\Documents\\4th year\\project\\train_maze2d_discrete_transformer.py\" --dataset \"C:\\Users\\User\\Documents\\4th year\\project\\maze2d_partial_obs_3x3_optimal_4act_cv5.npz\" --cv-fold 1 --output \"C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_1\\checkpoint.pt\" --epochs 20 --max-train-episodes 1000000 --max-val-episodes 1000000 --batch-size 128 --d-model 64 --nhead 4 --num-layers 2 --ffn-dim 128 --dropout 0.1 --lr 0.0003 --weight-decay 0.0001 --seed 7",
+      "evaluate": "c:\\Users\\User\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe \"C:\\Users\\User\\Documents\\4th year\\project\\benchmark_partial_observation_cv_decoding.py\" --dataset \"C:\\Users\\User\\Documents\\4th year\\project\\maze2d_partial_obs_3x3_optimal_4act_cv5.npz\" --checkpoint \"C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_1\\checkpoint.pt\" --cv-fold 1 --results-csv \"C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_1\\results.csv\" --summary-csv \"C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_1\\summary.csv\" --per-maze-summary-csv \"C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_1\\per_maze_summary.csv\" --queries-per-maze 10000 --max-steps 19 --mazes OPEN U_MAZE U_MAZE_EVAL SMALL_MAZE MEDIUM_MAZE MEDIUM_MAZE_EVAL LARGE_MAZE LARGE_MAZE_EVAL",
+      "training_executed": false,
+      "evaluation_executed": false
+    },
+    {
+      "fold": 2,
+      "train": "c:\\Users\\User\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe \"C:\\Users\\User\\Documents\\4th year\\project\\train_maze2d_discrete_transformer.py\" --dataset \"C:\\Users\\User\\Documents\\4th year\\project\\maze2d_partial_obs_3x3_optimal_4act_cv5.npz\" --cv-fold 2 --output \"C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_2\\checkpoint.pt\" --epochs 20 --max-train-episodes 1000000 --max-val-episodes 1000000 --batch-size 128 --d-model 64 --nhead 4 --num-layers 2 --ffn-dim 128 --dropout 0.1 --lr 0.0003 --weight-decay 0.0001 --seed 7",
+      "evaluate": "c:\\Users\\User\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe \"C:\\Users\\User\\Documents\\4th year\\project\\benchmark_partial_observation_cv_decoding.py\" --dataset \"C:\\Users\\User\\Documents\\4th year\\project\\maze2d_partial_obs_3x3_optimal_4act_cv5.npz\" --checkpoint \"C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_2\\checkpoint.pt\" --cv-fold 2 --results-csv \"C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_2\\results.csv\" --summary-csv \"C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_2\\summary.csv\" --per-maze-summary-csv \"C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_2\\per_maze_summary.csv\" --queries-per-maze 10000 --max-steps 19 --mazes OPEN U_MAZE U_MAZE_EVAL SMALL_MAZE MEDIUM_MAZE MEDIUM_MAZE_EVAL LARGE_MAZE LARGE_MAZE_EVAL",
+      "training_executed": false,
+      "evaluation_executed": false
+    },
+    {
+      "fold": 3,
+      "train": "c:\\Users\\User\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe \"C:\\Users\\User\\Documents\\4th year\\project\\train_maze2d_discrete_transformer.py\" --dataset \"C:\\Users\\User\\Documents\\4th year\\project\\maze2d_partial_obs_3x3_optimal_4act_cv5.npz\" --cv-fold 3 --output \"C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_3\\checkpoint.pt\" --epochs 20 --max-train-episodes 1000000 --max-val-episodes 1000000 --batch-size 128 --d-model 64 --nhead 4 --num-layers 2 --ffn-dim 128 --dropout 0.1 --lr 0.0003 --weight-decay 0.0001 --seed 7",
+      "evaluate": "c:\\Users\\User\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe \"C:\\Users\\User\\Documents\\4th year\\project\\benchmark_partial_observation_cv_decoding.py\" --dataset \"C:\\Users\\User\\Documents\\4th year\\project\\maze2d_partial_obs_3x3_optimal_4act_cv5.npz\" --checkpoint \"C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_3\\checkpoint.pt\" --cv-fold 3 --results-csv \"C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_3\\results.csv\" --summary-csv \"C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_3\\summary.csv\" --per-maze-summary-csv \"C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_3\\per_maze_summary.csv\" --queries-per-maze 10000 --max-steps 19 --mazes OPEN U_MAZE U_MAZE_EVAL SMALL_MAZE MEDIUM_MAZE MEDIUM_MAZE_EVAL LARGE_MAZE LARGE_MAZE_EVAL",
+      "training_executed": false,
+      "evaluation_executed": false
+    },
+    {
+      "fold": 4,
+      "train": "c:\\Users\\User\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe \"C:\\Users\\User\\Documents\\4th year\\project\\train_maze2d_discrete_transformer.py\" --dataset \"C:\\Users\\User\\Documents\\4th year\\project\\maze2d_partial_obs_3x3_optimal_4act_cv5.npz\" --cv-fold 4 --output \"C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_4\\checkpoint.pt\" --epochs 20 --max-train-episodes 1000000 --max-val-episodes 1000000 --batch-size 128 --d-model 64 --nhead 4 --num-layers 2 --ffn-dim 128 --dropout 0.1 --lr 0.0003 --weight-decay 0.0001 --seed 7",
+      "evaluate": "c:\\Users\\User\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe \"C:\\Users\\User\\Documents\\4th year\\project\\benchmark_partial_observation_cv_decoding.py\" --dataset \"C:\\Users\\User\\Documents\\4th year\\project\\maze2d_partial_obs_3x3_optimal_4act_cv5.npz\" --checkpoint \"C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_4\\checkpoint.pt\" --cv-fold 4 --results-csv \"C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_4\\results.csv\" --summary-csv \"C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_4\\summary.csv\" --per-maze-summary-csv \"C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_4\\per_maze_summary.csv\" --queries-per-maze 10000 --max-steps 19 --mazes OPEN U_MAZE U_MAZE_EVAL SMALL_MAZE MEDIUM_MAZE MEDIUM_MAZE_EVAL LARGE_MAZE LARGE_MAZE_EVAL",
+      "training_executed": false,
+      "evaluation_executed": false
+    }
+  ],
+  "dry_run": false,
+  "outputs": {
+    "results": "C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\results.csv",
+    "summary": "C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\summary.csv",
+    "per_maze_summary": "C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\per_maze_summary.csv",
+    "fold_summaries": "C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_summaries.csv",
+    "fold_mean_std": "C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\cv5_partial_obs_3x3_optimal_4act\\fold_mean_std.csv"
+  }
+}

@@ -194,7 +194,9 @@ def greedy_generate_actions(
     token_types_full = dataset.token_type_ids[episode_index].numpy()
     seq_len = int(dataset.sequence_lengths[episode_index].item())
 
-    action_positions = np.flatnonzero(labels_full[:seq_len] != -100)
+    action_positions = np.flatnonzero(
+        (labels_full[:seq_len] != -100) & (token_types_full[:seq_len] == 5)
+    )
     prompt_end = 4  # [MAZE, START, GOAL, STATE_0]
     generated = input_ids_full[:prompt_end].tolist()
     generated_types = token_types_full[:prompt_end].tolist()

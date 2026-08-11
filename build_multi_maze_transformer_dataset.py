@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 from collections import deque
 from pathlib import Path
 
@@ -27,6 +28,13 @@ TOKEN_TYPE_START = 2
 TOKEN_TYPE_GOAL = 3
 TOKEN_TYPE_STATE = 4
 TOKEN_TYPE_ACTION = 5
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Build the multi-maze transformer-ready dataset.")
+    parser.add_argument("--source-dataset", type=Path, default=SOURCE_MAZE_DATASET)
+    parser.add_argument("--output-dataset", type=Path, default=OUTPUT_DATASET)
+    return parser.parse_args()
 
 
 def cell_to_state_index(cell_xy: np.ndarray, global_grid_shape: tuple[int, int]) -> int:
@@ -106,7 +114,8 @@ def build_tokenized_episode(
 
 
 def main() -> None:
-    dataset = np.load(SOURCE_MAZE_DATASET, allow_pickle=True)
+    args = parse_args()
+    dataset = np.load(args.source_dataset, allow_pickle=True)
     maze_names = np.asarray(dataset["maze_names"])
     mazes = dataset["mazes"]
     grid_shapes = np.asarray(dataset["grid_shapes"], dtype=np.int32)
@@ -197,7 +206,7 @@ def main() -> None:
         attention_mask[idx, :seq_len] = 1
 
     np.savez_compressed(
-        OUTPUT_DATASET,
+        args.output_dataset,
         input_ids=input_ids,
         labels=labels,
         attention_mask=attention_mask,
@@ -231,8 +240,8 @@ def main() -> None:
         token_type_action=np.asarray([TOKEN_TYPE_ACTION], dtype=np.int8),
     )
 
-    print("source_dataset:", SOURCE_MAZE_DATASET)
-    print("output_dataset:", OUTPUT_DATASET)
+    print("source_dataset:", args.source_dataset)
+    print("output_dataset:", args.output_dataset)
     print("num_mazes:", num_mazes)
     print("maze_names:", [str(name) for name in maze_names])
     print("global_grid_shape:", global_grid_shape)

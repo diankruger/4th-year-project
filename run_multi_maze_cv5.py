@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import subprocess
 from pathlib import Path
 
@@ -10,6 +11,18 @@ PROJECT_DIR = Path(__file__).resolve().parent
 DATASET_PATH = PROJECT_DIR / "maze2d_all_mazes_transformer_ready_cv5.npz"
 CHECKPOINT_DIR = PROJECT_DIR / "checkpoints"
 FOLDS = range(5)
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Train and evaluate the 5-fold CV transformer experiments.")
+    parser.add_argument("--dataset", type=Path, default=DATASET_PATH)
+    parser.add_argument(
+        "--run-tag",
+        type=str,
+        default="cv5",
+        help="Suffix used to name checkpoints and CSV outputs for this run.",
+    )
+    return parser.parse_args()
 
 
 def run_command(args: list[str]) -> None:
@@ -40,6 +53,7 @@ def summarize_by_columns(results: pd.DataFrame, group_cols: list[str]) -> pd.Dat
 
 
 def main() -> None:
+    args = parse_args()
     CHECKPOINT_DIR.mkdir(parents=True, exist_ok=True)
 
     all_results = []
@@ -47,17 +61,17 @@ def main() -> None:
     all_per_maze = []
 
     for fold in FOLDS:
-        checkpoint_path = CHECKPOINT_DIR / f"maze2d_multi_maze_transformer_tiny_cv5_fold{fold}.pt"
-        results_csv = PROJECT_DIR / f"beam_search_benchmark_cv5_fold{fold}_results.csv"
-        summary_csv = PROJECT_DIR / f"beam_search_benchmark_cv5_fold{fold}_summary.csv"
-        per_maze_csv = PROJECT_DIR / f"beam_search_benchmark_cv5_fold{fold}_per_maze_summary.csv"
+        checkpoint_path = CHECKPOINT_DIR / f"maze2d_multi_maze_transformer_tiny_{args.run_tag}_fold{fold}.pt"
+        results_csv = PROJECT_DIR / f"beam_search_benchmark_{args.run_tag}_fold{fold}_results.csv"
+        summary_csv = PROJECT_DIR / f"beam_search_benchmark_{args.run_tag}_fold{fold}_summary.csv"
+        per_maze_csv = PROJECT_DIR / f"beam_search_benchmark_{args.run_tag}_fold{fold}_per_maze_summary.csv"
 
         run_command(
             [
                 "python",
                 "train_maze2d_discrete_transformer.py",
                 "--dataset",
-                str(DATASET_PATH),
+                str(args.dataset),
                 "--cv-fold",
                 str(fold),
                 "--epochs",
@@ -86,7 +100,7 @@ def main() -> None:
                 "python",
                 "benchmark_multi_maze_cv_decoding.py",
                 "--dataset",
-                str(DATASET_PATH),
+                str(args.dataset),
                 "--checkpoint",
                 str(checkpoint_path),
                 "--cv-fold",
@@ -135,12 +149,12 @@ def main() -> None:
         .reset_index(drop=True)
     )
 
-    pooled_results.to_csv(PROJECT_DIR / "beam_search_benchmark_cv5_results.csv", index=False)
-    pooled_fold_summary.to_csv(PROJECT_DIR / "beam_search_benchmark_cv5_fold_summaries.csv", index=False)
-    pooled_fold_per_maze.to_csv(PROJECT_DIR / "beam_search_benchmark_cv5_fold_per_maze_summaries.csv", index=False)
-    cv_summary.to_csv(PROJECT_DIR / "beam_search_benchmark_cv5_summary.csv", index=False)
-    cv_per_maze_summary.to_csv(PROJECT_DIR / "beam_search_benchmark_cv5_per_maze_summary.csv", index=False)
-    cv_fold_mean_std.to_csv(PROJECT_DIR / "beam_search_benchmark_cv5_fold_mean_std.csv", index=False)
+    pooled_results.to_csv(PROJECT_DIR / f"beam_search_benchmark_{args.run_tag}_results.csv", index=False)
+    pooled_fold_summary.to_csv(PROJECT_DIR / f"beam_search_benchmark_{args.run_tag}_fold_summaries.csv", index=False)
+    pooled_fold_per_maze.to_csv(PROJECT_DIR / f"beam_search_benchmark_{args.run_tag}_fold_per_maze_summaries.csv", index=False)
+    cv_summary.to_csv(PROJECT_DIR / f"beam_search_benchmark_{args.run_tag}_summary.csv", index=False)
+    cv_per_maze_summary.to_csv(PROJECT_DIR / f"beam_search_benchmark_{args.run_tag}_per_maze_summary.csv", index=False)
+    cv_fold_mean_std.to_csv(PROJECT_DIR / f"beam_search_benchmark_{args.run_tag}_fold_mean_std.csv", index=False)
 
     print(cv_summary.to_string(index=False))
     print(cv_fold_mean_std.to_string(index=False))

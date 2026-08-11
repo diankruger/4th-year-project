@@ -1,16 +1,11 @@
 \documentclass[12pt]{article}
 
+\usepackage[a4paper,margin=1in]{geometry}
 \usepackage{longtable}
-
-\title{Project Plan: Planning as Autoregressive Sequence Modelling}
-\author{Dian Kruger \\ Shane Josias}
-\date{}
 
 \begin{document}
 
-\maketitle
-
-\section*{Project Plan}
+\noindent\textbf{Original Project Plan}
 
 \begin{longtable}{|p{3cm}|p{11cm}|}
 \hline
@@ -83,6 +78,96 @@ Writing and revision of the first full draft of the report describing the modell
 
 20 October &
 Implementation of an application demonstrating the practical use of the proposed planning framework. This may involve applying the trained model and decoding procedures to a more complex navigation or planning scenario. Completion and refinement of the final written report will also occur during this stage. \\
+\hline
+
+30 October &
+Submission of final report. \\
+\hline
+
+6 November &
+Submission of the project summary document. \\
+\hline
+
+16--20 November &
+Final project presentation. \\
+\hline
+
+\end{longtable}
+
+\vspace{1em}
+\noindent\textbf{Revised Project Plan}
+
+\begin{longtable}{|p{3cm}|p{11cm}|}
+\hline
+\textbf{Date} & \textbf{Planned Progress} \\
+\hline
+
+7 April &
+Construction of a minimal end-to-end Maze2D analysis pipeline. This includes inspection of the D4RL / Maze2D environment structure, loading and visualisation of trajectories, and initial verification of how observations, \texttt{qpos}, \texttt{qvel}, actions, and goals are represented in the benchmark data. \\
+\hline
+
+4 May &
+Detailed investigation of the geometric relationship between stored Maze2D positions and maze wall layouts. Development of continuous and discrete trajectory visualisations, together with validation procedures to ensure that the plotted trajectories are consistent with the benchmark maze geometry. \\
+\hline
+
+19 May &
+Construction of a discrete trajectory dataset from Maze2D-style mazes. This includes representing trajectories as alternating state and action tokens, discretising maze layouts into grid-based paths, and preparing data in a form suitable for autoregressive sequence modelling. \\
+\hline
+
+26 May &
+Implementation of greedy decoding and beam search for the discrete planning setting, together with initial experiments verifying that a trained autoregressive model can generate valid trajectories from start-goal queries. \\
+\hline
+
+2 June &
+Expansion from a single Maze2D example to multiple D4RL maze layouts. Construction of a benchmark dataset containing shortest valid trajectories for all connected start-goal pairs across the selected maze family. \\
+\hline
+
+10 June &
+Implementation refinements to the multi-maze pipeline, including tokenisation, trajectory encoding, training-set construction, and preparation of transformer-ready inputs, labels, token-type information, and masks. \\
+\hline
+
+16 June &
+Training of a small causal Transformer on the discrete trajectory data and execution of initial decoding experiments comparing greedy decoding with beam search under multiple maze layouts. \\
+\hline
+
+20 June &
+Aggregation and analysis of preliminary results, including completion rate, average steps to goal, and computational-cost metrics. Preparation of figures, tables, and explanations for inclusion in the interim report. \\
+\hline
+
+24 June &
+Revision and refinement of the interim report, including clarification of the probabilistic modelling formulation, dataset construction, Transformer training procedure, and decoding methodology. \\
+\hline
+
+20 July &
+Submission of the interim report. \\
+\hline
+
+20--24 July &
+Interim presentations. \\
+\hline
+
+8 August &
+Investigation of how decoding performance changes when the trajectory model is trained on sub-optimal trajectories rather than shortest paths, testing the dependence of the current imitation-learning formulation on optimal training data. \\
+\hline
+
+20 August &
+Extension of the planning framework toward an offline reinforcement learning setting, where decoding is guided by predicted reward or return rather than model probability alone. \\
+\hline
+
+30 August &
+Implementation and evaluation of additional decoding strategies, such as stochastic decoding or nucleus sampling, for comparison with greedy decoding and beam search. \\
+\hline
+
+5 September &
+Analysis of the expanded experimental results and preparation of additional figures and tables comparing decoding strategies under the revised settings. \\
+\hline
+
+10 September &
+Writing and revision of the first full draft of the final report, consolidating the modelling formulation, experimental methodology, decoding evaluation, and discussion of results. \\
+\hline
+
+20 October &
+Final refinement of the report and completion of any remaining experimental or presentation material needed for the project submission stage. \\
 \hline
 
 30 October &

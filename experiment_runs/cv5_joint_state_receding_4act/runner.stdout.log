@@ -1,0 +1,277 @@
+
+=== Experiment: cv5_joint_state_receding_4act ===
+training dataset:
+{
+  "path": "C:\\Users\\User\\Documents\\4th year\\project\\maze2d_all_mazes_joint_state_action_4act_cv5.npz",
+  "sha256": "8fc8671996b74e04336d075eb1f8c55fd3f596c110a058f17ac89f4fdc2c9506",
+  "episodes": 5976,
+  "sequence_length": 42,
+  "available_folds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "available_mazes": [
+    "OPEN",
+    "U_MAZE",
+    "U_MAZE_EVAL",
+    "SMALL_MAZE",
+    "MEDIUM_MAZE",
+    "MEDIUM_MAZE_EVAL",
+    "LARGE_MAZE",
+    "LARGE_MAZE_EVAL"
+  ],
+  "requested_fold_counts": {
+    "1": 1196,
+    "2": 1195,
+    "3": 1195,
+    "4": 1194
+  }
+}
+$ "C:\Users\User\Documents\4th year\project\.venv\Scripts\python.exe" "C:\Users\User\Documents\4th year\project\train_maze2d_discrete_transformer.py" --dataset "C:\Users\User\Documents\4th year\project\maze2d_all_mazes_joint_state_action_4act_cv5.npz" --cv-fold 1 --output "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_joint_state_receding_4act\fold_1\checkpoint.pt" --epochs 20 --max-train-episodes 1000000 --max-val-episodes 1000000 --batch-size 128 --d-model 64 --nhead 4 --num-layers 2 --ffn-dim 128 --dropout 0.1 --lr 0.0003 --weight-decay 0.0001 --seed 7
+{
+  "dataset": "C:\\Users\\User\\Documents\\4th year\\project\\maze2d_all_mazes_joint_state_action_4act_cv5.npz",
+  "train_episodes": 4780,
+  "val_episodes": 1196,
+  "seq_len": 42,
+  "vocab_size": 121,
+  "device": "cpu"
+}
+epoch 01 | train_loss=4.1182 train_acc=0.1122 | val_loss=3.4695 val_acc=0.1901
+epoch 02 | train_loss=3.1542 train_acc=0.2272 | val_loss=2.8812 val_acc=0.2515
+epoch 03 | train_loss=2.7296 train_acc=0.2695 | val_loss=2.5939 val_acc=0.2851
+epoch 04 | train_loss=2.4711 train_acc=0.3235 | val_loss=2.3601 val_acc=0.3514
+epoch 05 | train_loss=2.2371 train_acc=0.3883 | val_loss=2.1020 val_acc=0.4351
+epoch 06 | train_loss=1.9789 train_acc=0.4730 | val_loss=1.8131 val_acc=0.5269
+epoch 07 | train_loss=1.7139 train_acc=0.5560 | val_loss=1.5267 val_acc=0.6116
+epoch 08 | train_loss=1.4626 train_acc=0.6320 | val_loss=1.2795 val_acc=0.6783
+epoch 09 | train_loss=1.2518 train_acc=0.6904 | val_loss=1.0810 val_acc=0.7351
+epoch 10 | train_loss=1.0812 train_acc=0.7328 | val_loss=0.9190 val_acc=0.7668
+epoch 11 | train_loss=0.9412 train_acc=0.7667 | val_loss=0.7894 val_acc=0.7975
+epoch 12 | train_loss=0.8255 train_acc=0.7920 | val_loss=0.6799 val_acc=0.8199
+epoch 13 | train_loss=0.7265 train_acc=0.8150 | val_loss=0.5863 val_acc=0.8400
+epoch 14 | train_loss=0.6398 train_acc=0.8347 | val_loss=0.5117 val_acc=0.8549
+epoch 15 | train_loss=0.5717 train_acc=0.8493 | val_loss=0.4473 val_acc=0.8720
+epoch 16 | train_loss=0.5116 train_acc=0.8647 | val_loss=0.3951 val_acc=0.8833
+epoch 17 | train_loss=0.4608 train_acc=0.8777 | val_loss=0.3487 val_acc=0.8976
+epoch 18 | train_loss=0.4166 train_acc=0.8887 | val_loss=0.3104 val_acc=0.9071
+epoch 19 | train_loss=0.3821 train_acc=0.8963 | val_loss=0.2756 val_acc=0.9185
+epoch 20 | train_loss=0.3471 train_acc=0.9070 | val_loss=0.2478 val_acc=0.9281
+preview rollout: {
+  "episode_id": 2,
+  "target_action_tokens": [
+    117,
+    117,
+    117
+  ],
+  "pred_action_tokens": [
+    117,
+    117,
+    117
+  ],
+  "target_actions_named": [
+    "ACTION_UP",
+    "ACTION_UP",
+    "ACTION_UP"
+  ],
+  "pred_actions_named": [
+    "ACTION_UP",
+    "ACTION_UP",
+    "ACTION_UP"
+  ]
+}
+saved checkpoint: C:\Users\User\Documents\4th year\project\experiment_runs\cv5_joint_state_receding_4act\fold_1\checkpoint.pt
+$ "C:\Users\User\Documents\4th year\project\.venv\Scripts\python.exe" "C:\Users\User\Documents\4th year\project\benchmark_joint_state_receding_cv_decoding.py" --dataset "C:\Users\User\Documents\4th year\project\maze2d_all_mazes_joint_state_action_4act_cv5.npz" --checkpoint "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_joint_state_receding_4act\fold_1\checkpoint.pt" --cv-fold 1 --results-csv "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_joint_state_receding_4act\fold_1\results.csv" --summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_joint_state_receding_4act\fold_1\summary.csv" --per-maze-summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_joint_state_receding_4act\fold_1\per_maze_summary.csv" --queries-per-maze 10000 --max-steps 19 --planning-horizon 5 --mazes OPEN U_MAZE U_MAZE_EVAL SMALL_MAZE MEDIUM_MAZE MEDIUM_MAZE_EVAL LARGE_MAZE LARGE_MAZE_EVAL
+{
+  "fold": 1,
+  "rows": 3588
+}
+       strategy  completion_rate  average_steps_to_goal  average_compute_seconds  average_seconds_per_step  first_predicted_state_accuracy  imagined_transition_consistency
+receding_beam_2         0.840301               7.060697                 0.174832                  0.015844                        0.920046                         0.927171
+receding_beam_3         0.894649               7.033645                 0.170222                  0.016429                        0.886565                         0.911033
+receding_greedy         0.613712               7.534060                 0.230175                  0.016606                        0.895735                         0.862330
+$ "C:\Users\User\Documents\4th year\project\.venv\Scripts\python.exe" "C:\Users\User\Documents\4th year\project\train_maze2d_discrete_transformer.py" --dataset "C:\Users\User\Documents\4th year\project\maze2d_all_mazes_joint_state_action_4act_cv5.npz" --cv-fold 2 --output "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_joint_state_receding_4act\fold_2\checkpoint.pt" --epochs 20 --max-train-episodes 1000000 --max-val-episodes 1000000 --batch-size 128 --d-model 64 --nhead 4 --num-layers 2 --ffn-dim 128 --dropout 0.1 --lr 0.0003 --weight-decay 0.0001 --seed 7
+{
+  "dataset": "C:\\Users\\User\\Documents\\4th year\\project\\maze2d_all_mazes_joint_state_action_4act_cv5.npz",
+  "train_episodes": 4781,
+  "val_episodes": 1195,
+  "seq_len": 42,
+  "vocab_size": 121,
+  "device": "cpu"
+}
+epoch 01 | train_loss=4.1148 train_acc=0.1146 | val_loss=3.4670 val_acc=0.1875
+epoch 02 | train_loss=3.1544 train_acc=0.2256 | val_loss=2.8771 val_acc=0.2526
+epoch 03 | train_loss=2.7294 train_acc=0.2678 | val_loss=2.5904 val_acc=0.2873
+epoch 04 | train_loss=2.4705 train_acc=0.3255 | val_loss=2.3589 val_acc=0.3465
+epoch 05 | train_loss=2.2389 train_acc=0.3916 | val_loss=2.1018 val_acc=0.4358
+epoch 06 | train_loss=1.9794 train_acc=0.4732 | val_loss=1.8122 val_acc=0.5230
+epoch 07 | train_loss=1.7074 train_acc=0.5595 | val_loss=1.5245 val_acc=0.6195
+epoch 08 | train_loss=1.4577 train_acc=0.6342 | val_loss=1.2833 val_acc=0.6859
+epoch 09 | train_loss=1.2493 train_acc=0.6909 | val_loss=1.0886 val_acc=0.7320
+epoch 10 | train_loss=1.0826 train_acc=0.7319 | val_loss=0.9321 val_acc=0.7643
+epoch 11 | train_loss=0.9435 train_acc=0.7643 | val_loss=0.8026 val_acc=0.7904
+epoch 12 | train_loss=0.8312 train_acc=0.7876 | val_loss=0.6940 val_acc=0.8147
+epoch 13 | train_loss=0.7287 train_acc=0.8126 | val_loss=0.6088 val_acc=0.8303
+epoch 14 | train_loss=0.6476 train_acc=0.8306 | val_loss=0.5263 val_acc=0.8503
+epoch 15 | train_loss=0.5835 train_acc=0.8442 | val_loss=0.4623 val_acc=0.8672
+epoch 16 | train_loss=0.5217 train_acc=0.8597 | val_loss=0.4060 val_acc=0.8801
+epoch 17 | train_loss=0.4697 train_acc=0.8723 | val_loss=0.3606 val_acc=0.8956
+epoch 18 | train_loss=0.4266 train_acc=0.8843 | val_loss=0.3199 val_acc=0.9058
+epoch 19 | train_loss=0.3854 train_acc=0.8963 | val_loss=0.2871 val_acc=0.9142
+epoch 20 | train_loss=0.3584 train_acc=0.9020 | val_loss=0.2575 val_acc=0.9224
+preview rollout: {
+  "episode_id": 5,
+  "target_action_tokens": [
+    117,
+    117,
+    120
+  ],
+  "pred_action_tokens": [
+    117,
+    117,
+    117
+  ],
+  "target_actions_named": [
+    "ACTION_UP",
+    "ACTION_UP",
+    "ACTION_RIGHT"
+  ],
+  "pred_actions_named": [
+    "ACTION_UP",
+    "ACTION_UP",
+    "ACTION_UP"
+  ]
+}
+saved checkpoint: C:\Users\User\Documents\4th year\project\experiment_runs\cv5_joint_state_receding_4act\fold_2\checkpoint.pt
+$ "C:\Users\User\Documents\4th year\project\.venv\Scripts\python.exe" "C:\Users\User\Documents\4th year\project\benchmark_joint_state_receding_cv_decoding.py" --dataset "C:\Users\User\Documents\4th year\project\maze2d_all_mazes_joint_state_action_4act_cv5.npz" --checkpoint "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_joint_state_receding_4act\fold_2\checkpoint.pt" --cv-fold 2 --results-csv "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_joint_state_receding_4act\fold_2\results.csv" --summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_joint_state_receding_4act\fold_2\summary.csv" --per-maze-summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_joint_state_receding_4act\fold_2\per_maze_summary.csv" --queries-per-maze 10000 --max-steps 19 --planning-horizon 5 --mazes OPEN U_MAZE U_MAZE_EVAL SMALL_MAZE MEDIUM_MAZE MEDIUM_MAZE_EVAL LARGE_MAZE LARGE_MAZE_EVAL
+{
+  "fold": 2,
+  "rows": 3585
+}
+       strategy  completion_rate  average_steps_to_goal  average_compute_seconds  average_seconds_per_step  first_predicted_state_accuracy  imagined_transition_consistency
+receding_beam_2         0.840167               6.999004                 0.260187                  0.023997                        0.921988                         0.925582
+receding_beam_3         0.898745               6.981378                 0.245003                  0.024231                        0.896410                         0.914843
+receding_greedy         0.589958               7.634043                 0.365643                  0.025745                        0.888438                         0.851616
+$ "C:\Users\User\Documents\4th year\project\.venv\Scripts\python.exe" "C:\Users\User\Documents\4th year\project\train_maze2d_discrete_transformer.py" --dataset "C:\Users\User\Documents\4th year\project\maze2d_all_mazes_joint_state_action_4act_cv5.npz" --cv-fold 3 --output "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_joint_state_receding_4act\fold_3\checkpoint.pt" --epochs 20 --max-train-episodes 1000000 --max-val-episodes 1000000 --batch-size 128 --d-model 64 --nhead 4 --num-layers 2 --ffn-dim 128 --dropout 0.1 --lr 0.0003 --weight-decay 0.0001 --seed 7
+{
+  "dataset": "C:\\Users\\User\\Documents\\4th year\\project\\maze2d_all_mazes_joint_state_action_4act_cv5.npz",
+  "train_episodes": 4781,
+  "val_episodes": 1195,
+  "seq_len": 42,
+  "vocab_size": 121,
+  "device": "cpu"
+}
+epoch 01 | train_loss=4.1140 train_acc=0.1167 | val_loss=3.4731 val_acc=0.1868
+epoch 02 | train_loss=3.1549 train_acc=0.2239 | val_loss=2.8754 val_acc=0.2551
+epoch 03 | train_loss=2.7295 train_acc=0.2673 | val_loss=2.5864 val_acc=0.2919
+epoch 04 | train_loss=2.4713 train_acc=0.3245 | val_loss=2.3572 val_acc=0.3477
+epoch 05 | train_loss=2.2445 train_acc=0.3882 | val_loss=2.1065 val_acc=0.4315
+epoch 06 | train_loss=1.9926 train_acc=0.4684 | val_loss=1.8166 val_acc=0.5289
+epoch 07 | train_loss=1.7219 train_acc=0.5543 | val_loss=1.5266 val_acc=0.6177
+epoch 08 | train_loss=1.4679 train_acc=0.6296 | val_loss=1.2790 val_acc=0.6873
+epoch 09 | train_loss=1.2599 train_acc=0.6873 | val_loss=1.0787 val_acc=0.7416
+epoch 10 | train_loss=1.0892 train_acc=0.7298 | val_loss=0.9162 val_acc=0.7730
+epoch 11 | train_loss=0.9412 train_acc=0.7676 | val_loss=0.7829 val_acc=0.8031
+epoch 12 | train_loss=0.8244 train_acc=0.7934 | val_loss=0.6720 val_acc=0.8256
+epoch 13 | train_loss=0.7254 train_acc=0.8141 | val_loss=0.5805 val_acc=0.8432
+epoch 14 | train_loss=0.6395 train_acc=0.8343 | val_loss=0.5009 val_acc=0.8620
+epoch 15 | train_loss=0.5714 train_acc=0.8493 | val_loss=0.4369 val_acc=0.8782
+epoch 16 | train_loss=0.5103 train_acc=0.8650 | val_loss=0.3812 val_acc=0.8955
+epoch 17 | train_loss=0.4583 train_acc=0.8772 | val_loss=0.3345 val_acc=0.9081
+epoch 18 | train_loss=0.4166 train_acc=0.8893 | val_loss=0.2958 val_acc=0.9186
+epoch 19 | train_loss=0.3748 train_acc=0.9004 | val_loss=0.2641 val_acc=0.9278
+epoch 20 | train_loss=0.3455 train_acc=0.9074 | val_loss=0.2357 val_acc=0.9368
+preview rollout: {
+  "episode_id": 1,
+  "target_action_tokens": [
+    117,
+    117
+  ],
+  "pred_action_tokens": [
+    117,
+    117
+  ],
+  "target_actions_named": [
+    "ACTION_UP",
+    "ACTION_UP"
+  ],
+  "pred_actions_named": [
+    "ACTION_UP",
+    "ACTION_UP"
+  ]
+}
+saved checkpoint: C:\Users\User\Documents\4th year\project\experiment_runs\cv5_joint_state_receding_4act\fold_3\checkpoint.pt
+$ "C:\Users\User\Documents\4th year\project\.venv\Scripts\python.exe" "C:\Users\User\Documents\4th year\project\benchmark_joint_state_receding_cv_decoding.py" --dataset "C:\Users\User\Documents\4th year\project\maze2d_all_mazes_joint_state_action_4act_cv5.npz" --checkpoint "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_joint_state_receding_4act\fold_3\checkpoint.pt" --cv-fold 3 --results-csv "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_joint_state_receding_4act\fold_3\results.csv" --summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_joint_state_receding_4act\fold_3\summary.csv" --per-maze-summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_joint_state_receding_4act\fold_3\per_maze_summary.csv" --queries-per-maze 10000 --max-steps 19 --planning-horizon 5 --mazes OPEN U_MAZE U_MAZE_EVAL SMALL_MAZE MEDIUM_MAZE MEDIUM_MAZE_EVAL LARGE_MAZE LARGE_MAZE_EVAL
+{
+  "fold": 3,
+  "rows": 3585
+}
+       strategy  completion_rate  average_steps_to_goal  average_compute_seconds  average_seconds_per_step  first_predicted_state_accuracy  imagined_transition_consistency
+receding_beam_2         0.845188               7.177228                 0.244976                  0.022426                        0.915566                         0.923765
+receding_beam_3         0.897071               6.994403                 0.229262                  0.022740                        0.883573                         0.906687
+receding_greedy         0.642678               7.778646                 0.321987                  0.023520                        0.893259                         0.864655
+$ "C:\Users\User\Documents\4th year\project\.venv\Scripts\python.exe" "C:\Users\User\Documents\4th year\project\train_maze2d_discrete_transformer.py" --dataset "C:\Users\User\Documents\4th year\project\maze2d_all_mazes_joint_state_action_4act_cv5.npz" --cv-fold 4 --output "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_joint_state_receding_4act\fold_4\checkpoint.pt" --epochs 20 --max-train-episodes 1000000 --max-val-episodes 1000000 --batch-size 128 --d-model 64 --nhead 4 --num-layers 2 --ffn-dim 128 --dropout 0.1 --lr 0.0003 --weight-decay 0.0001 --seed 7
+{
+  "dataset": "C:\\Users\\User\\Documents\\4th year\\project\\maze2d_all_mazes_joint_state_action_4act_cv5.npz",
+  "train_episodes": 4782,
+  "val_episodes": 1194,
+  "seq_len": 42,
+  "vocab_size": 121,
+  "device": "cpu"
+}
+epoch 01 | train_loss=4.1149 train_acc=0.1125 | val_loss=3.4748 val_acc=0.1934
+epoch 02 | train_loss=3.1559 train_acc=0.2248 | val_loss=2.8724 val_acc=0.2626
+epoch 03 | train_loss=2.7332 train_acc=0.2669 | val_loss=2.5808 val_acc=0.2978
+epoch 04 | train_loss=2.4753 train_acc=0.3231 | val_loss=2.3458 val_acc=0.3473
+epoch 05 | train_loss=2.2400 train_acc=0.3904 | val_loss=2.0816 val_acc=0.4394
+epoch 06 | train_loss=1.9794 train_acc=0.4725 | val_loss=1.7895 val_acc=0.5313
+epoch 07 | train_loss=1.7139 train_acc=0.5566 | val_loss=1.5092 val_acc=0.6165
+epoch 08 | train_loss=1.4664 train_acc=0.6267 | val_loss=1.2660 val_acc=0.6873
+epoch 09 | train_loss=1.2645 train_acc=0.6856 | val_loss=1.0664 val_acc=0.7430
+epoch 10 | train_loss=1.0907 train_acc=0.7308 | val_loss=0.9049 val_acc=0.7780
+epoch 11 | train_loss=0.9569 train_acc=0.7603 | val_loss=0.7758 val_acc=0.8027
+epoch 12 | train_loss=0.8365 train_acc=0.7888 | val_loss=0.6670 val_acc=0.8268
+epoch 13 | train_loss=0.7348 train_acc=0.8100 | val_loss=0.5751 val_acc=0.8483
+epoch 14 | train_loss=0.6549 train_acc=0.8291 | val_loss=0.5000 val_acc=0.8655
+epoch 15 | train_loss=0.5828 train_acc=0.8468 | val_loss=0.4327 val_acc=0.8844
+epoch 16 | train_loss=0.5191 train_acc=0.8629 | val_loss=0.3809 val_acc=0.8966
+epoch 17 | train_loss=0.4675 train_acc=0.8756 | val_loss=0.3338 val_acc=0.9086
+epoch 18 | train_loss=0.4243 train_acc=0.8869 | val_loss=0.2965 val_acc=0.9191
+epoch 19 | train_loss=0.3829 train_acc=0.8983 | val_loss=0.2658 val_acc=0.9256
+epoch 20 | train_loss=0.3534 train_acc=0.9054 | val_loss=0.2379 val_acc=0.9357
+preview rollout: {
+  "episode_id": 4,
+  "target_action_tokens": [
+    117,
+    120
+  ],
+  "pred_action_tokens": [
+    117,
+    120
+  ],
+  "target_actions_named": [
+    "ACTION_UP",
+    "ACTION_RIGHT"
+  ],
+  "pred_actions_named": [
+    "ACTION_UP",
+    "ACTION_RIGHT"
+  ]
+}
+saved checkpoint: C:\Users\User\Documents\4th year\project\experiment_runs\cv5_joint_state_receding_4act\fold_4\checkpoint.pt
+$ "C:\Users\User\Documents\4th year\project\.venv\Scripts\python.exe" "C:\Users\User\Documents\4th year\project\benchmark_joint_state_receding_cv_decoding.py" --dataset "C:\Users\User\Documents\4th year\project\maze2d_all_mazes_joint_state_action_4act_cv5.npz" --checkpoint "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_joint_state_receding_4act\fold_4\checkpoint.pt" --cv-fold 4 --results-csv "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_joint_state_receding_4act\fold_4\results.csv" --summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_joint_state_receding_4act\fold_4\summary.csv" --per-maze-summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_joint_state_receding_4act\fold_4\per_maze_summary.csv" --queries-per-maze 10000 --max-steps 19 --planning-horizon 5 --mazes OPEN U_MAZE U_MAZE_EVAL SMALL_MAZE MEDIUM_MAZE MEDIUM_MAZE_EVAL LARGE_MAZE LARGE_MAZE_EVAL
+{
+  "fold": 4,
+  "rows": 3582
+}
+       strategy  completion_rate  average_steps_to_goal  average_compute_seconds  average_seconds_per_step  first_predicted_state_accuracy  imagined_transition_consistency
+receding_beam_2         0.863484               7.096023                 0.237109                  0.022259                        0.922583                         0.931103
+receding_beam_3         0.909548               6.960405                 0.223364                  0.022452                        0.889297                         0.911874
+receding_greedy         0.670017               7.577500                 0.310107                  0.023265                        0.899780                         0.870797
+       strategy  completion_rate  average_steps_to_goal  average_compute_seconds  average_seconds_per_step
+receding_beam_2         0.847280               7.083457                 0.229263                  0.021130
+receding_beam_3         0.900000               6.992329                 0.216952                  0.021462
+receding_greedy         0.629079               7.631526                 0.306961                  0.022282
+Artifacts: C:\Users\User\Documents\4th year\project\experiment_runs\cv5_joint_state_receding_4act

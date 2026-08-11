@@ -38,11 +38,11 @@ def main() -> None:
             "Each exact `(maze, start, goal)` query is evaluated once as a held-out fold and trained on in the other four folds.\n"
         ),
         make_code_cell(
-            """CV5_DATASET_PATH = Path("maze2d_all_mazes_transformer_ready_cv5.npz")
-CV5_RESULTS_CSV = Path("beam_search_benchmark_cv5_results.csv")
-CV5_SUMMARY_CSV = Path("beam_search_benchmark_cv5_summary.csv")
-CV5_PER_MAZE_SUMMARY_CSV = Path("beam_search_benchmark_cv5_per_maze_summary.csv")
-CV5_FOLD_MEAN_STD_CSV = Path("beam_search_benchmark_cv5_fold_mean_std.csv")
+            """CV5_DATASET_PATH = Path("maze2d_all_mazes_transformer_ready_native_cv5.npz")
+CV5_RESULTS_CSV = Path("beam_search_benchmark_native_cv5_results.csv")
+CV5_SUMMARY_CSV = Path("beam_search_benchmark_native_cv5_summary.csv")
+CV5_PER_MAZE_SUMMARY_CSV = Path("beam_search_benchmark_native_cv5_per_maze_summary.csv")
+CV5_FOLD_MEAN_STD_CSV = Path("beam_search_benchmark_native_cv5_fold_mean_std.csv")
 
 cv5_dataset = np.load(CV5_DATASET_PATH, allow_pickle=True)
 cv5_results = pd.read_csv(CV5_RESULTS_CSV)

@@ -1,2 +1,7 @@
 .minari/
 *.hdf5
+*.pt
+*.csv
+.venv/
+.ipython/
+.jupyter_runtime/

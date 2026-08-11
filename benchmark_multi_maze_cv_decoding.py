@@ -26,6 +26,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--cv-fold", type=int, required=True)
     parser.add_argument("--queries-per-maze", type=int, default=10000)
+    parser.add_argument(
+        "--max-steps",
+        type=int,
+        default=None,
+        help="Fixed rollout horizon. By default, use max(2 * shortest-path length, 16).",
+    )
     parser.add_argument("--mazes", nargs="*", default=DEFAULT_MAZES)
     parser.add_argument("--results-csv", type=Path, required=True)
     parser.add_argument("--summary-csv", type=Path, required=True)
@@ -45,10 +51,13 @@ def state_token(cell_xy: np.ndarray, state_token_offset: int, global_grid_shape:
     return int(state_token_offset + int(cell_xy[0]) * global_grid_shape[1] + int(cell_xy[1]))
 
 
-def valid_action_candidates(current_cell: np.ndarray, maze: np.ndarray) -> list[tuple[int, np.ndarray]]:
-    deltas = np.asarray([[0, 1], [0, -1], [-1, 0], [1, 0], [0, 0]], dtype=np.int16)
+def valid_action_candidates(
+    current_cell: np.ndarray,
+    maze: np.ndarray,
+    action_deltas: np.ndarray,
+) -> list[tuple[int, np.ndarray]]:
     candidates: list[tuple[int, np.ndarray]] = []
-    for action_idx, delta in enumerate(deltas):
+    for action_idx, delta in enumerate(action_deltas):
         next_cell = current_cell + delta
         inside = 0 <= int(next_cell[0]) < maze.shape[0] and 0 <= int(next_cell[1]) < maze.shape[1]
         if inside and int(maze[int(next_cell[0]), int(next_cell[1])]) == 0:
@@ -94,6 +103,7 @@ def greedy_decode_query(
     goal_cell: np.ndarray,
     state_token_offset: int,
     action_token_offset: int,
+    action_deltas: np.ndarray,
     global_grid_shape: tuple[int, int],
     max_steps: int,
 ) -> np.ndarray:
@@ -112,9 +122,12 @@ def greedy_decode_query(
             [tokens],
             [types],
             vocab_action_start=action_token_offset,
-            action_count=5,
+            action_count=len(action_deltas),
         )[0]
-        best_idx, best_next = max(valid_action_candidates(path[-1], maze), key=lambda item: float(action_logits[item[0]]))
+        best_idx, best_next = max(
+            valid_action_candidates(path[-1], maze, action_deltas),
+            key=lambda item: float(action_logits[item[0]]),
+        )
         tokens.extend([action_token_offset + best_idx, state_token(best_next, state_token_offset, global_grid_shape)])
         types.extend([TOKEN_TYPE_ACTION, TOKEN_TYPE_STATE])
         path.append(best_next)
@@ -131,6 +144,7 @@ def beam_decode_query(
     goal_cell: np.ndarray,
     state_token_offset: int,
     action_token_offset: int,
+    action_deltas: np.ndarray,
     global_grid_shape: tuple[int, int],
     max_steps: int,
     beam_width: int,
@@ -157,7 +171,7 @@ def beam_decode_query(
             [beam["tokens"] for beam in active],
             [beam["types"] for beam in active],
             vocab_action_start=action_token_offset,
-            action_count=5,
+            action_count=len(action_deltas),
         )
 
         candidates: list[dict[str, object]] = []
@@ -168,7 +182,9 @@ def beam_decode_query(
                 continue
             action_logits = logits_batch[active_cursor]
             active_cursor += 1
-            for action_idx, next_cell in valid_action_candidates(np.asarray(beam["path"][-1], dtype=np.int16), maze):
+            for action_idx, next_cell in valid_action_candidates(
+                np.asarray(beam["path"][-1], dtype=np.int16), maze, action_deltas
+            ):
                 next_beam = {
                     "tokens": list(beam["tokens"])
                     + [action_token_offset + action_idx, state_token(next_cell, state_token_offset, global_grid_shape)],
@@ -232,6 +248,8 @@ def summarize_by_columns(results: pd.DataFrame, group_cols: list[str]) -> pd.Dat
 
 def main() -> None:
     args = parse_args()
+    if args.max_steps is not None and args.max_steps <= 0:
+        raise ValueError("--max-steps must be positive.")
     dataset = np.load(args.dataset, allow_pickle=True)
     model, model_config = load_model(args.checkpoint)
 
@@ -243,6 +261,7 @@ def main() -> None:
     maze_token_ids = np.asarray(dataset["maze_token_ids"], dtype=np.int32)
     state_token_offset = int(dataset["state_token_offset"][0])
     action_token_offset = int(dataset["action_token_offset"][0])
+    action_deltas = np.asarray(dataset["action_deltas"], dtype=np.int16)
     global_grid_shape = tuple(int(v) for v in np.asarray(dataset["global_grid_shape"], dtype=np.int32))
     transformer_max_rollout_steps = max((int(model_config["max_seq_len"]) - 4) // 2, 1)
 
@@ -260,7 +279,11 @@ def main() -> None:
             maze = mazes[maze_index]
             start_cell = np.asarray(start_cells[query_idx], dtype=np.int16)
             goal_cell = np.asarray(goal_cells[query_idx], dtype=np.int16)
-            requested_steps = max(2 * int(dataset["path_lengths"][query_idx]), 16)
+            requested_steps = (
+                int(args.max_steps)
+                if args.max_steps is not None
+                else max(2 * int(dataset["path_lengths"][query_idx]), 16)
+            )
             max_steps = min(requested_steps, transformer_max_rollout_steps)
 
             common_kwargs = {
@@ -270,6 +293,7 @@ def main() -> None:
                 "goal_cell": goal_cell,
                 "state_token_offset": state_token_offset,
                 "action_token_offset": action_token_offset,
+                "action_deltas": action_deltas,
                 "global_grid_shape": global_grid_shape,
                 "max_steps": max_steps,
             }

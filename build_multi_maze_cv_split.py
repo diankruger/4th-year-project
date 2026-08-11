@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 from pathlib import Path
 
 import numpy as np
@@ -10,8 +11,16 @@ OUTPUT_DATASET = Path("maze2d_all_mazes_transformer_ready_cv5.npz")
 NUM_FOLDS = 5
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Build CV5 fold assignments for a transformer-ready maze dataset.")
+    parser.add_argument("--source-dataset", type=Path, default=SOURCE_DATASET)
+    parser.add_argument("--output-dataset", type=Path, default=OUTPUT_DATASET)
+    return parser.parse_args()
+
+
 def main() -> None:
-    data = np.load(SOURCE_DATASET, allow_pickle=True)
+    args = parse_args()
+    data = np.load(args.source_dataset, allow_pickle=True)
     files = list(data.files)
 
     maze_name_per_episode = np.asarray(data["maze_name_per_episode"]).astype("<U32")
@@ -53,10 +62,10 @@ def main() -> None:
     out["cv_num_folds"] = np.asarray([NUM_FOLDS], dtype=np.int32)
     out["cv_split_method"] = np.asarray(["round_robin_lexsorted_per_maze"], dtype="<U64")
 
-    np.savez_compressed(OUTPUT_DATASET, **out)
+    np.savez_compressed(args.output_dataset, **out)
 
-    print("source_dataset:", SOURCE_DATASET)
-    print("output_dataset:", OUTPUT_DATASET)
+    print("source_dataset:", args.source_dataset)
+    print("output_dataset:", args.output_dataset)
     print("cv_num_folds:", NUM_FOLDS)
     print("cv_split_method: round_robin_lexsorted_per_maze")
     print("num_episodes:", num_episodes)

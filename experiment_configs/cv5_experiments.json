@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "defaults": {
+    "output_root": "experiment_runs",
+    "folds": [0, 1, 2, 3, 4],
+    "mazes": [
+      "OPEN",
+      "U_MAZE",
+      "U_MAZE_EVAL",
+      "SMALL_MAZE",
+      "MEDIUM_MAZE",
+      "MEDIUM_MAZE_EVAL",
+      "LARGE_MAZE",
+      "LARGE_MAZE_EVAL"
+    ],
+    "scripts": {
+      "train": "train_maze2d_discrete_transformer.py",
+      "evaluate": "benchmark_multi_maze_cv_decoding.py"
+    },
+    "training": {
+      "epochs": 20,
+      "max_train_episodes": 1000000,
+      "max_val_episodes": 1000000,
+      "batch_size": 128,
+      "d_model": 64,
+      "nhead": 4,
+      "num_layers": 2,
+      "ffn_dim": 128,
+      "dropout": 0.1,
+      "lr": 0.0003,
+      "weight_decay": 0.0001,
+      "seed": 7
+    },
+    "evaluation": {
+      "queries_per_maze": 10000,
+      "max_steps": 19
+    }
+  },
+  "experiments": [
+    {"name": "cv5_optimal_4act", "dataset": "maze2d_all_mazes_transformer_ready_4act_cv5.npz"},
+    {"name": "cv5_mixed_4act", "dataset": "maze2d_all_mazes_transformer_ready_mixed_4act_cv5.npz"},
+    {
+      "name": "cv5_partial_obs_3x3_optimal_4act",
+      "dataset": "maze2d_partial_obs_3x3_optimal_4act_cv5.npz",
+      "scripts": {
+        "train": "train_maze2d_discrete_transformer.py",
+        "evaluate": "benchmark_partial_observation_cv_decoding.py"
+      }
+    },
+    {
+      "name": "cv5_joint_state_receding_4act",
+      "dataset": "maze2d_all_mazes_joint_state_action_4act_cv5.npz",
+      "scripts": {
+        "train": "train_maze2d_discrete_transformer.py",
+        "evaluate": "benchmark_joint_state_receding_cv_decoding.py"
+      },
+      "evaluation": {
+        "queries_per_maze": 10000,
+        "max_steps": 19,
+        "planning_horizon": 5
+      }
+    }
+  ]
+}

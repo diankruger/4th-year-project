@@ -10,7 +10,7 @@
 \hypersetup{
 	colorlinks=true,
 	linkcolor=blue,
-	filecolor=blue,
+	filecolor=blue, 
 	citecolor=blue,
 	urlcolor=blue, 
 	pdftitle={},
@@ -29,6 +29,7 @@
 \usepackage[sort,numbers]{natbib}
 \bibliographystyle{plainnat}
 \usepackage[title]{appendix}
+\usepackage{longtable}
 \usepackage{listings}
 \let\oldcite\cite
 \renewcommand{\cite}[1]{\mbox{\oldcite{#1}}}
@@ -78,17 +79,17 @@ specified goal position without passing through walls.
 
 One way to approach such a problem is to treat trajectories as data and learn a probability
 distribution over successful trajectories from examples. From this perspective, planning can be
-viewed as inference in a learned generative model ~\cite{janner2021trajectory}. If the model is trained on valid and efficient
+viewed as inference in a learned generative model~\cite{janner2021trajectory}. If the model is trained on valid and efficient
 demonstration trajectories, then complete plans can be generated autoregressively by repeatedly
 predicting the next token in a trajectory sequence.
 
 The decoding rule used during this generation process is important. At each step, the learned model
 may assign non-negligible probability to multiple possible continuations, and different decoding
 strategies can therefore produce trajectories with different levels of validity, efficiency, and
-computational cost ~\cite{jurafsky2026speech,janner2021trajectory}. In the setting considered in
+computational cost~\cite{jurafsky2026speech,janner2021trajectory}. In the setting considered in
 this work, decoding is based on model probability rather than on a reward-maximising objective, so
 the planning problem is approached through imitation learning rather than offline reinforcement
-learning ~\cite{janner2021trajectory}.
+learning~\cite{janner2021trajectory}. 
 
 This report investigates how the choice of decoding strategy affects planning performance under this
 formulation. A Transformer-based trajectory model is trained through next-token prediction on a
@@ -100,19 +101,19 @@ goal-reaching success, path efficiency, and computational cost in the maze plann
 \section*{Background}
 \subsection*{Generative Models}
 Generative models are types of machine learning systems that aim to represent a probability distribution over data,
-or to draw samples from that distribution ~\cite{goodfellow2016deep}.
-Specifically, if $\mathbf{x}$ is a collection of features observed from an object or event, like words in a sentence or coordinates in a maze, and $p(\mathbf{x})$ is the true joint distribution of those features, a generative model learns an approximation $\hat{p}(\mathbf{x})$ of this distribution from training observations ~\cite{goodfellow2016deep}.
-Once such a distribution has been learned, it can be used to generate new observations that are similar to the observations in the training data by sampling from $\hat{p}(\mathbf{x})$ ~\cite{goodfellow2016deep}.
+or to draw samples from that distribution~\cite{goodfellow2016deep}.
+Specifically, if $\mathbf{x}$ is a collection of features observed from an object or event, like words in a sentence or coordinates in a maze, and $p(\mathbf{x})$ is the true joint distribution of those features, a generative model learns an approximation $\hat{p}(\mathbf{x})$ of this distribution from training observations~\cite{goodfellow2016deep}.
+Once such a distribution has been learned, it can be used to generate new observations that are similar to the observations in the training data by sampling from $\hat{p}(\mathbf{x})$~\cite{goodfellow2016deep}.
 
 In practice, assumptions are often made to simplify the learning problem, such as assuming a 
 particular parametric form for the distribution (e.g., Gaussian), so instead of learning an arbitrary 
-distribution, the model learns a specific family of distributions parameterised by $\boldsymbol{\theta}$ ~\cite{goodfellow2016deep}. 
+distribution, the model learns a specific family of distributions parameterised by $\boldsymbol{\theta}$~\cite{goodfellow2016deep}. 
 
 If the data's true distribution $p(\mathbf{x})$ is assumed to belong to a family of distributions
 $\{p_{\boldsymbol{\theta}}(\mathbf{x})\}$, the model must learn the parameter value $\hat{\boldsymbol{\theta}}$ such that
 $p_{\hat{\boldsymbol{\theta}}}(\mathbf{x})$ is a good approximation of $p(\mathbf{x})$.
 One way to formalise this is through the Kullback--Leibler (KL) divergence, which measures how one
-probability distribution diverges from another ~\cite{goodfellow2016deep}. It is defined as
+probability distribution diverges from another~\cite{goodfellow2016deep}. It is defined as
 \begin{equation}
     D_{\mathrm{KL}}(p(\mathbf{x}) \| p_{\boldsymbol{\theta}}(\mathbf{x})) = \mathbb{E}_{\mathbf{x} \sim p(\mathbf{x})} \left[ \log \frac{p(\mathbf{x})}{p_{\boldsymbol{\theta}}(\mathbf{x})} \right].
 \end{equation}
@@ -127,17 +128,17 @@ $D_{\mathrm{KL}}(p(\mathbf{x}) \| p_{\boldsymbol{\theta}}(\mathbf{x}))$. Expandi
 \end{equation}
 The first term does not depend on $\boldsymbol{\theta}$, so minimising the KL divergence is equivalent to
 maximising $\mathbb{E}_{\mathbf{x} \sim p(\mathbf{x})} [\log p_{\boldsymbol{\theta}}(\mathbf{x})]$, that is, the
-expected log-likelihood of the data under the model ~\cite{goodfellow2016deep}.
+expected log-likelihood of the data under the model~\cite{goodfellow2016deep}.
 
 The process of finding $\hat{\boldsymbol{\theta}}$ that maximises the likelihood of the training data under
 $p_{\boldsymbol{\theta}}(\mathbf{x})$ is known as maximum likelihood estimation (MLE), and is a common approach to
-training generative models ~\cite{goodfellow2016deep}.
+training generative models~\cite{goodfellow2016deep}.
 
 \subsection*{The Planning Problem}
 \noindent
 Broadly, automated planning is the field of research addressing the problem of finding an ordered or 
 partially ordered series of actions that changes an environment from its initial state to a desired goal 
-state ~\cite{Alarnaouti2023planning}.
+state~\cite{Alarnaouti2023planning}.
 
 
 \noindent
@@ -168,23 +169,30 @@ corresponds to adjacent non-wall cells, with adjacency restricted to horizontal 
 Reinforcement learning (RL) is a machine learning paradigm in which a system learns to choose
 appropriate sequences of actions by interacting with an environment in order to maximise cumulative reward,
 making it a natural fit for planning problems, since the reward can be defined in terms of 
-reaching a goal state efficiently ~\cite{sutton2018rl}.
+reaching a goal state efficiently~\cite{sutton2018rl}.
 
 Offline reinforcement learning is a variant of RL in which the policy that determines the agent's actions
 is learned from a fixed dataset of previously collected trajectories, rather than through repeated
-interaction with the environment ~\cite{janner2021trajectory}.
+interaction with the environment~\cite{janner2021trajectory}.
 
 Imitation learning is a related paradigm in which a model learns to reproduce the behaviour
 demonstrated in a dataset. Similarly to offline RL, imitation learning can be applied to a dataset of 
 trajectories, but the objective is to generate trajectories that are similar to those in the dataset,
-as opposed to maximising cumulative reward as in offline RL ~\cite{janner2021trajectory}.
+as opposed to maximising cumulative reward as in offline RL~\cite{janner2021trajectory}.
 
 Similarly to RL, imitation learning can solve a planning problem, but only if the dataset
-contains trajectories that are valid and efficient for the planning task at hand ~\cite{janner2021trajectory}.
+contains trajectories that are valid and efficient for the planning task at hand~\cite{janner2021trajectory}.
+
+In reinforcement learning, the term ``planning'' often refers to using a model of the environment to 
+consider the likely consequences of possible actions before deciding which action to take. 
+An important distinction must thus be made between
+planning as a problem of generating a sequence of actions to reach a goal, and planning as a 
+process of using a model to improve decision-making in reinforcement learning. In this 
+work, the former interpretation is used.
 
 \subsection*{Generative Modelling for Planning}
 
-If a dataset of valid trajectories is available, a generative model can be trained to learn the distribution over these trajectories. Once trained, the model can be used to generate new trajectories by sampling from the learned distribution. This approach treats planning as a problem of inference in a probabilistic model ~\cite{janner2021trajectory}.
+If a dataset of valid trajectories is available, a generative model can be trained to learn the distribution over these trajectories. Once trained, the model can be used to generate new trajectories by sampling from the learned distribution. This approach treats planning as a problem of inference in a probabilistic model~\cite{janner2021trajectory}.
 So if we define a trajectory $\boldsymbol{\tau}$ with $T$ steps as: 
 \begin{equation}
 \boldsymbol{\tau} = (s_1, a_1, s_2, a_2, \dots, s_T, a_T)
@@ -196,22 +204,22 @@ p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau}) = \prod_{t=1}^{T} p_{\hat{\bold
 \end{equation}
 where $z_t$ denotes the $t^{\text{th}}$ token in the flattened trajectory sequence, 
 so each $z_t$ corresponds to either a single state token or a single action token, and 
-the trajectory prefix, $z_{<t}$, denotes the sequence of preceding tokens up to $z_{t-1}$ ~\cite{goodfellow2016deep}.
+the trajectory prefix, $z_{<t}$, denotes the sequence of preceding tokens up to $z_{t-1}$~\cite{goodfellow2016deep}.
 This simplifies the supervised learning problem to estimating $p_{\boldsymbol{\theta}}(z_t \mid z_{<t})$, so given a prefix 
 of trajectory tokens, predict the probability of the next token in the sequence. 
 
-A complete trajectory is then generated autoregressively by repeatedly predicting the next token until a full plan is produced, with the decoding strategy determining how each next-token choice is made. The choice of decoding strategy is important because the model's predicted distribution may assign non-negligible probability mass to multiple valid continuations at each step, and the continuation selected during decoding can significantly affect both the quality of the final trajectory and the computational cost of generation ~\cite{janner2021trajectory}. Since the learned distribution is only an approximation to the true trajectory distribution, it may also assign non-negligible probability to invalid continuations. As a result, the decoding strategy can influence whether a valid trajectory is generated at all. Even when multiple valid trajectories are possible, some may be more desirable than others, for example because they require fewer steps, and the decoding strategy can therefore affect whether a more efficient trajectory is produced ~\cite{janner2021trajectory,jurafsky2026speech}.
+A complete trajectory is then generated autoregressively by repeatedly predicting the next token until a full plan is produced, with the decoding strategy determining how each next-token choice is made. The choice of decoding strategy is important because the model's predicted distribution may assign non-negligible probability mass to multiple valid continuations at each step, and the continuation selected during decoding can significantly affect both the quality of the final trajectory and the computational cost of generation~\cite{janner2021trajectory}. Since the learned distribution is only an approximation to the true trajectory distribution, it may also assign non-negligible probability to invalid continuations. As a result, the decoding strategy can influence whether a valid trajectory is generated at all. Even when multiple valid trajectories are possible, some may be more desirable than others, for example because they require fewer steps, and the decoding strategy can therefore affect whether a more efficient trajectory is produced~\cite{janner2021trajectory,jurafsky2026speech}.
 
 \subsection*{Decoding Methods}
 Direct sampling from $p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau})$ is challenging, since the number of possible trajectories grows exponentially with trajectory
 length, so explicitly calculating and storing the probabilities for all complete trajectories quickly  becomes computationally 
-infeasible ~\cite{goodfellow2016deep}. 
+infeasible~\cite{goodfellow2016deep}. 
 This creates a need for decoding algorithms to approximately sample from, or search within $p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau})$.
 
 
 
 \subsubsection*{Greedy Decoding}
-Greedy decoding is the simplest method for generating sequences from $p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau})$ ~\cite{jurafsky2026speech}. 
+Greedy decoding is the simplest method for generating sequences from $p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau})$~\cite{jurafsky2026speech}. 
 At each step $t$ during the autoregressive generation of a trajectory, the algorithm selects the next token $\hat{z}_t$ 
 as follows:
 \begin{equation}
@@ -220,15 +228,15 @@ as follows:
 where $V$ is the set of all possible tokens, and $z_{<t}$ denotes the values obtained in the previous steps of greedy decoding.
 Greedy decoding thus always selects the locally optimal choice for the next token in the sequence, 
 meaning it chooses the token with the highest conditional probability given
-the current prefix ~\cite{jurafsky2026speech}.
+the current prefix~\cite{jurafsky2026speech}.
 Greedy decoding is therefore deterministic and computationally efficient, but does not necessarily find the globally most probable 
 trajectory, which is the complete trajectory with the highest probability under 
-$p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau})$ ~\cite{jurafsky2026speech}.
+$p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau})$~\cite{jurafsky2026speech}.
 
 \subsubsection*{Beam Search}
 
 Beam search extends greedy decoding by retaining multiple candidate sequences at each step rather 
-than only the single most likely continuation ~\cite{jurafsky2026speech}. The number of retained 
+than only the single most likely continuation~\cite{jurafsky2026speech}. The number of retained 
 candidates is fixed in advance and is known as the beam width $B$. At each stage, all valid one-step 
 continuations of the current candidates are scored autoregressively under the model, and the top $B$ 
 highest-scoring sequences are kept. This process is repeated until termination, after which the 
@@ -241,7 +249,7 @@ The beam search algorithm used in this work is summarised in Listing~\ref{lst:be
 \begin{flushleft}
 \hrule
 \vspace{0.3em}
-\textbf{Beam Search} ~\cite{janner2021trajectory}
+\textbf{Beam Search}~\cite{janner2021trajectory}
 \vspace{0.3em}
 \hrule
 \vspace{0.6em}
@@ -279,7 +287,7 @@ Larger beam widths allow the algorithm to consider a greater number of candidate
 the trajectory returned by beam search will typically be at least as highly scored under the model as the trajectory 
 returned with a smaller beam width, with a beam width of one corresponding to greedy decoding. This broader search, however,
 requires the model scores of more candidate trajectories to be computed and maintained, so increasing the beam width also 
-increases the computational cost of decoding ~\cite{jurafsky2026speech}.
+increases the computational cost of decoding~\cite{jurafsky2026speech}.
 
 Both greedy decoding and beam search, as defined above, aim to find trajectories with high probability
 under the learned model, and therefore correspond naturally to an imitation learning setting. 
@@ -290,50 +298,58 @@ offline reinforcement learning setting.
 
 \subsection*{Transformer Based Generative Models}
 
-The Transformer is a type of neural network that has become the standard for sequence modelling tasks, notably in natural language processing ~\cite{jurafsky2026speech}.
-Even though the original Transformer was designed for language, the fact that it models sequences of tokens makes it applicable to our trajectory modelling problem, where the tokens could be states and/or actions in a trajectory ~\cite{janner2021trajectory}.
+The Transformer is a type of neural network that has become the standard for sequence modelling tasks, notably in natural language processing~\cite{jurafsky2026speech}.
+Even though the original Transformer was designed for language, the fact that it models sequences of tokens makes it applicable to our trajectory modelling problem, where the tokens could be states and/or actions in a trajectory~\cite{janner2021trajectory}.
 
 The key components of the Transformer are now briefly introduced. For intuition, the discussion refers 
 primarily to natural language processing examples, where the role of these components is often easier to 
 interpret than in trajectory modelling. 
 
-\textbf{1. Input Representation}:
+\textbf{1. Input Representation}
 
 Before raw data enters the Transformer, it must be converted into a high dimensional vector representation
 as follows.
 
-\textbf{Tokenisation}:
+\textbf{Tokenisation}
+
+
 The first step involves tokenisation, where the input sequence is broken down into discrete tokens. In an NLP scenario, 
-this could involve splitting text into words, subwords or characters ~\cite{jurafsky2026speech}. For the purposes of this discussion, it is assumed that 
+this could involve splitting text into words, subwords or characters~\cite{jurafsky2026speech}. For the purposes of this discussion, it is assumed that 
 the input has been tokenised at the word level.
 
-\textbf{Embeddings} ($E$): Each token ID is used to index into an embedding matrix $E$, which maps 
+\textbf{Embeddings} ($E$) 
+
+Each token ID is used to index into an embedding matrix $E$, which maps 
 the discrete ID to a dense vector of dimensionality $d$. This matrix has shape $|V| \times d$, where $|V|$ is 
-the vocabulary size, i.e.\ the total number of distinct tokens that the model can represent ~\cite{jurafsky2026speech}.
+the vocabulary size, i.e.\ the total number of distinct tokens that the model can represent~\cite{jurafsky2026speech}.
 When tokens correspond to words, the embedding can be interpreted as capturing semantic and syntactic properties of 
 those words. Intuitively, words with similar meanings, such as ``big'' and ``large,'' may be represented by vectors 
-that are close to one another in the embedding space ~\cite{jurafsky2026speech}.
+that are close to one another in the embedding space~\cite{jurafsky2026speech}.
 
-\textbf{Positional Encoding}: Since the Transformer processes sequences in parallel, it does not 
+\textbf{Positional Encoding} 
+
+Since the Transformer processes sequences in parallel, it does not 
 inherently encode the order of tokens, so a positional encoding is added to the token embeddings to ensure that the 
 position of each token in the sequence is represented. This is done by adding a positional encoding vector to each
-token embedding ~\cite{jurafsky2026speech}.
+token embedding~\cite{jurafsky2026speech}.
 
-\textbf{Input Formation}: For a sequence of $N$ tokens, the individual $d$-dimensional vector embeddings are 
-placed into a single matrix $X$ of size $N \times d$. This matrix serves as the input for the model ~\cite{jurafsky2026speech}.
+\textbf{Input Formation}
 
-\textbf{2. Transformer Blocks}:
+For a sequence of $N$ tokens, the individual $d$-dimensional vector embeddings are 
+placed into a single matrix $X$ of size $N \times d$. This matrix serves as the input for the model~\cite{jurafsky2026speech}.
+
+\textbf{2. Transformer Blocks}
 
 Each block consists of a multi-head self-attention mechanism followed by a feedforward neural network, with each sublayer
-followed by a layer normalisation and a residual connection ~\cite{jurafsky2026speech}. 
+followed by a layer normalisation and a residual connection~\cite{jurafsky2026speech}. 
 
 A useful mental model is that each time the input passes through a sublayer, the model 
 updates the token representations so that they better capture the information relevant to 
 the task at hand. For example, in an NLP context, the model may refine the representation of a 
-word so that it better reflects its meaning in the context of the sentence ~\cite{jurafsky2026speech}.
+word so that it better reflects its meaning in the context of the sentence~\cite{jurafsky2026speech}.
 Each block is described as follows.
 
-\textbf{Layer Normalisation}:
+\textbf{Layer Normalisation}
 
 For training stability, layer normalisation is applied to ensure the values in the sublayers remain within a reasonable range.
 For a vector $x$, it is calculated as:
@@ -341,13 +357,13 @@ For a vector $x$, it is calculated as:
 \mathrm{LayerNorm}(x) = \gamma \odot \frac{x - \mu}{\sigma} + \beta
 \end{equation}
 where $\mu$ is the mean, $\sigma$ the standard deviation of the vector's elements, and $\gamma$ and $\beta$ are 
-learned parameters that scale and shift the normalised output ~\cite{jurafsky2026speech}.
+learned parameters that scale and shift the normalised output~\cite{jurafsky2026speech}.
 
 
-\textbf{Multi-Head Self-Attention}: 
+\textbf{Multi-Head Self-Attention}
 
 This is the core mechanism that allows the model to incorporate information from all tokens in the sequence
-when processing each token ~\cite{jurafsky2026speech}. Under the interpretation that each sublayer progressively 
+when processing each token~\cite{jurafsky2026speech}. Under the interpretation that each sublayer progressively 
 refines word representations, the self-attention mechanism allows the representation of each word to be updated in 
 light of the representations of all other words in the sequence. For example, if the word ``fly'' is preceded by the 
 word ``the'', the model may adjust its representation in a way that reflects the nominal sense of ``fly'' (the insect)
@@ -357,7 +373,7 @@ For an input matrix $X$, these are obtained by learned linear projections:
 \begin{equation}
 Q = XW_Q,\qquad K = XW_K,\qquad V = XW_V
 \end{equation}
-where $W_Q$, $W_K$, and $W_V$ are learned weight matrices ~\cite{jurafsky2026speech}.
+where $W_Q$, $W_K$, and $W_V$ are learned weight matrices~\cite{jurafsky2026speech}.
 
 The attention for a single head is computed as:
 \begin{equation}
@@ -367,42 +383,47 @@ The attention for a single head is computed as:
 The scaling factor $\sqrt{d_k}$ prevents the dot products from growing too large and causing numerical 
 instability. In causal (left-to-right) models, such as predicting the next word in a sentence, or the next position
 in a trajectory, a mask is applied to ensure that tokens can only attend to the 
-past, preventing the model from ``cheating'' by looking at future tokens during training ~\cite{jurafsky2026speech}.
+past, preventing the model from ``cheating'' by looking at future tokens during training~\cite{jurafsky2026speech}.
 
-\textbf{Feedforward Neural Network}:
+\textbf{Feedforward Neural Network}
 
 After the attention layer incorporates information across tokens, the Feedforward Network (FFN) processes each token position 
-independently and in parallel ~\cite{jurafsky2026speech}. It is usually a two-layer network with a non-linear activation such as ReLU:
+independently and in parallel~\cite{jurafsky2026speech}. It is usually a two-layer network with a non-linear activation such as ReLU:
 \begin{equation}
 \mathrm{FFN}(x) = \mathrm{ReLU}(xW_1 + b_1)W_2 + b_2
 \end{equation}
 This layer allows the model to perform more complex transformations of the contextualised information
-gathered by the attention heads ~\cite{jurafsky2026speech}. 
+gathered by the attention heads~\cite{jurafsky2026speech}. 
 
 Returning to the intuitive picture introduced earlier, the attention mechanism can be viewed as first 
 updating each word representation using information from the other words in the sequence. The FFN then 
 further refines each of these updated representations independently at each position, using transformations 
 learned from many training sequences.
 
-\textbf{3. Prediction Head}:
+\textbf{3. Prediction Head}
 
 After the data passes through the final transformer block, the final representations are passed 
 to the next-token prediction head, which converts them into a probability distribution over possible next 
 tokens in the sequence. This is done through the following steps.
 
-\textbf{Output Projection}: Let $\mathbf{h}_t$ denote the final hidden representation produced after
+\textbf{Output Projection} 
+
+
+Let $\mathbf{h}_t$ denote the final hidden representation produced after
 the model has processed the prefix up to position $t$. This $d$-dimensional vector summarises the
 information in the observed prefix and is then projected back into the vocabulary space, often by
-multiplying it by the transpose of the embedding matrix $E^T$ ~\cite{jurafsky2026speech}.
+multiplying it by the transpose of the embedding matrix $E^T$~\cite{jurafsky2026speech}.
 
-\textbf{Softmax}: The resulting logits are passed through a softmax function to produce a 
+\textbf{Softmax}
+
+The resulting logits are passed through a softmax function to produce a 
 probability distribution over the next token:
 \begin{equation}
 \mathbf{p}_{t+1} = \mathrm{softmax}(\mathbf{h}_t E^T)
 \end{equation}
 
 where $\mathbf{p}_{t+1}$ is the probability distribution over possible values of the next token
-$z_{t+1}$ given the prefix $z_{\le t}$ ~\cite{jurafsky2026speech}.
+$z_{t+1}$ given the prefix $z_{\le t}$~\cite{jurafsky2026speech}.
 
 In general, this means that the model assigns a probability to each possible next token given the preceding 
 trajectory prefix. In an NLP setting, where tokens correspond to words, this can be interpreted as the model 
@@ -410,12 +431,40 @@ estimating which word is most likely to come next in the sentence. The next toke
 to a decoding strategy such as greedy decoding, sampling, or beam search.
 
 \section*{Methodology}
-\subsection*{Problem Formulation}
 
-The objective of this work is to model maze planning as autoregressive inference 
-in a learned conditional trajectory model trained through next-token prediction. 
-Given a maze layout, a start state, a goal state, and a trajectory prefix, the model 
-predicts the next token in the trajectory sequence. At inference time, decoding algorithms are
+\subsection*{Experimental overview}
+
+The objective of this work is to compare different decoding strategies when 
+modelling maze planning as autoregressive inference in a learned conditional 
+trajectory model trained through next-token prediction. The performance of 
+greedy decoding and beam search with different beam widths are evaluated in terms of 
+trajectory validity, goal-reaching success, path efficiency, and computational cost.
+
+The decoding strategies are compared under different representations of the environment.
+The first experiment is conducted in a discrete maze environment, where the maze
+layout as well as the exact coordinates of the goal position, starting position and subsequent
+states are provided. Decoding algorithms are thus evaluated in a fully observable setting, where the 
+model has access to all relevant information about the environment.
+
+The second experiment utilises the same maze layouts and training trajectories as the
+first, but the model is not provided with the maze layout or the exact coordinates of 
+the goal position. The model is instead provided with the relative direction of the 
+goal position, and a layout of the 3x3 grid surrounding the current position istead of the 
+complete states.
+This formulation is therefore a partially observable setting, and the model will 
+need to rely on previously observed trajectory information to infer unobserved 
+information about the maze layout.
+
+\subsection*{Fully Observed Planning}
+
+\subsubsection*{Problem Formulation}
+
+The objective of this experiment is to evaluate different decoding strategies
+by training a conditional trajectory model through next-token prediction in a fully
+observed maze environment.
+Given a maze layout, a start state, a goal state, and a trajectory prefix consisting
+of previous actions and explicit coordinates of previous states in the maze, the model 
+predicts the next action in the trajectory sequence. At inference time, decoding algorithms are
 then used to construct complete trajectories by selecting continuations with high probability 
 under the learned model. Since decoding is based on model probability rather than a reward-maximising 
 objective, this amounts to using imitation learning to solve the planning problem.
@@ -461,7 +510,7 @@ how different decoding strategies affect the quality of the generated plans once
 In particular, the methodology compares greedy decoding and beam search in terms of trajectory validity, goal-reaching success,
 path efficiency, and computational cost.
 
-\subsection*{Dataset Construction}
+\subsubsection*{Dataset Construction}
 
 Since the goal is to train a Transformer to predict the next action given a trajectory prefix, 
 the training data must consist of complete trajectories $\boldsymbol{\tau}$. A trajectory token 
@@ -476,7 +525,7 @@ belongs to, as well as the associated start and goal positions.
 
 In this work, eight different maze layouts are considered, corresponding to the layouts used in 
 the D4RL PointMaze / Maze2D environment. The exact layout definitions can be found in the D4RL
-repository's \texttt{maze\_model.py} file ~\cite{d4rlrepo}.
+repository's \texttt{maze\_model.py} file~\cite{d4rlrepo}.
 
 \begin{figure}[H]
 	\centering
@@ -577,7 +626,7 @@ evaluation portions of a given fold. In the decoding benchmark, evaluation is re
 maze families as seen in Figure~\ref{fig:maze_layouts}. The aim of the experiment is therefore to compare how different decoding 
 rules behave on unseen start-goal planning queries under a fixed trained model class. 
 
-\subsection*{Transformer Training}
+\subsubsection*{Transformer Training}
 
 In addition to the input matrix $X$,
 the token-type information is stored in a token-type matrix $T$, 
@@ -602,12 +651,12 @@ After every epoch, the model was evaluated on both the training and validation p
 The checkpoint with the best validation loss was saved and used for decoding evaluation.
 
 The training objective was cross-entropy loss applied to next-token prediction, 
-with supervision active only at action-token positions. Cross-entropy was chosen because the 
-target at each supervised position is a discrete action token drawn from a finite vocabulary, 
-so the learning problem is naturally one of categorical prediction. Non-action positions in the 
+with supervision active only at action-token positions. This corresponds to modelling each 
+conditional action distribution as categorical over a finite vocabulary, for which cross-entropy 
+is the negative log-likelihood objective. Non-action positions in the 
 label matrix $Y$ were ignored during loss computation.
 
-\subsection*{Decoding}
+\subsubsection*{Decoding}
 
 The decoding strategies compared in this work are greedy decoding and beam search with beam widths
 $2$ and $3$. The trained Transformer predicts a distribution over the next action token conditioned
@@ -631,7 +680,7 @@ is forced if the goal has not yet been reached. In the implementation used here,
 at $19$ steps for all queries. This value was chosen as it is the maximum number of actions to reach the 
 goal found in the training dataset across all maze layouts.
 
-\subsection*{Evaluation Metrics}
+\subsubsection*{Evaluation Metrics}
 
 
 Since the Transformer only provides an
@@ -664,7 +713,7 @@ time per step, is reported in Appendix~\ref{app:per_maze_results}.
 \centering
 \caption{Completion rate across all eight maze layouts.}
 \label{tab:completion_rate_all8}
-\small
+\footnotesize
 \begin{tabular}{lccc}
 \hline
 Maze Layout & Greedy & Beam 2 & Beam 3 \\
@@ -686,7 +735,7 @@ LARGE\_MAZE\_EVAL & 0.6901 & 0.8941 & 0.9598 \\
 \centering
 \caption{Average steps to goal across all eight maze layouts.}
 \label{tab:avg_steps_all8}
-\small
+\footnotesize
 \begin{tabular}{lccc}
 \hline
 Maze Layout & Greedy & Beam 2 & Beam 3 \\
@@ -769,6 +818,7 @@ compared with greedy decoding and beam search.
 
 
 
+
 \begin{thebibliography}{9}
 
 \bibitem{sutton2018rl}
@@ -807,6 +857,199 @@ Farama Foundation.
 \end{thebibliography}
 
 \appendix
+\section{Project Plans}
+\label{app:project_plans}
+
+This appendix includes both the original project plan and the revised project plan submitted for the project.
+
+\begin{longtable}{|p{3cm}|p{11cm}|}
+\caption{Original Project Plan.}\label{tab:original_project_plan_appendix}\\
+\hline
+\textbf{Date} & \textbf{Planned Progress} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Date} & \textbf{Planned Progress} \\
+\hline
+\endhead
+
+7 April &
+Implementation of a minimal end-to-end experimental pipeline. This includes a simple 2D gridworld environment, generation of shortest paths using A*, training of a basic autoregressive trajectory model on the generated paths, and implementation of at least one decoding strategy to produce trajectories from the learned model. The environment will be kept deliberately simple to validate the modelling and decoding pipeline while avoiding triviality. \\
+\hline
+
+4 May &
+Development of a more robust gridworld environment with configurable obstacles, start and goal states, and automated generation of shortest-path trajectories using A*. The environment should support systematic experimentation and dataset generation. \\
+\hline
+
+19 May &
+Implementation of two decoding strategies (e.g., greedy decoding and stochastic sampling) and integration with the autoregressive trajectory model. Initial experiments verifying that trajectories can be generated reliably from the trained model. \\
+\hline
+
+26 May &
+Preliminary evaluation of decoding strategies in the experimental environment. Initial analysis of trajectory quality and success rate. Identification of limitations of the current environment and model. \\
+\hline
+
+2 June &
+Integration of the Maze2D dataset from the D4RL benchmark and adaptation of the modelling pipeline to support training and evaluation on this dataset. Verification that the autoregressive model and decoding procedures operate correctly on the benchmark data. \\
+\hline
+
+10 June &
+Implementation refinements and additional experiments comparing decoding strategies. Collection of experimental results and figures to be included in the interim report. \\
+\hline
+
+16 June &
+Drafting of the interim report, including description of the experimental setup, modelling approach, decoding strategies, and preliminary results. \\
+\hline
+
+20 June &
+Revision and refinement of the interim report. Preparation of figures, tables, and final formatting. \\
+\hline
+
+24 June &
+Final proofreading and preparation for submission of the interim report. \\
+\hline
+
+20 July &
+Submission of the interim report. \\
+\hline
+
+20--24 July &
+Interim presentations. \\
+\hline
+
+8 August &
+Implementation of improvements to the autoregressive trajectory model to better capture trajectory structure in the dataset. Initial experiments validating the training procedure and model behaviour. \\
+\hline
+
+20 August &
+Implementation and integration of additional decoding strategies, allowing systematic comparison with previously implemented decoding methods. \\
+\hline
+
+30 August &
+Execution of the main experimental evaluation. This will involve systematic comparison of decoding strategies across multiple parameter settings, analysing metrics such as trajectory success rate, path optimality, diversity, and computational cost. \\
+\hline
+
+5 September &
+Analysis of experimental results and preparation of figures and tables summarising the performance of the different decoding strategies. \\
+\hline
+
+10 September &
+Writing and revision of the first full draft of the report describing the modelling approach, decoding strategies, experimental setup, and results obtained so far. \\
+\hline
+
+20 October &
+Implementation of an application demonstrating the practical use of the proposed planning framework. This may involve applying the trained model and decoding procedures to a more complex navigation or planning scenario. Completion and refinement of the final written report will also occur during this stage. \\
+\hline
+
+30 October &
+Submission of final report. \\
+\hline
+
+6 November &
+Submission of the project summary document. \\
+\hline
+
+16--20 November &
+Final project presentation. \\
+\hline
+
+\end{longtable}
+
+\vspace{1em}
+
+\begin{longtable}{|p{3cm}|p{11cm}|}
+\caption{Revised Project Plan.}\label{tab:revised_project_plan_appendix}\\
+\hline
+\textbf{Date} & \textbf{Planned Progress} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Date} & \textbf{Planned Progress} \\
+\hline
+\endhead
+
+7 April &
+Construction of a minimal end-to-end Maze2D analysis pipeline. This includes inspection of the D4RL / Maze2D environment structure, loading and visualisation of trajectories, and initial verification of how observations, \texttt{qpos}, \texttt{qvel}, actions, and goals are represented in the benchmark data. \\
+\hline
+
+4 May &
+Detailed investigation of the geometric relationship between stored Maze2D positions and maze wall layouts. Development of continuous and discrete trajectory visualisations, together with validation procedures to ensure that the plotted trajectories are consistent with the benchmark maze geometry. \\
+\hline
+
+19 May &
+Construction of a discrete trajectory dataset from Maze2D-style mazes. This includes representing trajectories as alternating state and action tokens, discretising maze layouts into grid-based paths, and preparing data in a form suitable for autoregressive sequence modelling. \\
+\hline
+
+26 May &
+Implementation of greedy decoding and beam search for the discrete planning setting, together with initial experiments verifying that a trained autoregressive model can generate valid trajectories from start-goal queries. \\
+\hline
+
+2 June &
+Expansion from a single Maze2D example to multiple D4RL maze layouts. Construction of a benchmark dataset containing shortest valid trajectories for all connected start-goal pairs across the selected maze family. \\
+\hline
+
+10 June &
+Implementation refinements to the multi-maze pipeline, including tokenisation, trajectory encoding, training-set construction, and preparation of transformer-ready inputs, labels, token-type information, and masks. \\
+\hline
+
+16 June &
+Training of a small causal Transformer on the discrete trajectory data and execution of initial decoding experiments comparing greedy decoding with beam search under multiple maze layouts. \\
+\hline
+
+20 June &
+Aggregation and analysis of preliminary results, including completion rate, average steps to goal, and computational-cost metrics. Preparation of figures, tables, and explanations for inclusion in the interim report. \\
+\hline
+
+24 June &
+Revision and refinement of the interim report, including clarification of the probabilistic modelling formulation, dataset construction, Transformer training procedure, and decoding methodology. \\
+\hline
+
+20 July &
+Submission of the interim report. \\
+\hline
+
+20--24 July &
+Interim presentations. \\
+\hline
+
+8 August &
+Investigation of how decoding performance changes when the trajectory model is trained on sub-optimal trajectories rather than shortest paths, testing the dependence of the current imitation-learning formulation on optimal training data. \\
+\hline
+
+20 August &
+Extension of the planning framework toward an offline reinforcement learning setting, where decoding is guided by predicted reward or return rather than model probability alone. \\
+\hline
+
+30 August &
+Implementation and evaluation of additional decoding strategies, such as stochastic decoding or nucleus sampling, for comparison with greedy decoding and beam search. \\
+\hline
+
+5 September &
+Analysis of the expanded experimental results and preparation of additional figures and tables comparing decoding strategies under the revised settings. \\
+\hline
+
+10 September &
+Writing and revision of the first full draft of the final report, consolidating the modelling formulation, experimental methodology, decoding evaluation, and discussion of results. \\
+\hline
+
+20 October &
+Final refinement of the report and completion of any remaining experimental or presentation material needed for the project submission stage. \\
+\hline
+
+30 October &
+Submission of final report. \\
+\hline
+
+6 November &
+Submission of the project summary document. \\
+\hline
+
+16--20 November &
+Final project presentation. \\
+\hline
+
+\end{longtable}
+
 \section{Per-Maze Decoding Results}
 \label{app:per_maze_results}
 

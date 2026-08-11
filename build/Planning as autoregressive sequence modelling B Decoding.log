@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.3.2)  24 JUN 2026 20:18
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.3.2)  9 JUL 2026 13:00
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -23,13 +23,15 @@ File: size12.clo 2025/01/22 v1.4n Standard LaTeX file (size option)
 \abovecaptionskip=\skip49
 \belowcaptionskip=\skip50
 \bibindent=\dimen148
-) (C:\Users\diank\AppData\Local\Programs\MiKTeX\tex/latex/base\inputenc.sty
+) (C:\Users\diank\AppData\Local\Programs\MiKTeX\tex/generic/pdftex\glyphtounicode.tex) (C:\Users\diank\AppData\Local\Programs\MiKTeX\tex/latex/base\inputenc.sty
 Package: inputenc 2024/02/08 v1.3d Input encoding file
 \inpenc@prehook=\toks17
 \inpenc@posthook=\toks18
+) (C:\Users\diank\AppData\Local\Programs\MiKTeX\tex/latex/cmap\cmap.sty
+Package: cmap 2021/02/06 v1.0j CMap support: searchable PDF
 ) (C:\Users\diank\AppData\Local\Programs\MiKTeX\tex/latex/base\fontenc.sty
 Package: fontenc 2025/07/18 v2.1d Standard LaTeX package
-) (C:\Users\diank\AppData\Local\Programs\MiKTeX\tex/latex/xcolor\xcolor.sty
+<<t1.cmap>>) (C:\Users\diank\AppData\Local\Programs\MiKTeX\tex/latex/xcolor\xcolor.sty
 Package: xcolor 2024/09/29 v3.02 LaTeX color extensions (UK)
  (C:\Users\diank\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\color.cfg
 File: color.cfg 2016/01/02 v1.6 sample color configuration
@@ -151,7 +153,7 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 28
 )
 \Hy@SectionHShift=\skip51
 )
-Package hyperref Info: Option `colorlinks' set `true' on input line 15.
+Package hyperref Info: Option `colorlinks' set `true' on input line 18.
  (C:\Users\diank\AppData\Local\Programs\MiKTeX\tex/latex/booktabs\booktabs.sty
 Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
 \heavyrulewidth=\dimen153
@@ -274,6 +276,24 @@ Package graphics Info: Driver file: pdftex.def on input line 106.
 )
 \Gin@req@height=\dimen175
 \Gin@req@width=\dimen176
+) (C:\Users\diank\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption.sty
+Package: caption 2023/08/05 v3.6o Customizing captions (AR)
+ (C:\Users\diank\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption3.sty
+Package: caption3 2023/07/31 v2.4d caption3 kernel (AR)
+\caption@tempdima=\dimen177
+\captionmargin=\dimen178
+\caption@leftmargin=\dimen179
+\caption@rightmargin=\dimen180
+\caption@width=\dimen181
+\caption@indent=\dimen182
+\caption@parindent=\dimen183
+\caption@hangindent=\dimen184
+Package caption Info: Standard document class detected.
+)
+\c@caption@flags=\count312
+\c@continuedfloat=\count313
+Package caption Info: float package is loaded.
+Package caption Info: hyperref package is loaded.
 ) (C:\Users\diank\AppData\Local\Programs\MiKTeX\tex/latex/units\nicefrac.sty
 Package: nicefrac 1998/08/04 v0.9b Nice fractions
 \L@UnitsRaiseDisplaystyle=\skip58
@@ -286,32 +306,50 @@ Package: natbib 2010/09/13 8.31b (PWD, AO)
 \bibhang=\skip61
 \bibsep=\skip62
 LaTeX Info: Redefining \cite on input line 694.
-\c@NAT@ctr=\count312
+\c@NAT@ctr=\count314
 ) (C:\Users\diank\AppData\Local\Programs\MiKTeX\tex/latex/appendix\appendix.sty
 Package: appendix 2020/02/08 v1.2c extra appendix facilities
-\c@@pps=\count313
-\c@@ppsavesec=\count314
-\c@@ppsaveapp=\count315
+\c@@pps=\count315
+\c@@ppsavesec=\count316
+\c@@ppsaveapp=\count317
+) (C:\Users\diank\AppData\Local\Programs\MiKTeX\tex/latex/tools\longtable.sty
+Package: longtable 2025-10-13 v4.24 Multi-page Table package (DPC)
+\LTleft=\skip63
+\LTright=\skip64
+\LTpre=\skip65
+\LTpost=\skip66
+\LTchunksize=\count318
+\LTcapwidth=\dimen185
+\LT@head=\box57
+\LT@firsthead=\box58
+\LT@foot=\box59
+\LT@lastfoot=\box60
+\LT@gbox=\box61
+\LT@cols=\count319
+\LT@rows=\count320
+\c@LT@tables=\count321
+\c@LT@chunks=\count322
+\LT@p@ftn=\toks34
 ) (C:\Users\diank\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.sty
-\lst@mode=\count316
-\lst@gtempboxa=\box57
-\lst@token=\toks34
-\lst@length=\count317
-\lst@currlwidth=\dimen177
-\lst@column=\count318
-\lst@pos=\count319
-\lst@lostspace=\dimen178
-\lst@width=\dimen179
-\lst@newlines=\count320
-\lst@lineno=\count321
-\lst@maxwidth=\dimen180
+\lst@mode=\count323
+\lst@gtempboxa=\box62
+\lst@token=\toks35
+\lst@length=\count324
+\lst@currlwidth=\dimen186
+\lst@column=\count325
+\lst@pos=\count326
+\lst@lostspace=\dimen187
+\lst@width=\dimen188
+\lst@newlines=\count327
+\lst@lineno=\count328
+\lst@maxwidth=\dimen189
  (C:\Users\diank\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstpatch.sty
 File: lstpatch.sty 2025/11/14 1.11b (Carsten Heinz)
 ) (C:\Users\diank\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstmisc.sty
 File: lstmisc.sty 2025/11/14 1.11b (Carsten Heinz)
-\c@lstnumber=\count322
-\lst@skipnumbers=\count323
-\lst@framebox=\box58
+\c@lstnumber=\count329
+\lst@skipnumbers=\count330
+\lst@framebox=\box63
 ) (C:\Users\diank\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.cfg
 File: listings.cfg 2025/11/14 1.11b listings configuration
 ))
@@ -323,118 +361,141 @@ Package: listings 2025/11/14 1.11b (Carsten Heinz)
     but found:
         2025/11/14 1.11b (Carsten Heinz)
     so I'm assuming it got fixed.
-\c@theorem=\count324
-\c@lemma=\count325
-\c@proposition=\count326
-\c@corollary=\count327
-\c@definition=\count328
-\c@remark=\count329
-\extraspace=\skip63
+\c@theorem=\count331
+\c@lemma=\count332
+\c@proposition=\count333
+\c@corollary=\count334
+\c@definition=\count335
+\c@remark=\count336
+\extraspace=\skip67
 (C:\Users\diank\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdftex.def
 File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count330
+\l__color_backend_stack_int=\count337
 ) (c:\4th year\project\build\Planning as autoregressive sequence modelling B Decoding.aux)
 \openout1 = `"Planning as autoregressive sequence modelling B Decoding.aux"'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 68.
+LaTeX Font Info:    ... okay on input line 68.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 68.
+LaTeX Font Info:    ... okay on input line 68.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 68.
+LaTeX Font Info:    ... okay on input line 68.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 68.
+LaTeX Font Info:    ... okay on input line 68.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 68.
+LaTeX Font Info:    ... okay on input line 68.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 68.
+LaTeX Font Info:    ... okay on input line 68.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 68.
+LaTeX Font Info:    ... okay on input line 68.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 68.
+LaTeX Font Info:    ... okay on input line 68.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 68.
+LaTeX Font Info:    ... okay on input line 68.
  (C:\Users\diank\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count331
-\scratchdimen=\dimen181
-\scratchbox=\box59
-\nofMPsegments=\count332
-\nofMParguments=\count333
-\everyMPshowfont=\toks35
-\MPscratchCnt=\count334
-\MPscratchDim=\dimen182
-\MPnumerator=\count335
-\makeMPintoPDFobject=\count336
-\everyMPtoPDFconversion=\toks36
+\scratchcounter=\count338
+\scratchdimen=\dimen190
+\scratchbox=\box64
+\nofMPsegments=\count339
+\nofMParguments=\count340
+\everyMPshowfont=\toks36
+\MPscratchCnt=\count341
+\MPscratchDim=\dimen191
+\MPnumerator=\count342
+\makeMPintoPDFobject=\count343
+\everyMPtoPDFconversion=\toks37
 ) (C:\Users\diank\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
  (C:\Users\diank\AppData\Local\Programs\MiKTeX\tex/latex/00miktex\epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-Package hyperref Info: Link coloring ON on input line 61.
+Package hyperref Info: Link coloring ON on input line 68.
  (c:\4th year\project\build\Planning as autoregressive sequence modelling B Decoding.out) (c:\4th year\project\build\Planning as autoregressive sequence modelling B Decoding.out)
 \@outlinefile=\write3
 \openout3 = `"Planning as autoregressive sequence modelling B Decoding.out"'.
 
-\c@lstlisting=\count337
-LaTeX Font Info:    Trying to load font information for U+msa on input line 64.
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: listings package is loaded.
+Package caption Info: longtable package is loaded.
+ (C:\Users\diank\AppData\Local\Programs\MiKTeX\tex/latex/caption\ltcaption.sty
+Package: ltcaption 2021/01/08 v1.4c longtable captions (AR)
+)
+Package caption Info: End \AtBeginDocument code.
+\c@lstlisting=\count344
+<<ot1.cmap>><<oml.cmap>><<oms.cmap>><<omx.cmap>>
+LaTeX Font Info:    Trying to load font information for U+msa on input line 71.
  (C:\Users\diank\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 64.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 71.
  (C:\Users\diank\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [1
 
 {C:/Users/diank/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}]
-<example_trajectory.png, id=29, 458.71375pt x 481.8pt>
+<example_trajectory.png, id=43, 458.71375pt x 481.8pt>
 File: example_trajectory.png Graphic file (type png)
 <use example_trajectory.png>
-Package pdftex.def Info: example_trajectory.png  used on input line 92.
-(pdftex.def)             Requested size: 182.09485pt x 191.26094pt.
- [2] [3
-pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.115 
-       <./example_trajectory.png>] [4] [5
-pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.220 
-      ] [6] [7] [8]
-<maze_layouts.png, id=121, 1132.4709pt x 643.203pt>
+Package pdftex.def Info: example_trajectory.png  used on input line 161.
+(pdftex.def)             Requested size: 136.5746pt x 143.44571pt.
+
+
+Package caption Warning: The option `hypcap=true' will be ignored for this
+(caption)                particular \caption on input line 163.
+See the caption package documentation for explanation.
+
+[2] [3 <./example_trajectory.png>] [4]
+Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on input line 268.
+ [5] [6] [7] [8]
+<maze_layouts.png, id=154, 1132.4709pt x 643.203pt>
 File: maze_layouts.png Graphic file (type png)
 <use maze_layouts.png>
-Package pdftex.def Info: maze_layouts.png  used on input line 404.
+Package pdftex.def Info: maze_layouts.png  used on input line 497.
 (pdftex.def)             Requested size: 409.71689pt x 232.70119pt.
- [9] [10
-pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.448 
-       <./maze_layouts.png>] [11] (c:\4th year\project\build\Planning as autoregressive sequence modelling B Decoding.aux)
+ [9] [10 <./maze_layouts.png>] [11] [12] [13] [14]
+Underfull \hbox (badness 10000) in paragraph at lines 816--819
+[]\T1/cmr/m/n/12 Farama Foun-da-tion. \T1/cmr/m/it/12 D4RL repos-i-tory, \T1/cmtt/m/it/12 d4rl/pointmaze/maze_model.py\T1/cmr/m/n/12 .
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 816--819
+[][]$\T1/cmr/m/n/12 https : / / github . com / Farama-[]Foundation / D4RL / blob / master / d4rl / pointmaze /
+ []
+
+
+Underfull \hbox (badness 4303) in paragraph at lines 841--842
+[]|\T1/cmr/m/n/12 Implementation of a min-i-mal end-to-end ex-per-i-men-tal
+ []
+
+[15]
+c:/4th year/project/Planning as autoregressive sequence modelling B Decoding.tex:920: ignored error: Infinite glue shrinkage found in box being split [16]
+Underfull \hbox (badness 1460) in paragraph at lines 936--937
+[]|\T1/cmr/m/n/12 Construction of a min-i-mal end-to-end Maze2D anal-y-sis
+ []
+
+c:/4th year/project/Planning as autoregressive sequence modelling B Decoding.tex:1015: ignored error: Infinite glue shrinkage found in box being split [17]
+c:/4th year/project/Planning as autoregressive sequence modelling B Decoding.tex:1015: ignored error: Infinite glue shrinkage found in box being split [18] [19] [20] (c:\4th year\project\build\Planning as autoregressive sequence modelling B Decoding.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
 Package rerunfilecheck Info: File `"Planning as autoregressive sequence modelling B Decoding".out' has not changed.
-(rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
+(rerunfilecheck)             Checksum: 55B5DE14767996CE7FAA1EAC37B633CD;287.
  ) 
 Here is how much of TeX's memory you used:
- 12149 strings out of 467871
- 185525 string characters out of 5418377
- 609612 words of memory out of 5000000
- 40828 multiletter control sequences out of 15000+600000
- 645685 words of font info for 89 fonts, out of 8000000 for 9000
+ 13809 strings out of 467871
+ 217043 string characters out of 5418377
+ 655359 words of memory out of 5000000
+ 42363 multiletter control sequences out of 15000+600000
+ 649080 words of font info for 98 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,19n,79p,1212b,566s stack positions out of 10000i,1000n,20000p,200000b,200000s
- <C:\Users\diank\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecti1200.pk> <C:\Users\diank\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1200.pk> <C:\Users\diank\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1200.pk> <C:\Users\diank\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1440.pk> <C:\Users\diank\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1200.pk> <C:\Users\diank\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1728.pk> <C:\Users\diank\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1440.pk> <C:\Users\diank\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm2074.pk><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi6.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmib10.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr6.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
-Output written on "c:\4th year\project\build\Planning as autoregressive sequence modelling B Decoding.pdf" (11 pages, 328493 bytes).
+ 75i,18n,79p,1212b,608s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ <C:\Users\diank\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecit1200.pk> <C:\Users\diank\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1000.pk> <C:\Users\diank\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecti1200.pk> <C:\Users\diank\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt1200.pk> <C:\Users\diank\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1200.pk> <C:\Users\diank\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm0800.pk> <C:\Users\diank\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1095.pk> <C:\Users\diank\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1440.pk> <C:\Users\diank\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1200.pk> <C:\Users\diank\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1728.pk> <C:\Users\diank\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1440.pk> <C:\Users\diank\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm2074.pk><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx8.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi6.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmib10.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr6.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/Users/diank/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on "c:\4th year\project\build\Planning as autoregressive sequence modelling B Decoding.pdf" (20 pages, 417721 bytes).
 PDF statistics:
- 471 PDF objects out of 1000 (max. 8388607)
- 34 named destinations out of 1000 (max. 500000)
- 11 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 712 PDF objects out of 1000 (max. 8388607)
+ 79 named destinations out of 1000 (max. 500000)
+ 47 words of extra memory for PDF output out of 10000 (max. 10000000)
 

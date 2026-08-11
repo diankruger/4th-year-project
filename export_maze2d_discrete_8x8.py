@@ -20,6 +20,14 @@ def parse_maze_rows(maze_str):
     return maze_str.strip().split("\\")
 
 
+def make_native_maze(maze_str):
+    rows = parse_maze_rows(maze_str)
+    return np.asarray(
+        [[1 if char == "#" else 0 for char in row] for row in rows],
+        dtype=np.int32,
+    )
+
+
 def layout_from_spec(maze_str):
     rows = parse_maze_rows(maze_str)
     return {
@@ -179,6 +187,17 @@ def parse_args():
         description="Export the discrete Maze2D maze dataset."
     )
     parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path("maze2d_discrete_8x8_dataset.npz"),
+        help="Output NPZ path for the exported maze dataset.",
+    )
+    parser.add_argument(
+        "--native-sizes",
+        action="store_true",
+        help="Store each maze at its original logical size instead of resampling small mazes to 8x8.",
+    )
+    parser.add_argument(
         "--write-notebook",
         action="store_true",
         help="Also write the gallery notebook scaffold.",
@@ -194,15 +213,20 @@ def parse_args():
 def main():
     args = parse_args()
     maze_names = list(MAZE_SPECS.keys())
-    grid_shapes = np.array([grid_shape_for_maze(name) for name in maze_names], dtype=np.int32)
     mazes = np.empty(len(maze_names), dtype=object)
+    grid_shapes = np.zeros((len(maze_names), 2), dtype=np.int32)
     for index, maze_name in enumerate(maze_names):
-        mazes[index] = make_discrete_maze(
-            layout_from_spec(MAZE_SPECS[maze_name]),
-            grid_shape=tuple(grid_shapes[index]),
-        )
+        if args.native_sizes:
+            maze = make_native_maze(MAZE_SPECS[maze_name])
+        else:
+            maze = make_discrete_maze(
+                layout_from_spec(MAZE_SPECS[maze_name]),
+                grid_shape=grid_shape_for_maze(maze_name),
+            )
+        mazes[index] = maze
+        grid_shapes[index] = np.asarray(maze.shape, dtype=np.int32)
 
-    dataset_path = Path("maze2d_discrete_8x8_dataset.npz")
+    dataset_path = args.output
     np.savez(
         dataset_path,
         maze_names=np.array(maze_names, dtype="<U32"),
@@ -222,6 +246,7 @@ def main():
     print("dataset:", dataset_path)
     print("notebook:", notebook_path)
     print("notebook_status:", notebook_status)
+    print("native_sizes:", args.native_sizes)
     print("maze names:", maze_names)
     print("stored maze array shape:", mazes.shape)
     print("grid shapes:", grid_shapes.tolist())

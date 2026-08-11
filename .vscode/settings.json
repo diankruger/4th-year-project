@@ -1,3 +1,40 @@
 {
-    "python-envs.defaultEnvManager": "ms-python.python:system"
+    "python-envs.defaultEnvManager": "ms-python.python:system",
+    "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+    "latex-workshop.latex.tools": [
+        {
+            "name": "miktex-texify",
+            "command": "C:\\Users\\User\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\texify.exe",
+            "args": [
+                "--pdf",
+                "--synctex=1",
+                "--batch",
+                "--max-iterations=5",
+                "%DOC_EXT%"
+            ],
+            "env": {}
+        },
+        {
+            "name": "copy-pdf-to-build",
+            "command": "powershell.exe",
+            "args": [
+                "-NoProfile",
+                "-Command",
+                "Copy-Item -LiteralPath '%DOC%.pdf' -Destination '%OUTDIR%' -Force"
+            ],
+            "env": {}
+        }
+    ],
+    "latex-workshop.latex.recipes": [
+        {
+            "name": "MiKTeX texify",
+            "tools": [
+                "miktex-texify",
+                "copy-pdf-to-build"
+            ]
+        }
+    ],
+    "latex-workshop.latex.recipe.default": "first",
+    "latex-workshop.latex.autoBuild.run": "onSave",
+    "latex-workshop.latex.outDir": "%DIR%/build"
 }

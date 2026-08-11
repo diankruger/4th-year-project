@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 from pathlib import Path
 
 import numpy as np
@@ -10,8 +11,16 @@ OUTPUT_DATASET = Path("maze2d_all_mazes_transformer_ready_split_80_20.npz")
 EVAL_FRACTION = 0.20
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Build an 80/20 evaluation split for a transformer-ready maze dataset.")
+    parser.add_argument("--source-dataset", type=Path, default=SOURCE_DATASET)
+    parser.add_argument("--output-dataset", type=Path, default=OUTPUT_DATASET)
+    return parser.parse_args()
+
+
 def main() -> None:
-    data = np.load(SOURCE_DATASET, allow_pickle=True)
+    args = parse_args()
+    data = np.load(args.source_dataset, allow_pickle=True)
     files = list(data.files)
 
     maze_name_per_episode = np.asarray(data["maze_name_per_episode"]).astype("<U32")
@@ -61,10 +70,10 @@ def main() -> None:
     out["train_episode_count"] = np.asarray([int(train_mask.sum())], dtype=np.int32)
     out["eval_episode_count"] = np.asarray([int(eval_mask.sum())], dtype=np.int32)
 
-    np.savez_compressed(OUTPUT_DATASET, **out)
+    np.savez_compressed(args.output_dataset, **out)
 
-    print("source_dataset:", SOURCE_DATASET)
-    print("output_dataset:", OUTPUT_DATASET)
+    print("source_dataset:", args.source_dataset)
+    print("output_dataset:", args.output_dataset)
     print("split_method: every_5th_lexsorted_per_maze")
     print("train_episodes:", int(train_mask.sum()))
     print("eval_episodes:", int(eval_mask.sum()))
