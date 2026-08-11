@@ -1,0 +1,25 @@
+# Core numerical and data-processing stack
+numpy==2.5.1
+pandas==3.0.5
+
+# Visualisation
+matplotlib==3.11.1
+
+# Transformer training and evaluation
+torch==2.13.0
+
+# Notebook execution, widgets, and export
+jupyter==1.1.1
+ipython==9.16.0
+ipykernel==7.3.0
+ipywidgets==8.1.8
+nbconvert==7.17.1
+
+# Maze2D environment and offline-dataset tooling
+gymnasium==1.3.0
+minari==0.5.3
+h5py==3.16.0
+
+# The legacy D4RL source is included as the repository's d4rl submodule.
+# It is intentionally not installed from PyPI here because its old Gym and
+# MuJoCo dependencies require a separate legacy-compatible environment.
