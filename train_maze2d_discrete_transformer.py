@@ -118,6 +118,12 @@ class TinyCausalTransformer(nn.Module):
 class EvalMetrics:
     loss: float
     action_accuracy: float
+    wall_mask_accuracy: float = float("nan")
+    visible_goal_accuracy: float = float("nan")
+    goal_row_accuracy: float = float("nan")
+    goal_column_accuracy: float = float("nan")
+    complete_observation_accuracy: float = float("nan")
+    all_supervised_accuracy: float = float("nan")
 
 
 def shifted_loss_and_accuracy(
@@ -151,8 +157,9 @@ def run_epoch(
     training = optimizer is not None
     model.train(training)
     total_loss = 0.0
-    total_acc = 0.0
     steps = 0
+    correct = {name: 0 for name in ("action", "wall", "visible", "row", "column", "all", "complete")}
+    totals = {name: 0 for name in correct}
 
     for batch in loader:
         input_ids = batch["input_ids"].to(device)
@@ -170,10 +177,36 @@ def run_epoch(
                 optimizer.step()
 
         total_loss += float(loss.item())
-        total_acc += float(acc)
+        with torch.no_grad():
+            predictions = logits[:, :-1].argmax(dim=-1)
+            targets = labels[:, 1:]
+            target_types = token_type_ids[:, 1:]
+            valid = targets != -100
+            matches = predictions == targets
+            masks = {
+                "action": valid & (target_types == 5),
+                "wall": valid & (target_types == 2),
+                "visible": valid & (target_types == 3),
+                "all": valid,
+            }
+            delta_positions = valid & (target_types == 4)
+            position_index = torch.arange(targets.shape[1], device=device).unsqueeze(0)
+            masks["row"] = delta_positions & (((position_index + 1) % 5) == 3)
+            masks["column"] = delta_positions & (((position_index + 1) % 5) == 4)
+            for name, metric_mask in masks.items():
+                correct[name] += int((matches & metric_mask).sum().item())
+                totals[name] += int(metric_mask.sum().item())
+            complete_mask = masks["wall"][:, :-3] & masks["visible"][:, 1:-2] & masks["row"][:, 2:-1] & masks["column"][:, 3:]
+            complete_match = (matches[:, :-3] & matches[:, 1:-2] & matches[:, 2:-1] & matches[:, 3:])
+            correct["complete"] += int((complete_mask & complete_match).sum().item())
+            totals["complete"] += int(complete_mask.sum().item())
         steps += 1
 
-    return EvalMetrics(loss=total_loss / max(steps, 1), action_accuracy=total_acc / max(steps, 1))
+    ratio = lambda name: correct[name] / totals[name] if totals[name] else float("nan")
+    return EvalMetrics(loss=total_loss / max(steps, 1), action_accuracy=ratio("action"),
+                       wall_mask_accuracy=ratio("wall"), visible_goal_accuracy=ratio("visible"),
+                       goal_row_accuracy=ratio("row"), goal_column_accuracy=ratio("column"),
+                       complete_observation_accuracy=ratio("complete"), all_supervised_accuracy=ratio("all"))
 
 
 def decode_token(token_id: int, action_token_offset: int, action_token_names: list[str]) -> str:
@@ -265,7 +298,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     set_seed(args.seed)
-    device = torch.device("cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     data = np.load(args.dataset, allow_pickle=True)
     num_episodes = int(data["input_ids"].shape[0])
@@ -342,6 +375,10 @@ def main() -> None:
             "val_loss": val_metrics.loss,
             "val_action_accuracy": val_metrics.action_accuracy,
         }
+        for prefix, metrics in (("train", train_metrics), ("val", val_metrics)):
+            for name in ("wall_mask_accuracy", "visible_goal_accuracy", "goal_row_accuracy",
+                         "goal_column_accuracy", "complete_observation_accuracy", "all_supervised_accuracy"):
+                row[f"{prefix}_{name}"] = getattr(metrics, name)
         history.append(row)
         print(
             f"epoch {epoch:02d} | "
@@ -364,6 +401,14 @@ def main() -> None:
                         "dropout": args.dropout,
                     },
                     "history": history,
+                    "dataset_metadata": {
+                        key: data[key].tolist() for key in (
+                            "dataset_version", "supervision", "observation_encoding", "observation_group_size",
+                            "wall_token_offset", "wall_token_count", "visible_goal_token_offset",
+                            "visible_goal_token_count", "goal_delta_token_offset", "goal_delta_min",
+                            "goal_delta_max", "action_token_offset", "bos_token_id",
+                        ) if key in data.files
+                    },
                 },
                 args.output,
             )

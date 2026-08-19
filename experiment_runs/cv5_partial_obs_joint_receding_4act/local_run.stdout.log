@@ -1,0 +1,102 @@
+
+=== Experiment: cv5_partial_obs_joint_receding_4act ===
+training dataset:
+{
+  "path": "C:\\Users\\User\\Documents\\4th year\\project\\maze2d_partial_obs_3x3_joint_obs_action_optimal_4act_cv5.npz",
+  "sha256": "2d8c595de5e58e1928b047843b0374f4187dc0824caa7beef69c639881861fe1",
+  "episodes": 5976,
+  "sequence_length": 100,
+  "available_folds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "available_mazes": [
+    "OPEN",
+    "U_MAZE",
+    "U_MAZE_EVAL",
+    "SMALL_MAZE",
+    "MEDIUM_MAZE",
+    "MEDIUM_MAZE_EVAL",
+    "LARGE_MAZE",
+    "LARGE_MAZE_EVAL"
+  ],
+  "requested_fold_counts": {
+    "0": 1196,
+    "1": 1196,
+    "2": 1195,
+    "3": 1195,
+    "4": 1194
+  }
+}
+Reusing checkpoint: C:\Users\User\Documents\4th year\project\experiment_runs\cv5_partial_obs_joint_receding_4act\fold_0\checkpoint.pt
+$ "C:\Users\User\Documents\4th year\project\.venv\Scripts\python.exe" "C:\Users\User\Documents\4th year\project\benchmark_partial_observation_joint_receding_cv_decoding.py" --dataset "C:\Users\User\Documents\4th year\project\maze2d_partial_obs_3x3_joint_obs_action_optimal_4act_cv5.npz" --checkpoint "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_partial_obs_joint_receding_4act\fold_0\checkpoint.pt" --cv-fold 0 --results-csv "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_partial_obs_joint_receding_4act\fold_0\results.csv" --summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_partial_obs_joint_receding_4act\fold_0\summary.csv" --per-maze-summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_partial_obs_joint_receding_4act\fold_0\per_maze_summary.csv" --queries-per-maze 10000 --max-steps 19 --planning-horizon 5 --device auto --mazes OPEN U_MAZE U_MAZE_EVAL SMALL_MAZE MEDIUM_MAZE MEDIUM_MAZE_EVAL LARGE_MAZE LARGE_MAZE_EVAL
+{
+  "device": "cpu",
+  "fold": 0
+}
+{
+  "fold": 0,
+  "rows": 3588,
+  "device": "cpu"
+}
+       strategy  completion_rate  average_steps_to_goal  average_compute_seconds  average_seconds_per_step  invalid_real_action_count  invalid_real_action_rate  first_wall_mask_accuracy  first_visible_goal_accuracy  first_goal_row_accuracy  first_goal_column_accuracy  complete_next_observation_accuracy  imagined_displacement_consistency
+receding_beam_2         0.764214               6.596280                 1.199529                  0.092468                          0                       0.0                  0.299279                     0.914925                      1.0                         1.0                            0.286619                                1.0
+receding_beam_3         0.758361               6.571114                 1.799217                  0.134235                          0                       0.0                  0.286744                     0.925436                      1.0                         1.0                            0.277704                                1.0
+receding_greedy         0.760870               6.534066                 0.770228                  0.061431                          0                       0.0                  0.308573                     0.893030                      1.0                         1.0                            0.290889                                1.0
+$ "C:\Users\User\Documents\4th year\project\.venv\Scripts\python.exe" "C:\Users\User\Documents\4th year\project\train_maze2d_discrete_transformer.py" --dataset "C:\Users\User\Documents\4th year\project\maze2d_partial_obs_3x3_joint_obs_action_optimal_4act_cv5.npz" --cv-fold 1 --output "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_partial_obs_joint_receding_4act\fold_1\checkpoint.pt" --epochs 20 --max-train-episodes 1000000 --max-val-episodes 1000000 --batch-size 128 --d-model 64 --nhead 4 --num-layers 2 --ffn-dim 128 --dropout 0.1 --lr 0.0003 --weight-decay 0.0001 --seed 7
+{
+  "dataset": "C:\\Users\\User\\Documents\\4th year\\project\\maze2d_partial_obs_3x3_joint_obs_action_optimal_4act_cv5.npz",
+  "train_episodes": 4780,
+  "val_episodes": 1196,
+  "seq_len": 100,
+  "vocab_size": 551,
+  "device": "cpu"
+}
+epoch 01 | train_loss=5.5121 train_acc=0.0913 | val_loss=4.6197 val_acc=0.1706
+epoch 02 | train_loss=4.0576 train_acc=0.1683 | val_loss=3.5015 val_acc=0.1767
+epoch 03 | train_loss=3.1817 train_acc=0.2546 | val_loss=2.8601 val_acc=0.3838
+epoch 04 | train_loss=2.6989 train_acc=0.4406 | val_loss=2.5087 val_acc=0.5044
+epoch 05 | train_loss=2.4149 train_acc=0.5392 | val_loss=2.2606 val_acc=0.5923
+epoch 06 | train_loss=2.1996 train_acc=0.5809 | val_loss=2.0715 val_acc=0.6173
+epoch 07 | train_loss=2.0460 train_acc=0.6066 | val_loss=1.9322 val_acc=0.6495
+epoch 08 | train_loss=1.9232 train_acc=0.6260 | val_loss=1.8143 val_acc=0.6633
+epoch 09 | train_loss=1.8168 train_acc=0.6435 | val_loss=1.7066 val_acc=0.6882
+epoch 10 | train_loss=1.7221 train_acc=0.6464 | val_loss=1.6056 val_acc=0.6934
+epoch 11 | train_loss=1.6304 train_acc=0.6514 | val_loss=1.5132 val_acc=0.7090
+epoch 12 | train_loss=1.5428 train_acc=0.6588 | val_loss=1.4175 val_acc=0.7088
+epoch 13 | train_loss=1.4598 train_acc=0.6670 | val_loss=1.3194 val_acc=0.7115
+epoch 14 | train_loss=1.3779 train_acc=0.6764 | val_loss=1.2380 val_acc=0.7300
+epoch 15 | train_loss=1.3017 train_acc=0.6860 | val_loss=1.1616 val_acc=0.7380
+epoch 16 | train_loss=1.2353 train_acc=0.6984 | val_loss=1.0913 val_acc=0.7448
+epoch 17 | train_loss=1.1756 train_acc=0.7141 | val_loss=1.0338 val_acc=0.7716
+epoch 18 | train_loss=1.1213 train_acc=0.7226 | val_loss=0.9734 val_acc=0.7792
+epoch 19 | train_loss=1.0654 train_acc=0.7337 | val_loss=0.9176 val_acc=0.7950
+epoch 20 | train_loss=1.0113 train_acc=0.7490 | val_loss=0.8634 val_acc=0.8038
+preview rollout: {
+  "episode_id": 2,
+  "target_action_tokens": [
+    547,
+    547,
+    547
+  ],
+  "pred_action_tokens": [
+    550,
+    547,
+    550
+  ],
+  "target_actions_named": [
+    "ACTION_UP",
+    "ACTION_UP",
+    "ACTION_UP"
+  ],
+  "pred_actions_named": [
+    "ACTION_RIGHT",
+    "ACTION_UP",
+    "ACTION_RIGHT"
+  ]
+}
+saved checkpoint: C:\Users\User\Documents\4th year\project\experiment_runs\cv5_partial_obs_joint_receding_4act\fold_1\checkpoint.pt
+$ "C:\Users\User\Documents\4th year\project\.venv\Scripts\python.exe" "C:\Users\User\Documents\4th year\project\benchmark_partial_observation_joint_receding_cv_decoding.py" --dataset "C:\Users\User\Documents\4th year\project\maze2d_partial_obs_3x3_joint_obs_action_optimal_4act_cv5.npz" --checkpoint "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_partial_obs_joint_receding_4act\fold_1\checkpoint.pt" --cv-fold 1 --results-csv "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_partial_obs_joint_receding_4act\fold_1\results.csv" --summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_partial_obs_joint_receding_4act\fold_1\summary.csv" --per-maze-summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\cv5_partial_obs_joint_receding_4act\fold_1\per_maze_summary.csv" --queries-per-maze 10000 --max-steps 19 --planning-horizon 5 --device auto --mazes OPEN U_MAZE U_MAZE_EVAL SMALL_MAZE MEDIUM_MAZE MEDIUM_MAZE_EVAL LARGE_MAZE LARGE_MAZE_EVAL

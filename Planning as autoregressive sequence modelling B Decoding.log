@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.1)  11 AUG 2026 18:32
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.1)  19 AUG 2026 17:06
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -515,7 +515,7 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 [1
 
 {C:/Users/User/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}]
-<example_trajectory.png, id=43, 458.71375pt x 481.8pt>
+<example_trajectory.png, id=47, 458.71375pt x 481.8pt>
 File: example_trajectory.png Graphic file (type png)
 <use example_trajectory.png>
 Package pdftex.def Info: example_trajectory.png  used on input line 161.
@@ -529,51 +529,51 @@ See the caption package documentation for explanation.
 [2] [3 <./example_trajectory.png>] [4]
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
 nput line 275.
- [5] [6] [7] [8] [9]
-<maze_layouts.png, id=162, 1132.4709pt x 643.203pt>
+ [5] [6] [7] [8] [9] [10]
+<maze_layouts.png, id=172, 1132.4709pt x 643.203pt>
 File: maze_layouts.png Graphic file (type png)
 <use maze_layouts.png>
-Package pdftex.def Info: maze_layouts.png  used on input line 532.
+Package pdftex.def Info: maze_layouts.png  used on input line 591.
 (pdftex.def)             Requested size: 409.71689pt x 232.70119pt.
- [10] [11 <./maze_layouts.png>] [12] [13] [14] [15]
-Underfull \hbox (badness 10000) in paragraph at lines 852--855
+ [11] [12 <./maze_layouts.png>] [13] [14] [15] [16] [17] [18]
+Underfull \hbox (badness 10000) in paragraph at lines 994--997
 []\T1/cmr/m/n/12 Farama Foun-da-tion. \T1/cmr/m/it/12 D4RL repos-i-tory, \T1/cm
 tt/m/it/12 d4rl/pointmaze/maze_model.py\T1/cmr/m/n/12 .
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 852--855
+Underfull \hbox (badness 10000) in paragraph at lines 994--997
 [][]$\T1/cmr/m/n/12 https : / / github . com / Farama-[]Foundation / D4RL / blo
 b / master / d4rl / pointmaze /
  []
 
 
-Underfull \hbox (badness 4303) in paragraph at lines 877--878
+Underfull \hbox (badness 4303) in paragraph at lines 1019--1020
 []|\T1/cmr/m/n/12 Implementation of a min-i-mal end-to-end ex-per-i-men-tal
  []
 
-[16]
-ignored error: Infinite glue shrinkage found in box being split [17]
-Underfull \hbox (badness 1460) in paragraph at lines 972--973
+[19]
+ignored error: Infinite glue shrinkage found in box being split [20]
+Underfull \hbox (badness 1460) in paragraph at lines 1114--1115
 []|\T1/cmr/m/n/12 Construction of a min-i-mal end-to-end Maze2D anal-y-sis
  []
 
-ignored error: Infinite glue shrinkage found in box being split [18]
-ignored error: Infinite glue shrinkage found in box being split [19] [20]
-[21] (Planning as autoregressive sequence modelling B Decoding.aux)
+ignored error: Infinite glue shrinkage found in box being split [21]
+ignored error: Infinite glue shrinkage found in box being split [22] [23]
+[24] (Planning as autoregressive sequence modelling B Decoding.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
 Package rerunfilecheck Info: File `"Planning as autoregressive sequence modelli
 ng B Decoding".out' has not changed.
-(rerunfilecheck)             Checksum: 55B5DE14767996CE7FAA1EAC37B633CD;287.
+(rerunfilecheck)             Checksum: 3305C4BB3C50EE4241E4991A54DA21E5;466.
  ) 
 Here is how much of TeX's memory you used:
- 13812 strings out of 467871
- 216903 string characters out of 5418861
- 655359 words of memory out of 5000000
- 42363 multiletter control sequences out of 15000+600000
+ 13832 strings out of 467871
+ 217200 string characters out of 5418861
+ 653374 words of memory out of 5000000
+ 42369 multiletter control sequences out of 15000+600000
  649080 words of font info for 98 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  75i,18n,79p,1233b,608s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -607,9 +607,9 @@ User/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C
 .pfb><C:/Users/User/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/s
 ymbols/msbm10.pfb>
 Output written on "Planning as autoregressive sequence modelling B Decoding.pdf
-" (21 pages, 421619 bytes).
+" (24 pages, 437568 bytes).
 PDF statistics:
- 721 PDF objects out of 1000 (max. 8388607)
- 82 named destinations out of 1000 (max. 500000)
- 47 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 760 PDF objects out of 1000 (max. 8388607)
+ 96 named destinations out of 1000 (max. 500000)
+ 55 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -135,11 +135,17 @@ def summarize(results: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
             "average_compute_seconds": float(group["compute_seconds"].mean()),
             "average_seconds_per_step": float(group["seconds_per_step"].mean()),
         })
-        for optional_metric in (
-            "first_predicted_state_accuracy",
-            "imagined_transition_consistency",
-        ):
-            if optional_metric in group.columns:
+        excluded = set(columns) | {
+            "goal_reached", "steps_until_stop", "compute_seconds", "seconds_per_step",
+            "episode_id", "query_index", "start_x", "start_y", "goal_x", "goal_y",
+            "requested_steps", "planning_horizon",
+        }
+        for optional_metric in group.select_dtypes(include=[np.number]).columns:
+            if optional_metric in excluded:
+                continue
+            if optional_metric.endswith("_count"):
+                row[optional_metric] = int(group[optional_metric].sum())
+            else:
                 row[optional_metric] = float(group[optional_metric].mean())
         rows.append(row)
     return pd.DataFrame(rows)
@@ -178,6 +184,12 @@ def aggregate(experiment_dir: Path, paths: list[Path]) -> dict[str, str]:
         outputs["fold_mean_std"] = experiment_dir / "fold_mean_std.csv"
         fold_summary.to_csv(outputs["fold_summaries"], index=False)
         fold_mean_std.to_csv(outputs["fold_mean_std"], index=False)
+        if "maze_name" in pooled.columns:
+            fold_per_maze = summarize(pooled, ["cv_fold", "maze_name", "strategy"]).sort_values(
+                ["cv_fold", "maze_name", "strategy"]
+            )
+            outputs["fold_per_maze_summaries"] = experiment_dir / "fold_per_maze_summaries.csv"
+            fold_per_maze.to_csv(outputs["fold_per_maze_summaries"], index=False)
     print(summary.to_string(index=False))
     return {key: str(value) for key, value in outputs.items()}
 

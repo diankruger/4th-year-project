@@ -59,6 +59,20 @@
         "max_steps": 19,
         "planning_horizon": 5
       }
+    },
+    {
+      "name": "cv5_partial_obs_joint_receding_4act",
+      "dataset": "maze2d_partial_obs_3x3_joint_obs_action_optimal_4act_cv5.npz",
+      "scripts": {
+        "train": "train_maze2d_discrete_transformer.py",
+        "evaluate": "benchmark_partial_observation_joint_receding_cv_decoding.py"
+      },
+      "evaluation": {
+        "queries_per_maze": 10000,
+        "max_steps": 19,
+        "planning_horizon": 5,
+        "device": "auto"
+      }
     }
   ]
 }

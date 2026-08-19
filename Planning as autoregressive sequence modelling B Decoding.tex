@@ -430,6 +430,65 @@ trajectory prefix. In an NLP setting, where tokens correspond to words, this can
 estimating which word is most likely to come next in the sentence. The next token is then selected according 
 to a decoding strategy such as greedy decoding, sampling, or beam search.
 
+\subsection*{The Markov Property}
+
+In planning tasks, there is typically an environment state that evolves over time as
+actions are taken. The Markov property states that the probability distribution of the
+next state depends only on the current state and the action taken, and not on the history
+of states and actions that led to the current state~\cite{sutton2018rl}. In the previously
+discussed problem of finding a sequence of actions connecting a starting position to a
+goal position in a known maze, the Markov property holds if the current position, selected
+action, and maze layout are sufficient to determine the probability distribution over
+possible next positions.
+
+If the maze layout is known and constant, and $(s_1,s_2,\dots,s_t)$ are successive
+positions in the maze, then the position process satisfies the Markov property if
+\begin{equation}
+p(s_t \mid s_1,a_1,s_2,a_2,\dots,s_{t-1},a_{t-1})
+=
+p(s_t \mid s_{t-1},a_{t-1}).
+\end{equation}
+
+If the next position is uniquely determined by the current position and selected action,
+then there exists a transition function $f$ such that
+\begin{equation}
+s_t=f(s_{t-1},a_{t-1}).
+\end{equation}
+The maze environment therefore has deterministic Markovian transition dynamics.
+
+In the first experiment, although the environment satisfies the Markov property, the
+model predicts
+$p(a_t \mid m,s_{\mathrm{start}},s_{\mathrm{goal}},s_1,a_1,s_2,a_2,\dots,a_{t-1},s_t)$
+and is therefore conditioned on all previous states and actions, rather than only the
+current position. The hypothesis is that previous states and actions can still provide
+useful information to the model when predicting the next action. For example, if the
+model returns to a position that it has already visited, the trajectory prefix allows it
+to identify the earlier visit and may help it avoid repeating the same sequence of
+actions. The key distinction is that the Markov property describes the environment's
+transition dynamics, rather than the inputs on which the model must be conditioned. The
+fact that the next state is determined by the current state and selected action therefore
+does not prevent a learned sequence model from using previous states and actions when
+predicting its next action.
+
+
+\subsection{Partially Observed States}
+
+If the maze layout is known, then coordinates of the current position provide
+enough information to know the exact position within the maze. If the
+model is however not provided with its exact coordinates in a known maze,
+but rather with a local view of the maze layout, such as a 3x3 grid of cells 
+surrounding the current position, then the model does not have enough information 
+to know its exact position in the maze, as multiple positions in multiple maze 
+layouts may correspond to the same local view. These local views
+are denoted as observations $(\mathbf{o}_1,\mathbf{o}_2,\dots,\mathbf{o}_t)$, 
+and are provided to the model instead of the exact states. When the complete
+states are not made available to the model, the states are said to be partially observed.
+The environment can still be Markovian, but the current state and action may not 
+provide enough information to determine the next observation, so the observation 
+process may not satisfy the Markov property. A model may need to rely on 
+previous observations and actions to infer its current position in the maze.
+
+
 \section*{Methodology}
 
 \subsection*{Experimental overview}
@@ -702,7 +761,7 @@ per step quantity. Averaging this value over evaluation queries gives \textbf{Av
 Step}. Together, these four metrics allow the comparison to capture both planning quality and
 computational efficiency.
 
-\section*{Results and Discussion}
+\subsubsection*{Results and Discussion}
 
 Table~\ref{tab:completion_rate_all8} and Table~\ref{tab:avg_steps_all8} report decoding performance across the eight maze layouts, aggregated over the
 full cross-validation evaluation. The main text focuses on completion rate and average steps to goal.
@@ -785,6 +844,83 @@ average steps to goal of the broader searches were close to, or equal to, those 
 searches. In those cases, the additional per-step cost of the broader search was not always offset
 by a shorter decoded trajectory.
 
+\subsection*{Partially Observed Planning}
+
+\subsubsection*{Problem Formulation}
+
+The objective of this experiment is to evaluate different decoding strategies
+when training a conditional trajectory model through next-token prediction in a partially
+observed maze environment. Instead of being provided with the maze 
+layout and the exact coordinates of the agent at every step,
+the model is instead provided with a 3x3 grid of cells surrounding the current position. Since there 
+are no coordinates provided to use as reference, the model recieves the relative 
+displacement of the goal from the current position at every step, as opposed to the absolute 
+coordinates of the goal. The model therefore would need to rely on previously observed trajectory information to infer
+the maze layout and its current position in the maze. This is meant to showcase one advantage of 
+sequence modelling, the model naturally has a memory of the previous trajectory prefix, 
+which can be used to infer unobserved information about the environment.
+
+At inference time, the same decoding algorithms as the previous experiment are
+then used to construct complete trajectories by selecting continuations with high probability 
+under the learned model. Simialrly to the previous experiment, since decoding is based on 
+model probability rather than a reward-maximising, making this an imitation learning problem.
+
+During decoding, beam search needs to form a set of candidate trajectories. In the previous experiment,
+beam search could calculate the exact trajectories corresponding to each candidate action sequence, 
+since the exact position in the maze after every action is known. In the partially oberved setting, however,
+the position in the maze after every action is not exactly known, 
+so the observations that follows from each action need to be predicted. 
+Supervision during training is thus applied to the observations as well as the actions in 
+the sequences. 
+
+Each trajectory $\boldsymbol{\tau} = (z_1, z_2, \dots, z_{2T})$ thus consists of alternating state and observation 
+tokens, \\ $(o_1, a_1, \Delta g_1, o_2, a_2, \Delta g_2, \dots, o_T, a_T, \Delta g_T)$, where each observation $o_t$ denotes the 3x3 grid of cells surrounding the current position,
+the actions $(a_1, a_2, \dots, a_T)$ corresponds to the moves (up, down, left, or right) between consecutive positions, and 
+\begin{equation}
+\Delta \mathbf{g}_t
+=
+\begin{pmatrix}
+r_{\mathrm{goal}}-r_t \\
+c_{\mathrm{goal}}-c_t
+\end{pmatrix}.
+\end{equation}
+denoting the relative displacement of the goal from the current position, where $(r_t, c_t)$ denote the coordinates of the current position and $(r_{\mathrm{goal}}, c_{\mathrm{goal}})$ denote the coordinates of the goal.  
+
+ 
+Let $o_{\mathrm{start}}$ denote the initial observation.The model therefore learns conditional predictions of the form
+\begin{equation}
+p_{\hat{\boldsymbol{\theta}}}(z_{t+1} \mid o_{\mathrm{start}}, s_{\mathrm{goal}}, z_{\le t}),
+\end{equation}
+or, since supervision is applied only at action-token positions, equivalently
+\begin{equation}
+p_{\hat{\boldsymbol{\theta}}}(a_{t} \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}}, s_1, a_1, \dots, s_t),
+\end{equation}
+
+These conditional predictions define an autoregressive factorisation of the 
+conditional distribution over action sequences:
+
+\begin{equation}
+p_{\hat{\boldsymbol{\theta}}}(a_1, a_2, \dots, a_T \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}})
+=
+\prod_{t=1}^{T}
+p_{\hat{\boldsymbol{\theta}}}(a_t \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}}, s_1, a_1, \dots, s_t).
+\end{equation}
+
+Ideally, generating a complete plan would require sampling from the full joint conditional 
+distribution over action sequences above; in practice, the decoding algorithms instead operate on 
+its autoregressive conditional factors.
+
+
+
+A Transformer was selected as the generative model of choice because of its strong performance on sequence modelling tasks, 
+the wide range of Python libraries available for working with it, and its computational efficiency when the architecture is 
+kept small. The research question, however, is not whether a Transformer can represent such a distribution in principle, but
+how different decoding strategies affect the quality of the generated plans once the model has been trained.
+In particular, the methodology compares greedy decoding and beam search in terms of trajectory validity, goal-reaching success,
+path efficiency, and computational cost.
+
+
+
 \section*{Conclusion and Future Work}
 
 This work investigated the effect of decoding strategy on planning performance when maze planning is
@@ -825,6 +961,12 @@ compared with greedy decoding and beam search.
 Richard S. Sutton and Andrew G. Barto.
 \textit{Reinforcement Learning: An Introduction}.
 MIT Press, 2nd edition, 2018.
+
+\bibitem{parr1995partial}
+Ronald Parr and Stuart Russell.
+Approximating Optimal Policies for Partially Observable Stochastic Domains.
+In \textit{Proceedings of the 14th International Joint Conference on Artificial
+Intelligence (IJCAI)}, pages 1088--1094, 1995.
 
 \bibitem{janner2021trajectory}
 Michael Janner, Qiyang Li, and Sergey Levine.
