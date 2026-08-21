@@ -14,6 +14,7 @@ from train_maze2d_discrete_transformer import TinyCausalTransformer
 
 
 TYPE_WALLS, TYPE_VISIBLE_GOAL, TYPE_GOAL_DELTA, TYPE_ACTION = 2, 3, 4, 5
+STRATEGIES = ("receding_greedy", "receding_beam_2", "receding_beam_3")
 
 
 def arguments() -> argparse.Namespace:
@@ -29,6 +30,8 @@ def arguments() -> argparse.Namespace:
     p.add_argument("--summary-csv", type=Path, required=True)
     p.add_argument("--per-maze-summary-csv", type=Path, required=True)
     p.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
+    p.add_argument("--strategies", nargs="+", choices=STRATEGIES, default=list(STRATEGIES))
+    p.add_argument("--preserve-other-strategies", action="store_true")
     return p.parse_args()
 
 
@@ -88,6 +91,16 @@ def observation_tokens(data, maze, cell, goal):
     return [int(data["wall_token_offset"][0]) + wall_mask,
             int(data["visible_goal_token_offset"][0]) + visible,
             doff + int(delta[0] - dmin), doff + int(delta[1] - dmin)]
+
+
+def select_greedy_action(model, history, history_types, action_deltas, action_offset, wall_offset, device):
+    wall_mask = history[-4] - wall_offset
+    valid = observed_action_indices(wall_mask, action_deltas)
+    if not valid:
+        raise RuntimeError("No valid action is available from the observed wall mask")
+    logits = batched_logits(model, [history], [history_types], device)[0]
+    scores = logits[action_offset:action_offset + len(action_deltas)]
+    return max(valid, key=lambda action: (float(scores[action]), -action))
 
 
 def plan_no_oracle_batched(model, history, history_types, action_deltas, offsets, horizon, width, device):
@@ -180,7 +193,8 @@ def plan_no_oracle_batched(model, history, history_types, action_deltas, offsets
     return chosen["actions"][0], chosen["observations"][0], chosen["consistent"]
 
 
-def rollout(model, data, maze, start, goal, action_deltas, max_steps, horizon, width, device):
+def rollout(model, data, maze, start, goal, action_deltas, max_steps, horizon, width, device,
+            action_only_greedy=False):
     action_offset = int(data["action_token_offset"][0]); wall_offset = int(data["wall_token_offset"][0])
     goal_offset = int(data["visible_goal_token_offset"][0]); delta_offset = int(data["goal_delta_token_offset"][0])
     delta_min = int(data["goal_delta_min"][0]); bos = int(data["bos_token_id"][0])
@@ -191,9 +205,15 @@ def rollout(model, data, maze, start, goal, action_deltas, max_steps, horizon, w
     complete_correct, consistency, invalid = [], [], 0
     path = [current.copy()]
     for _ in range(max_steps):
-        action, predicted, imagined_consistency = plan_no_oracle_batched(
-            model, history, types, action_deltas,
-            (action_offset, wall_offset, goal_offset, delta_offset, delta_min), horizon, width, device)
+        if action_only_greedy:
+            action = select_greedy_action(
+                model, history, types, action_deltas, action_offset, wall_offset, device)
+            predicted = None
+            imagined_consistency = []
+        else:
+            action, predicted, imagined_consistency = plan_no_oracle_batched(
+                model, history, types, action_deltas,
+                (action_offset, wall_offset, goal_offset, delta_offset, delta_min), horizon, width, device)
         proposed = current + action_deltas[action]
         inside = 0 <= int(proposed[0]) < maze.shape[0] and 0 <= int(proposed[1]) < maze.shape[1]
         if inside and int(maze[int(proposed[0]), int(proposed[1])]) == 0:
@@ -201,10 +221,12 @@ def rollout(model, data, maze, start, goal, action_deltas, max_steps, horizon, w
         else:
             invalid += 1
         real_obs = observation_tokens(data, maze, current, goal)
-        matches = [int(a) == int(b) for a, b in zip(predicted, real_obs)]
-        for bucket, match in zip(component_correct, matches):
-            bucket.append(match)
-        complete_correct.append(all(matches)); consistency.extend(imagined_consistency)
+        if predicted is not None:
+            matches = [int(a) == int(b) for a, b in zip(predicted, real_obs)]
+            for bucket, match in zip(component_correct, matches):
+                bucket.append(match)
+            complete_correct.append(all(matches))
+        consistency.extend(imagined_consistency)
         history.extend([action_offset + action] + real_obs)
         types.extend([TYPE_ACTION, TYPE_WALLS, TYPE_VISIBLE_GOAL, TYPE_GOAL_DELTA, TYPE_GOAL_DELTA])
         path.append(current.copy())
@@ -252,10 +274,18 @@ def main() -> None:
         order = np.lexsort((goals[indices, 1], goals[indices, 0], starts[indices, 1], starts[indices, 0], lengths[indices]))
         for index in indices[order][:args.queries_per_maze]:
             maze = mazes[int(maze_indices[index])]; start = starts[index].astype(np.int16); goal = goals[index].astype(np.int16)
-            for strategy, width in (("receding_greedy", 1), ("receding_beam_2", 2), ("receding_beam_3", 3)):
+            specifications = {
+                "receding_greedy": (1, True),
+                "receding_beam_2": (2, False),
+                "receding_beam_3": (3, False),
+            }
+            for strategy in args.strategies:
+                width, action_only_greedy = specifications[strategy]
+                strategy_horizon = 1 if action_only_greedy else args.planning_horizon
                 before = time.perf_counter()
                 path, invalid, accuracies, complete, consistency = rollout(
-                    model, data, maze, start, goal, deltas, args.max_steps, args.planning_horizon, width, device)
+                    model, data, maze, start, goal, deltas, args.max_steps, strategy_horizon,
+                    width, device, action_only_greedy=action_only_greedy)
                 elapsed, steps = time.perf_counter() - before, len(path) - 1
                 rows.append({"cv_fold": args.cv_fold, "maze_name": maze_name, "episode_id": int(episode_ids[index]),
                              "query_index": int(index), "strategy": strategy, "steps_until_stop": steps,
@@ -265,8 +295,15 @@ def main() -> None:
                              "first_wall_mask_accuracy": accuracies[0], "first_visible_goal_accuracy": accuracies[1],
                              "first_goal_row_accuracy": accuracies[2], "first_goal_column_accuracy": accuracies[3],
                              "complete_next_observation_accuracy": complete,
-                             "imagined_displacement_consistency": consistency, "planning_horizon": args.planning_horizon})
-    results = pd.DataFrame(rows); summary = summarize(results, ["strategy"]).sort_values("strategy")
+                             "imagined_displacement_consistency": consistency,
+                             "planning_horizon": strategy_horizon})
+    results = pd.DataFrame(rows)
+    if args.preserve_other_strategies and args.results_csv.is_file():
+        existing = pd.read_csv(args.results_csv)
+        existing = existing.loc[~existing["strategy"].isin(args.strategies)]
+        results = pd.concat([existing, results], ignore_index=True)
+    results = results.sort_values(["maze_name", "query_index", "strategy"]).reset_index(drop=True)
+    summary = summarize(results, ["strategy"]).sort_values("strategy")
     per_maze = summarize(results, ["maze_name", "strategy"]).sort_values(["maze_name", "strategy"])
     args.results_csv.parent.mkdir(parents=True, exist_ok=True)
     results.to_csv(args.results_csv, index=False); summary.to_csv(args.summary_csv, index=False)

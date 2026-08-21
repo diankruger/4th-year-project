@@ -471,7 +471,7 @@ does not prevent a learned sequence model from using previous states and actions
 predicting its next action.
 
 
-\subsection{Partially Observed States}
+\subsection*{Partially Observed States}
 
 If the maze layout is known, then coordinates of the current position provide
 enough information to know the exact position within the maze. If the
@@ -526,7 +526,7 @@ of previous actions and explicit coordinates of previous states in the maze, the
 predicts the next action in the trajectory sequence. At inference time, decoding algorithms are
 then used to construct complete trajectories by selecting continuations with high probability 
 under the learned model. Since decoding is based on model probability rather than a reward-maximising 
-objective, this amounts to using imitation learning to solve the planning problem.gi
+objective, this amounts to using imitation learning to solve the planning problem.
 
 A trajectory $\boldsymbol{\tau} = (z_1, z_2, \dots, z_{2T})$ consists of alternating state and action 
 tokens, \\ $(s_1, a_1, s_2, a_2, \dots, s_T, a_T)$, where the states represent coordinates in the maze and 
@@ -556,8 +556,8 @@ p_{\hat{\boldsymbol{\theta}}}(a_1, a_2, \dots, a_T \mid m, s_{\mathrm{start}}, s
 p_{\hat{\boldsymbol{\theta}}}(a_t \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}}, s_1, a_1, \dots, s_t).
 \end{equation}
 
-Ideally, generating a complete plan would require sampling from the full joint conditional 
-distribution over action sequences above; in practice, the decoding algorithms instead operate on 
+Ideally, generating a complete plan would require sampling from the full joint conditional
+distribution over actions and observations above; in practice, the decoding algorithms instead operate on
 its autoregressive conditional factors.
 
 
@@ -615,7 +615,7 @@ scheme assigns identifiers to all grid locations in the global grid, including w
 only valid free-cell positions appear in the generated trajectory sequences.
 
 Actions are also encoded as integer tokens. Since the trajectories are restricted to 
-four-connected grid movement, the action vocabulary consists of the four moves up, down, 
+four-connected grid movements, the action vocabulary consists of the four moves up, down, 
 left, or right, with each assigned its own unique integer token identifier.
 
 In the training data, the detailed wall structure of a maze is not included explicitly
@@ -848,76 +848,243 @@ by a shorter decoded trajectory.
 
 \subsubsection*{Problem Formulation}
 
-The objective of this experiment is to evaluate different decoding strategies
-when training a conditional trajectory model through next-token prediction in a partially
-observed maze environment. Instead of being provided with the maze 
-layout and the exact coordinates of the agent at every step,
-the model is instead provided with a 3x3 grid of cells surrounding the current position. Since there 
-are no coordinates provided to use as reference, the model recieves the relative 
-displacement of the goal from the current position at every step, as opposed to the absolute 
-coordinates of the goal. The model therefore would need to rely on previously observed trajectory information to infer
-the maze layout and its current position in the maze. This is meant to showcase one advantage of 
-sequence modelling, the model naturally has a memory of the previous trajectory prefix, 
-which can be used to infer unobserved information about the environment.
+The objective of this experiment is to evaluate different decoding strategies for a
+conditional trajectory model trained through next-token prediction under a partially
+observed setting. At each time step, the model is
+provided with neither the maze layout nor the absolute coordinates of the agent or goal.
+Instead, it receives a $3\times3$ grid of cells centred on its current position and the
+displacement of the goal relative to that position. The relative displacement preserves
+the direction and distance to the goal without revealing the agent's absolute position or
+the unobserved maze layout. 
 
-At inference time, the same decoding algorithms as the previous experiment are
-then used to construct complete trajectories by selecting continuations with high probability 
-under the learned model. Simialrly to the previous experiment, since decoding is based on 
-model probability rather than a reward-maximising, making this an imitation learning problem.
+Unlike in the fully observed experiment, where the complete
+maze layout is available, the preceding trajectory tokens now contain information that
+may not be present in the current local observation. 
+Figure~\ref{fig:true_state_vs_partial_observation} illustrates the difference between the complete 
+maze state and the local observation at a given time step. The right panel shows everything that is
+visible to the model at that time step. In this partially observed setting, a planning
+algorithm cannot know the observations that would result from potential future actions
+unless those actions are taken in the environment. The planning algorithm therefore
+provides a decision rule that an agent uses to select its next action at each time step,
+based on the observations and actions available so far. Such a decision rule is commonly
+called a policy in reinforcement-learning terminology~\cite{sutton2018rl}. This
+restriction was not relevant in the fully observed experiment because the complete maze
+layout and deterministic movements made it possible to calculate the exact outcome of a
+potential action without first taking it in the environment.
+
+Conditioning on the complete
+trajectory prefix allows the Transformer to use previous observations and actions to
+infer unobserved aspects of the maze layout. The partially observed setting therefore
+allows the decoding strategies to be compared in a problem where an advantage of the
+Transformer-based sequence-modelling framework is particularly relevant: its ability to
+use trajectory context when the current observation alone is insufficient for selecting
+the next action.
+
+At inference time, the same decoding algorithms as in the previous experiment are
+used to construct complete trajectories by selecting continuations with high probability
+under the learned model. Similarly to the previous experiment, the model is trained by
+imitating demonstrated trajectories, and decoding is based on model probability rather
+than reward maximisation. This therefore remains an imitation-learning problem.
 
 During decoding, beam search needs to form a set of candidate trajectories. In the previous experiment,
 beam search could calculate the exact trajectories corresponding to each candidate action sequence, 
-since the exact position in the maze after every action is known. In the partially oberved setting, however,
-the position in the maze after every action is not exactly known, 
-so the observations that follows from each action need to be predicted. 
+since the exact position in the maze after every action is known. In the partially observed setting, however,
+the observation that would follow each hypothetical action is not known,
+so these observations need to be predicted.
 Supervision during training is thus applied to the observations as well as the actions in 
 the sequences. 
 
-Each trajectory $\boldsymbol{\tau} = (z_1, z_2, \dots, z_{2T})$ thus consists of alternating state and observation 
-tokens, \\ $(o_1, a_1, \Delta g_1, o_2, a_2, \Delta g_2, \dots, o_T, a_T, \Delta g_T)$, where each observation $o_t$ denotes the 3x3 grid of cells surrounding the current position,
-the actions $(a_1, a_2, \dots, a_T)$ corresponds to the moves (up, down, left, or right) between consecutive positions, and 
+Let $o_t$ denote the local observation at time step $t$, consisting of the $3\times3$
+grid of cells surrounding the agent's current position. The position of the goal is
+provided separately as the relative displacement
 \begin{equation}
 \Delta \mathbf{g}_t
 =
 \begin{pmatrix}
 r_{\mathrm{goal}}-r_t \\
 c_{\mathrm{goal}}-c_t
-\end{pmatrix}.
+\end{pmatrix},
 \end{equation}
-denoting the relative displacement of the goal from the current position, where $(r_t, c_t)$ denote the coordinates of the current position and $(r_{\mathrm{goal}}, c_{\mathrm{goal}})$ denote the coordinates of the goal.  
-
- 
-Let $o_{\mathrm{start}}$ denote the initial observation.The model therefore learns conditional predictions of the form
+where $(r_t,c_t)$ denotes the agent's current position and
+$(r_{\mathrm{goal}},c_{\mathrm{goal}})$ denotes the goal position. For notational
+convenience, the complete observation supplied at time step $t$ is denoted by
 \begin{equation}
-p_{\hat{\boldsymbol{\theta}}}(z_{t+1} \mid o_{\mathrm{start}}, s_{\mathrm{goal}}, z_{\le t}),
-\end{equation}
-or, since supervision is applied only at action-token positions, equivalently
-\begin{equation}
-p_{\hat{\boldsymbol{\theta}}}(a_{t} \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}}, s_1, a_1, \dots, s_t),
+\mathbf{y}_t=(o_t,\Delta \mathbf{g}_t).
 \end{equation}
 
-These conditional predictions define an autoregressive factorisation of the 
-conditional distribution over action sequences:
-
+A trajectory containing $T$ observations therefore has the form
 \begin{equation}
-p_{\hat{\boldsymbol{\theta}}}(a_1, a_2, \dots, a_T \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}})
+\boldsymbol{\tau}
 =
-\prod_{t=1}^{T}
-p_{\hat{\boldsymbol{\theta}}}(a_t \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}}, s_1, a_1, \dots, s_t).
+(\mathbf{y}_1,a_1,\mathbf{y}_2,a_2,\dots,
+\mathbf{y}_{T-1},a_{T-1},\mathbf{y}_T),
+\end{equation}
+where each action $a_t$ is one of the four movements (up, down, left, or right)
+performed between observations $\mathbf{y}_t$ and $\mathbf{y}_{t+1}$. The model is
+not provided with a maze identifier, the complete maze layout, or the absolute
+coordinates of the agent or goal.
+
+The first observation $\mathbf{y}_1$ is supplied to the model. Supervision is then
+applied to each action and each post-action observation. The model consequently learns
+conditional predictions of the forms
+\begin{equation}
+p_{\hat{\boldsymbol{\theta}}}
+(a_t \mid \mathbf{y}_1,a_1,\mathbf{y}_2,a_2,\dots,
+a_{t-1},\mathbf{y}_t),
+\end{equation}
+and
+\begin{equation}
+p_{\hat{\boldsymbol{\theta}}}
+(\mathbf{y}_{t+1} \mid \mathbf{y}_1,a_1,\mathbf{y}_2,a_2,\dots,
+\mathbf{y}_t,a_t).
+\end{equation}
+Since $\mathbf{y}_{t+1}$ is represented by multiple tokens, its components are
+themselves predicted autoregressively in their token order.
+
+These conditional predictions define an autoregressive factorisation of the joint
+conditional distribution over future actions and observations:
+\begin{equation}
+\begin{split}
+&p_{\hat{\boldsymbol{\theta}}}
+(a_1,\mathbf{y}_2,a_2,\dots,a_{T-1},\mathbf{y}_T
+\mid \mathbf{y}_1) \\
+&\quad =
+\prod_{t=1}^{T-1}
+p_{\hat{\boldsymbol{\theta}}}
+(a_t \mid \mathbf{y}_1,a_1,\dots,a_{t-1},\mathbf{y}_t)
+p_{\hat{\boldsymbol{\theta}}}
+(\mathbf{y}_{t+1} \mid \mathbf{y}_1,a_1,\dots,\mathbf{y}_t,a_t).
+\end{split}
 \end{equation}
 
-Ideally, generating a complete plan would require sampling from the full joint conditional 
-distribution over action sequences above; in practice, the decoding algorithms instead operate on 
-its autoregressive conditional factors.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{partial_observation_vs_true_state.png}
+	\caption{True maze state compared with one the partial observation at the same time step. The left panel shows the full
+	\texttt{LARGE\_MAZE} layout, the agent's current position, and the goal using
+	absolute grid coordinates. The right panel shows only the local $3\times3$
+	neighbourhood and the goal's relative displacement.}
+	\label{fig:true_state_vs_partial_observation}
+\end{figure}
 
 
+\subsubsection*{Dataset Construction}
 
-A Transformer was selected as the generative model of choice because of its strong performance on sequence modelling tasks, 
-the wide range of Python libraries available for working with it, and its computational efficiency when the architecture is 
-kept small. The research question, however, is not whether a Transformer can represent such a distribution in principle, but
-how different decoding strategies affect the quality of the generated plans once the model has been trained.
-In particular, the methodology compares greedy decoding and beam search in terms of trajectory validity, goal-reaching success,
-path efficiency, and computational cost.
+The partially observed dataset is constructed from the same eight mazes and the same
+optimal BFS trajectories as the fully observed dataset. The ordered start-goal queries,
+action sequences, path lengths, episode identifiers, maze assignments, and five-fold
+split assignments are retained unchanged. The trajectories are therefore not generated
+again; instead, the fully observed state representation is replaced by the partial
+observation representation defined above. This preserves a controlled comparison between
+the experiments while avoiding repetition of the trajectory-generation and partitioning
+procedures.
+
+At each position, the local observation $o_t$ is encoded using two discrete tokens. The
+first is a nine-bit wall mask $w_t$, with one bit for each cell in the $3\times3$
+neighbourhood; cells containing walls or lying outside the maze boundary are marked as
+blocked. The second token $v_t$ indicates the local position of the goal when it is visible
+within this neighbourhood, or indicates that the goal is not locally visible. The two
+components of the relative goal displacement, $\Delta r_t$ and $\Delta c_t$, are each
+represented by a separate discrete token. Actions use the same four-action vocabulary
+and integer-token encoding as in the fully observed experiment, and distinct token ranges
+are again reserved for the different token classes.
+
+In terms of these tokens, the local observation and complete model observation are
+therefore
+\begin{equation}
+o_t=(w_t,v_t),
+\qquad
+\mathbf{y}_t=(w_t,v_t,\Delta r_t,\Delta c_t).
+\end{equation}
+
+Each row $\boldsymbol{x}$ of the input matrix
+therefore has the form
+\begin{equation}
+\begin{split}
+\boldsymbol{x} = (&w_1,v_1,\Delta r_1,\Delta c_1,a_1,
+w_2,v_2,\Delta r_2,\Delta c_2,a_2,\dots,\\
+&a_{T-1},w_T,v_T,\Delta r_T,\Delta c_T,0,\dots,0).
+\end{split}
+\end{equation}
+As before, the tokenised sequences are stored in an $N\times L$ input matrix and unused
+positions are filled with padding tokens. Unlike the fully observed representation, these
+rows contain no maze-identifier token, absolute start or goal coordinates, or absolute
+state coordinates.
+
+The initial observation is supplied as context. Supervision is applied at every action
+position and to every component of each subsequent, post-action observation. Thus, for
+each transition, the supervised targets are the action $a_t$ and the tokens
+$(w_{t+1},v_{t+1},\Delta r_{t+1},\Delta c_{t+1})$. The initial observation and padding
+positions are excluded from the training loss.
+
+\subsubsection*{Transformer Training}
+
+The same causal Transformer architecture and optimisation procedure as in the fully
+observed experiment are used. The hidden dimension, attention heads, Transformer layers,
+feedforward dimension, dropout, optimiser, learning rate, weight decay, batch size, and
+20-epoch training limit are therefore unchanged. Training is significantly more
+time-consuming in this experiment because each step contains multiple observation tokens
+and supervision is applied to both actions and post-action observations. Consequently,
+rather than repeating training for the complete
+five-fold cross-validation procedure, folds 1-4 are used for training and fold 0 is used
+as a single fixed validation set. As before, the checkpoint with the lowest validation
+loss is retained for decoding evaluation.
+
+The input, token-type, label, and padding-mask matrices are constructed in the same manner
+as before, but the token types now identify wall-mask, visible-goal, goal-displacement,
+action, and padding tokens. The loss remains categorical cross-entropy for causal
+next-token prediction, but its supervision mask is expanded. Active targets are placed at
+every action-token position and at each of the four tokens representing the subsequent
+observation. The model is therefore trained jointly to predict
+$a_t$ and $(w_{t+1},v_{t+1},\Delta r_{t+1},\Delta c_{t+1})$ from the preceding trajectory
+prefix. The initial observation and padding positions remain context only and do not
+contribute to the loss.
+
+\subsubsection*{Decoding}
+
+The same greedy and beam-search strategies, beam widths of $2$ and $3$, and $19$-action
+limit as in the fully observed experiment are used. Unlike in the previous experiment,
+however, the decoding algorithms cannot know the exact observations that would result from
+actions taken multiple steps into the future without first taking those actions in the
+environment. Beam search therefore cannot simply evaluate multiple complete action sequences
+and select the most probable one as in the previous experiment. The exact observations
+resulting from each candidate action sequence are unknown, and a candidate sequence may
+even contain actions that are invalid in the unobserved maze layout. Beam search was
+therefore modified to use the fitted model to predict both actions and the observations
+resulting from those actions, allowing it to construct
+candidate continuations containing up to five future actions and predicted observations.
+It retains the $2$ or $3$ highest-scoring partial trajectories.
+Candidate trajectories are ranked using the accumulated log-probabilities of both their
+action and observation tokens.
+
+When a candidate trajectory is extended, possible actions are restricted using the wall mask 
+associated with the final observation in that candidate trajectory. 
+For the first action, this wall mask belongs to the observation received from the environment. 
+For later imagined actions, it belongs to an observation predicted by the model. 
+For each possible action used to extend the candidate trajectory, the model 
+predicts the next wall mask and visible-goal token. The relative goal displacement is 
+calculated directly from the previous
+displacement and the selected action, while the probability assigned by the model to the
+corresponding displacement tokens still contributes to the trajectory score. Later actions
+in a candidate trajectory are therefore selected using predicted local observations,
+without consulting the complete maze layout.
+
+After a beam-search continuation has been selected, only its first action is taken in the
+maze. The remainder of the predicted continuation is discarded, the resulting local
+observation is added to the trajectory prefix, and a new five-step continuation is
+constructed. This process of repeatedly planning several steps ahead but taking only the
+first action is referred to as receding-horizon planning. It prevents errors in predicted
+observations from being added to the trajectory prefix used at later positions. For both
+greedy decoding and beam search, decoding terminates when the goal is reached or when the
+$19$-action limit is reached.
+
+Greedy decoding does not need to compare the outcomes of multiple action sequences,
+so it only needs to predict the next action to take at the current position. It selects the highest-probability valid
+action, takes that action in the maze, receives the resulting observation, and repeats.
+Predicting a longer continuation is therefore unnecessary, as it cannot influence this
+choice because greedy decoding does not retain alternative first actions.
+
 
 
 

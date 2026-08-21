@@ -28,6 +28,21 @@ class NoOracleTests(unittest.TestCase):
         self.assertNotIn(0, planner.observed_action_indices(north_bit, deltas))
         self.assertEqual(planner.observed_action_indices(0, deltas), [0, 1, 2, 3])
 
+    def test_action_only_greedy_uses_one_model_prediction(self):
+        from unittest.mock import patch
+        deltas = np.asarray([[-1, 0], [1, 0], [0, -1], [0, 1]])
+        action_offset, wall_offset = 10, 100
+        north_blocked = 1 << 1
+        history = [1, wall_offset + north_blocked, 200, 300, 301]
+        logits = np.zeros((1, action_offset + len(deltas)))
+        logits[0, action_offset:action_offset + len(deltas)] = [9.0, 2.0, 1.0, 3.0]
+        with patch.object(planner, "batched_logits", return_value=logits) as predict:
+            action = planner.select_greedy_action(
+                object(), history, [1, 2, 3, 4, 4], deltas,
+                action_offset, wall_offset, object())
+        self.assertEqual(action, 3)
+        predict.assert_called_once()
+
     def test_context_trim_keeps_complete_groups(self):
         tokens, types = list(range(40)), list(range(40))
         trimmed, trimmed_types = planner.trim_complete_groups(tokens, types, 20)
