@@ -853,24 +853,24 @@ conditional trajectory model trained through next-token prediction under a parti
 observed setting. At each time step, the model is
 provided with neither the maze layout nor the absolute coordinates of the agent or goal.
 Instead, it receives a $3\times3$ grid of cells centred on its current position and the
-displacement of the goal relative to that position. The relative displacement preserves
-the direction and distance to the goal without revealing the agent's absolute position or
-the unobserved maze layout. 
+displacement of the goal relative to that position. The relative displacement provides
+the row and column offsets of the goal, including their directions, without revealing the agent's
+absolute position or the unobserved maze layout. It does not provide the shortest-path
+distance through the maze.
 
-Unlike in the fully observed experiment, where the complete
-maze layout is available, the preceding trajectory tokens now contain information that
-may not be present in the current local observation. 
-Figure~\ref{fig:true_state_vs_partial_observation} illustrates the difference between the complete 
-maze state and the local observation at a given time step. The right panel shows everything that is
-visible to the model at that time step. In this partially observed setting, a planning
-algorithm cannot know the observations that would result from potential future actions
-unless those actions are taken in the environment. The planning algorithm therefore
-provides a decision rule that an agent uses to select its next action at each time step,
-based on the observations and actions available so far. Such a decision rule is commonly
-called a policy in reinforcement-learning terminology~\cite{sutton2018rl}. This
-restriction was not relevant in the fully observed experiment because the complete maze
-layout and deterministic movements made it possible to calculate the exact outcome of a
-potential action without first taking it in the environment.
+Unlike in the fully observed experiment, where the complete maze layout is available,
+the preceding trajectory tokens now contain information that may not be present in the
+current local observation. Figure~\ref{fig:true_state_vs_partial_observation} contrasts
+the complete maze layout and the agent's position with the local observation at a given
+time step. The right panel represents all the information supplied
+to the model at that time step. In this partially observed setting, a planning algorithm 
+does not have access to the true observations that would follow a sequence of actions without 
+executing those actions in the environment. The planner can still compare possible future
+trajectories, but it must construct them using the trajectory information available so far 
+and the model’s predicted observations rather than the true future observations. 
+This restriction did not arise in the fully observed experiment because the complete maze 
+layout and deterministic movements made it possible to calculate the exact sequence of states 
+resulting from any candidate action sequence without executing it in the environment.
 
 Conditioning on the complete
 trajectory prefix allows the Transformer to use previous observations and actions to
@@ -882,15 +882,17 @@ the next action.
 
 At inference time, the same decoding algorithms as in the previous experiment are
 used to construct complete trajectories by selecting continuations with high probability
-under the learned model. Similarly to the previous experiment, the model is trained by
+under the learned model. As in the previous experiment, the model is trained by
 imitating demonstrated trajectories, and decoding is based on model probability rather
-than reward maximisation. This therefore remains an imitation-learning problem.
+than reward maximisation. The action-selection component therefore remains based on
+imitation learning, while observation prediction allows beam search to evaluate imagined
+continuations.
 
 During decoding, beam search needs to form a set of candidate trajectories. In the previous experiment,
 beam search could calculate the exact trajectories corresponding to each candidate action sequence, 
 since the exact position in the maze after every action is known. In the partially observed setting, however,
-the observation that would follow each hypothetical action is not known,
-so these observations need to be predicted.
+the observations that would follow hypothetical actions are not known, so they must be
+predicted.
 Supervision during training is thus applied to the observations as well as the actions in 
 the sequences. 
 
@@ -961,7 +963,7 @@ p_{\hat{\boldsymbol{\theta}}}
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=\textwidth]{partial_observation_vs_true_state.png}
-	\caption{True maze state compared with one the partial observation at the same time step. The left panel shows the full
+	\caption{Comparison of the true maze state and the corresponding partial observation at the same time step. The left panel shows the full
 	\texttt{LARGE\_MAZE} layout, the agent's current position, and the goal using
 	absolute grid coordinates. The right panel shows only the local $3\times3$
 	neighbourhood and the goal's relative displacement.}
@@ -983,7 +985,9 @@ procedures.
 At each position, the local observation $o_t$ is encoded using two discrete tokens. The
 first is a nine-bit wall mask $w_t$, with one bit for each cell in the $3\times3$
 neighbourhood; cells containing walls or lying outside the maze boundary are marked as
-blocked. The second token $v_t$ indicates the local position of the goal when it is visible
+blocked. The neighbourhood retains the fixed orientation of the maze, and the bits are
+ordered from left to right across the top row, followed by the middle row and then the
+bottom row. The second token $v_t$ indicates the local position of the goal when it is visible
 within this neighbourhood, or indicates that the goal is not locally visible. The two
 components of the relative goal displacement, $\Delta r_t$ and $\Delta c_t$, are each
 represented by a separate discrete token. Actions use the same four-action vocabulary
@@ -998,8 +1002,8 @@ o_t=(w_t,v_t),
 \mathbf{y}_t=(w_t,v_t,\Delta r_t,\Delta c_t).
 \end{equation}
 
-Each row $\boldsymbol{x}$ of the input matrix
-therefore has the form
+For clarity, the following representation shows only the trajectory tokens and padding.
+Each row $\boldsymbol{x}$ of the input matrix has the form
 \begin{equation}
 \begin{split}
 \boldsymbol{x} = (&w_1,v_1,\Delta r_1,\Delta c_1,a_1,
@@ -1013,27 +1017,28 @@ rows contain no maze-identifier token, absolute start or goal coordinates, or ab
 state coordinates.
 
 The initial observation is supplied as context. Supervision is applied at every action
-position and to every component of each subsequent, post-action observation. Thus, for
+position and to every component of each post-action observation. Thus, for
 each transition, the supervised targets are the action $a_t$ and the tokens
 $(w_{t+1},v_{t+1},\Delta r_{t+1},\Delta c_{t+1})$. The initial observation and padding
 positions are excluded from the training loss.
 
 \subsubsection*{Transformer Training}
 
-The same causal Transformer architecture and optimisation procedure as in the fully
-observed experiment are used. The hidden dimension, attention heads, Transformer layers,
-feedforward dimension, dropout, optimiser, learning rate, weight decay, batch size, and
-20-epoch training limit are therefore unchanged. Training is significantly more
-time-consuming in this experiment because each step contains multiple observation tokens
-and supervision is applied to both actions and post-action observations. Consequently,
-rather than repeating training for the complete
-five-fold cross-validation procedure, folds 1-4 are used for training and fold 0 is used
-as a single fixed validation set. As before, the checkpoint with the lowest validation
-loss is retained for decoding evaluation.
+The same causal Transformer design and optimisation procedure as in the fully observed
+experiment are used, although the vocabulary size and maximum sequence length are adjusted
+for the new token representation. The hidden dimension, attention heads, Transformer
+layers, feedforward dimension, dropout, optimiser, learning rate, weight decay, batch size,
+and 20-epoch training limit are unchanged. Training is significantly more time-consuming
+in this experiment because each transition contains multiple observation tokens, producing
+longer input sequences. Supervision is also applied to both actions and post-action
+observations. Consequently, rather than repeating training for the complete five-fold
+cross-validation procedure, folds $1$--$4$ are used for training, while fold $0$ is used
+both for validation during checkpoint selection and for the final decoding evaluation. As
+before, the checkpoint with the lowest validation loss is retained for decoding evaluation.
 
 The input, token-type, label, and padding-mask matrices are constructed in the same manner
-as before, but the token types now identify wall-mask, visible-goal, goal-displacement,
-action, and padding tokens. The loss remains categorical cross-entropy for causal
+as before, but the trajectory-token types now identify wall-mask, visible-goal,
+goal-displacement, and action tokens. The loss remains categorical cross-entropy for causal
 next-token prediction, but its supervision mask is expanded. Active targets are placed at
 every action-token position and at each of the four tokens representing the subsequent
 observation. The model is therefore trained jointly to predict
@@ -1045,28 +1050,27 @@ contribute to the loss.
 
 The same greedy and beam-search strategies, beam widths of $2$ and $3$, and $19$-action
 limit as in the fully observed experiment are used. Unlike in the previous experiment,
-however, the decoding algorithms cannot know the exact observations that would result from
-actions taken multiple steps into the future without first taking those actions in the
-environment. Beam search therefore cannot simply evaluate multiple complete action sequences
-and select the most probable one as in the previous experiment. The exact observations
-resulting from each candidate action sequence are unknown, and a candidate sequence may
-even contain actions that are invalid in the unobserved maze layout. Beam search was
-therefore modified to use the fitted model to predict both actions and the observations
-resulting from those actions, allowing it to construct
+however, the decoding algorithms cannot, in general, determine the exact observations that
+would result from actions taken multiple steps into the future without first taking those
+actions in the environment. Beam search therefore cannot construct and compare complete
+candidate trajectories using exact resulting observations, as it could in the previous
+experiment. Beam search was therefore modified to use the fitted model to
+predict both actions and the observations resulting from those actions, allowing it to construct
 candidate continuations containing up to five future actions and predicted observations.
-It retains the $2$ or $3$ highest-scoring partial trajectories.
-Candidate trajectories are ranked using the accumulated log-probabilities of both their
-action and observation tokens.
+After each token is generated, all one-token extensions of the current candidates are
+ranked using their accumulated log-probabilities, and only the $2$ or $3$ highest-scoring
+prefixes are retained. Beam search therefore applies the same token-level pruning procedure
+throughout the generated action and observation sequence.
 
 When a candidate trajectory is extended, possible actions are restricted using the wall mask 
 associated with the final observation in that candidate trajectory. 
-For the first action, this wall mask belongs to the observation received from the environment. 
-For later imagined actions, it belongs to an observation predicted by the model. 
-For each possible action used to extend the candidate trajectory, the model 
-predicts the next wall mask and visible-goal token. The relative goal displacement is 
-calculated directly from the previous
-displacement and the selected action, while the probability assigned by the model to the
-corresponding displacement tokens still contributes to the trajectory score. Later actions
+For the first action, this wall mask comes from the observation received from the environment. 
+For later imagined actions, it comes from an observation predicted by the model. 
+Each retained action prefix is then extended with predicted wall-mask and visible-goal
+tokens, with the beam pruned after each token is added. The relative goal displacement is
+updated directly from the previous displacement and the candidate action, while the
+log-probabilities assigned by the model to the corresponding row- and column-displacement
+tokens contribute to the trajectory score and beam ranking. Later actions
 in a candidate trajectory are therefore selected using predicted local observations,
 without consulting the complete maze layout.
 
@@ -1074,20 +1078,106 @@ After a beam-search continuation has been selected, only its first action is tak
 maze. The remainder of the predicted continuation is discarded, the resulting local
 observation is added to the trajectory prefix, and a new five-step continuation is
 constructed. This process of repeatedly planning several steps ahead but taking only the
-first action is referred to as receding-horizon planning. It prevents errors in predicted
-observations from being added to the trajectory prefix used at later positions. For both
+first action is referred to as receding-horizon planning. The predicted observations are
+therefore not added to the trajectory prefix used at later positions. For both
 greedy decoding and beam search, decoding terminates when the goal is reached or when the
 $19$-action limit is reached.
 
 Greedy decoding does not need to compare the outcomes of multiple action sequences,
-so it only needs to predict the next action to take at the current position. It selects the highest-probability valid
-action, takes that action in the maze, receives the resulting observation, and repeats.
-Predicting a longer continuation is therefore unnecessary, as it cannot influence this
-choice because greedy decoding does not retain alternative first actions.
+so it only needs to predict the next action to take at the current position. It selects the
+highest-probability valid action, takes that action in the maze, receives the resulting
+observation, and repeats. Predicting a longer continuation is unnecessary because greedy
+decoding does not retain alternative first actions, so later predictions cannot influence
+the selected action.
 
+\subsubsection*{Grid-Bug2 Baseline}
 
+Grid-Bug2 is included as a deterministic, non-learning baseline. It receives the same
+current $3\times3$ observation and relative goal displacement as the model. It attempts
+to move along a direct grid line connecting the initial position to the goal, when blocked, follows the obstacle
+boundary until it can return to that line closer to the goal. The algorithm selects and
+executes one action at a time and is evaluated on the same fold-$0$ queries with the same
+$19$-action limit as the decoding strategies.
 
+\subsubsection*{Evaluation Metrics}
 
+The decoding strategies are evaluated using the same metrics as in the fully observed
+experiment: completion rate, average steps to goal over successful queries, average compute
+time per query, and average compute time per executed step. These metrics respectively measure
+how often the goal is reached within the $19$-action limit, the efficiency of successful paths,
+and the computational cost of each decoding strategy.
+
+\subsubsection*{Results and Discussion}
+
+Tables~\ref{tab:partial_completion_rate} and~\ref{tab:partial_avg_steps} report
+performance on the fold-$0$ evaluation queries across the eight maze layouts. The model
+was trained on folds $1$--$4$, as described above. The comparison focuses on completion
+rate and average steps to goal. The complete results, including the computational-cost
+metrics, are reported in Appendix~\ref{app:partial_per_maze_results}. Grid-Bug2, a
+deterministic algorithm for navigating towards a known goal using local observations, is
+included as a non-learning baseline.
+
+\begin{table}[H]
+\centering
+\caption{Completion rate on the partially observed fold-$0$ evaluation queries.}
+\label{tab:partial_completion_rate}
+\footnotesize
+\begin{tabular}{lcccc}
+\hline
+Maze Layout & Grid-Bug2 & Greedy & Beam 2 & Beam 3 \\
+\hline
+OPEN & 1.0000 & 1.0000 & 1.0000 & 1.0000 \\
+U\_MAZE & 1.0000 & 0.9444 & 0.9444 & 0.9444 \\
+U\_MAZE\_EVAL & 1.0000 & 1.0000 & 0.8889 & 0.8889 \\
+SMALL\_MAZE & 1.0000 & 1.0000 & 1.0000 & 1.0000 \\
+MEDIUM\_MAZE & 0.6308 & 0.9308 & 0.9462 & 0.9385 \\
+MEDIUM\_MAZE\_EVAL & 0.6538 & 0.8538 & 0.8538 & 0.8462 \\
+LARGE\_MAZE & 0.3454 & 0.8671 & 0.8333 & 0.8043 \\
+LARGE\_MAZE\_EVAL & 0.3395 & 0.8453 & 0.8568 & 0.8406 \\
+\hline
+\end{tabular}
+\normalsize
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Average steps to goal over successful partially observed fold-$0$ queries.}
+\label{tab:partial_avg_steps}
+\footnotesize
+\begin{tabular}{lcccc}
+\hline
+Maze Layout & Grid-Bug2 & Greedy & Beam 2 & Beam 3 \\
+\hline
+OPEN & 2.6250 & 2.6667 & 2.6250 & 2.6667 \\
+U\_MAZE & 4.6667 & 4.0000 & 4.1176 & 4.1176 \\
+U\_MAZE\_EVAL & 5.5556 & 4.3333 & 3.0625 & 3.0625 \\
+SMALL\_MAZE & 1.6000 & 1.6000 & 1.6000 & 1.6000 \\
+MEDIUM\_MAZE & 6.5610 & 5.7273 & 5.4634 & 5.4016 \\
+MEDIUM\_MAZE\_EVAL & 6.3412 & 4.9099 & 4.9369 & 4.8182 \\
+LARGE\_MAZE & 8.4056 & 7.9164 & 7.7623 & 7.6817 \\
+LARGE\_MAZE\_EVAL & 6.4898 & 7.7705 & 7.6442 & 7.5632 \\
+\hline
+\end{tabular}
+\normalsize
+\end{table}
+
+The three decoding strategies yielded similar completion rates across the eight maze layouts, 
+with a beam width of $3$ performing slightly worse than the other two strategies in most layouts.
+The three decoding strategies also yielded similar average steps to goal across the eight maze layouts.
+Wider searches had longer average compute times and longer average time per step across all maze layouts.
+The performance of Grid-Bug2 in terms of completion rate and average steps to goal was competitive
+with the decoding strategies in the OPEN, U\_MAZE, U\_MAZE\_EVAL, and SMALL\_MAZE layouts, but its
+performance degraded at a significanlt faster rate than the decoding strategies as the maze layouts
+became more complex.
+
+The results indicate that predicting the outcomes of more candidate trajectories did not provide
+a significant advantage over greedy decoding. This result in isolation could indicate
+that the current framework of training a transformer on optimal trajectories and decoding based on model 
+probability is not effective in the partially observed setting, and the results represent blindly
+selecting valid actions in the maze without any meaningful guidance from the model. However, the fact that the decoding strategies
+outperformed Grid-Bug2 in the more complex maze layouts indicates that the model is providing some useful 
+guidance for action selection, and that the decoding strategies are able to leverage this guidance to 
+outperform a deterministic baseline.
 \section*{Conclusion and Future Work}
 
 This work investigated the effect of decoding strategy on planning performance when maze planning is
@@ -1495,6 +1585,157 @@ Strategy & Completion Rate & Avg. Steps to Goal & Avg. Compute Time (s) & Avg. T
 Greedy & 0.690102 & 8.455094 & 0.018373 & 0.001532 \\
 Beam 2 & 0.894080 & 7.808070 & 0.015510 & 0.001671 \\
 Beam 3 & 0.959759 & 7.636145 & 0.014605 & 0.001736 \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\section{Partially Observed Per-Maze Results}
+\label{app:partial_per_maze_results}
+
+This appendix reports the complete fold-$0$ results for the partially observed
+experiment. Beam 2 and Beam 3 use the token-level beam-search implementation described
+in the main text.
+
+\begin{table}[H]
+\centering
+\caption{Partially observed decoding results for the OPEN maze.}
+\label{tab:partial_open_results_appendix}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccc}
+\hline
+Strategy & Completion Rate & Avg. Steps to Goal & Avg. Compute Time (s) & Avg. Time per Step (s) \\
+\hline
+Grid-Bug2 & 1.000000 & 2.625000 & 0.000069 & 0.000029 \\
+Greedy & 1.000000 & 2.666667 & 0.007918 & 0.003244 \\
+Beam 2 & 1.000000 & 2.625000 & 0.075769 & 0.025944 \\
+Beam 3 & 1.000000 & 2.666667 & 0.088987 & 0.029421 \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Partially observed decoding results for the U\_MAZE maze.}
+\label{tab:partial_u_maze_results_appendix}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccc}
+\hline
+Strategy & Completion Rate & Avg. Steps to Goal & Avg. Compute Time (s) & Avg. Time per Step (s) \\
+\hline
+Grid-Bug2 & 1.000000 & 4.666667 & 0.000102 & 0.000024 \\
+Greedy & 0.944444 & 4.000000 & 0.014477 & 0.003329 \\
+Beam 2 & 0.944444 & 4.117647 & 0.227514 & 0.031963 \\
+Beam 3 & 0.944444 & 4.117647 & 0.276001 & 0.035203 \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Partially observed decoding results for the U\_MAZE\_EVAL maze.}
+\label{tab:partial_u_maze_eval_results_appendix}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccc}
+\hline
+Strategy & Completion Rate & Avg. Steps to Goal & Avg. Compute Time (s) & Avg. Time per Step (s) \\
+\hline
+Grid-Bug2 & 1.000000 & 5.555556 & 0.000109 & 0.000023 \\
+Greedy & 1.000000 & 4.333333 & 0.011755 & 0.002865 \\
+Beam 2 & 0.888889 & 3.062500 & 0.224188 & 0.029287 \\
+Beam 3 & 0.888889 & 3.062500 & 0.276476 & 0.034410 \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Partially observed decoding results for the SMALL\_MAZE maze.}
+\label{tab:partial_small_maze_results_appendix}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccc}
+\hline
+Strategy & Completion Rate & Avg. Steps to Goal & Avg. Compute Time (s) & Avg. Time per Step (s) \\
+\hline
+Grid-Bug2 & 1.000000 & 1.600000 & 0.000042 & 0.000028 \\
+Greedy & 1.000000 & 1.600000 & 0.004541 & 0.003082 \\
+Beam 2 & 1.000000 & 1.600000 & 0.024918 & 0.013684 \\
+Beam 3 & 1.000000 & 1.600000 & 0.031388 & 0.016532 \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Partially observed decoding results for the MEDIUM\_MAZE maze.}
+\label{tab:partial_medium_maze_results_appendix}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccc}
+\hline
+Strategy & Completion Rate & Avg. Steps to Goal & Avg. Compute Time (s) & Avg. Time per Step (s) \\
+\hline
+Grid-Bug2 & 0.630769 & 6.560976 & 0.000201 & 0.000020 \\
+Greedy & 0.930769 & 5.727273 & 0.016204 & 0.002583 \\
+Beam 2 & 0.946154 & 5.463415 & 0.284485 & 0.037189 \\
+Beam 3 & 0.938462 & 5.401639 & 0.346789 & 0.043624 \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Partially observed decoding results for the MEDIUM\_MAZE\_EVAL maze.}
+\label{tab:partial_medium_maze_eval_results_appendix}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccc}
+\hline
+Strategy & Completion Rate & Avg. Steps to Goal & Avg. Compute Time (s) & Avg. Time per Step (s) \\
+\hline
+Grid-Bug2 & 0.653846 & 6.341176 & 0.000194 & 0.000021 \\
+Greedy & 0.853846 & 4.909910 & 0.018254 & 0.002739 \\
+Beam 2 & 0.853846 & 4.936937 & 0.366446 & 0.038627 \\
+Beam 3 & 0.846154 & 4.818182 & 0.448500 & 0.046109 \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Partially observed decoding results for the LARGE\_MAZE maze.}
+\label{tab:partial_large_maze_results_appendix}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccc}
+\hline
+Strategy & Completion Rate & Avg. Steps to Goal & Avg. Compute Time (s) & Avg. Time per Step (s) \\
+\hline
+Grid-Bug2 & 0.345411 & 8.405594 & 0.000277 & 0.000019 \\
+Greedy & 0.867150 & 7.916435 & 0.023774 & 0.002598 \\
+Beam 2 & 0.833333 & 7.762319 & 0.532678 & 0.046158 \\
+Beam 3 & 0.804348 & 7.681682 & 0.673938 & 0.056137 \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Partially observed decoding results for the LARGE\_MAZE\_EVAL maze.}
+\label{tab:partial_large_maze_eval_results_appendix}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccc}
+\hline
+Strategy & Completion Rate & Avg. Steps to Goal & Avg. Compute Time (s) & Avg. Time per Step (s) \\
+\hline
+Grid-Bug2 & 0.339492 & 6.489796 & 0.000270 & 0.000020 \\
+Greedy & 0.845266 & 7.770492 & 0.028677 & 0.002971 \\
+Beam 2 & 0.856813 & 7.644205 & 0.593554 & 0.052472 \\
+Beam 3 & 0.840647 & 7.563187 & 0.717095 & 0.062262 \\
 \hline
 \end{tabular}%
 }

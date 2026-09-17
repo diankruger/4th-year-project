@@ -61,9 +61,12 @@
 \newlabel{tab:completion_rate_all8}{{1}{15}{Completion rate across all eight maze layouts}{table.caption.24}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Average steps to goal across all eight maze layouts.}}{16}{table.caption.25}\protected@file@percent }
 \newlabel{tab:avg_steps_all8}{{2}{16}{Average steps to goal across all eight maze layouts}{table.caption.25}{}}
-\citation{sutton2018rl}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces True maze state compared with one the partial observation at the same time step. The left panel shows the full \texttt  {LARGE\_MAZE} layout, the agent's current position, and the goal using absolute grid coordinates. The right panel shows only the local $3\times 3$ neighbourhood and the goal's relative displacement.}}{19}{figure.caption.28}\protected@file@percent }
-\newlabel{fig:true_state_vs_partial_observation}{{3}{19}{True maze state compared with one the partial observation at the same time step. The left panel shows the full \texttt {LARGE\_MAZE} layout, the agent's current position, and the goal using absolute grid coordinates. The right panel shows only the local $3\times 3$ neighbourhood and the goal's relative displacement}{figure.caption.28}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Comparison of the true maze state and the corresponding partial observation at the same time step. The left panel shows the full \texttt  {LARGE\_MAZE} layout, the agent's current position, and the goal using absolute grid coordinates. The right panel shows only the local $3\times 3$ neighbourhood and the goal's relative displacement.}}{19}{figure.caption.28}\protected@file@percent }
+\newlabel{fig:true_state_vs_partial_observation}{{3}{19}{Comparison of the true maze state and the corresponding partial observation at the same time step. The left panel shows the full \texttt {LARGE\_MAZE} layout, the agent's current position, and the goal using absolute grid coordinates. The right panel shows only the local $3\times 3$ neighbourhood and the goal's relative displacement}{figure.caption.28}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Completion rate on the partially observed fold-$0$ evaluation queries.}}{22}{table.caption.35}\protected@file@percent }
+\newlabel{tab:partial_completion_rate}{{3}{22}{Completion rate on the partially observed fold-$0$ evaluation queries}{table.caption.35}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Average steps to goal over successful partially observed fold-$0$ queries.}}{22}{table.caption.36}\protected@file@percent }
+\newlabel{tab:partial_avg_steps}{{4}{22}{Average steps to goal over successful partially observed fold-$0$ queries}{table.caption.36}{}}
 \bibcite{sutton2018rl}{{1}{}{{}}{{}}}
 \bibcite{parr1995partial}{{2}{}{{}}{{}}}
 \bibcite{janner2021trajectory}{{3}{}{{}}{{}}}
@@ -71,35 +74,53 @@
 \bibcite{goodfellow2016deep}{{5}{}{{}}{{}}}
 \bibcite{Alarnaouti2023planning}{{6}{}{{}}{{}}}
 \bibcite{d4rlrepo}{{7}{}{{}}{{}}}
-\@writefile{toc}{\contentsline {section}{\numberline {A}Project Plans}{22}{appendix.A}\protected@file@percent }
-\newlabel{app:project_plans}{{A}{22}{Project Plans}{appendix.A}{}}
 \gdef \LT@i {\LT@entry 
     {1}{97.35826pt}\LT@entry 
     {1}{324.9803pt}}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Original Project Plan.}}{23}{table.3}\protected@file@percent }
-\newlabel{tab:original_project_plan_appendix}{{3}{23}{Project Plans}{table.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Project Plans}{24}{appendix.A}\protected@file@percent }
+\newlabel{app:project_plans}{{A}{24}{Project Plans}{appendix.A}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Original Project Plan.}}{24}{table.5}\protected@file@percent }
+\newlabel{tab:original_project_plan_appendix}{{5}{24}{Project Plans}{table.5}{}}
 \gdef \LT@ii {\LT@entry 
     {1}{97.35826pt}\LT@entry 
     {1}{324.9803pt}}
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Revised Project Plan.}}{24}{table.4}\protected@file@percent }
-\newlabel{tab:revised_project_plan_appendix}{{4}{24}{Project Plans}{table.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {B}Per-Maze Decoding Results}{26}{appendix.B}\protected@file@percent }
-\newlabel{app:per_maze_results}{{B}{26}{Per-Maze Decoding Results}{appendix.B}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Decoding results for the OPEN maze.}}{26}{table.caption.34}\protected@file@percent }
-\newlabel{tab:open_results_appendix}{{5}{26}{Decoding results for the OPEN maze}{table.caption.34}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Decoding results for the U\_MAZE maze.}}{26}{table.caption.35}\protected@file@percent }
-\newlabel{tab:u_maze_results_appendix}{{6}{26}{Decoding results for the U\_MAZE maze}{table.caption.35}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Decoding results for the U\_MAZE\_EVAL maze.}}{26}{table.caption.36}\protected@file@percent }
-\newlabel{tab:u_maze_eval_results_appendix}{{7}{26}{Decoding results for the U\_MAZE\_EVAL maze}{table.caption.36}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Decoding results for the SMALL\_MAZE maze.}}{26}{table.caption.37}\protected@file@percent }
-\newlabel{tab:small_maze_results_appendix}{{8}{26}{Decoding results for the SMALL\_MAZE maze}{table.caption.37}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Decoding results for the MEDIUM\_MAZE maze.}}{26}{table.caption.38}\protected@file@percent }
-\newlabel{tab:medium_maze_results_appendix}{{9}{26}{Decoding results for the MEDIUM\_MAZE maze}{table.caption.38}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Revised Project Plan.}}{26}{table.6}\protected@file@percent }
+\newlabel{tab:revised_project_plan_appendix}{{6}{26}{Project Plans}{table.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {B}Per-Maze Decoding Results}{27}{appendix.B}\protected@file@percent }
+\newlabel{app:per_maze_results}{{B}{27}{Per-Maze Decoding Results}{appendix.B}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Decoding results for the OPEN maze.}}{27}{table.caption.39}\protected@file@percent }
+\newlabel{tab:open_results_appendix}{{7}{27}{Decoding results for the OPEN maze}{table.caption.39}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Decoding results for the U\_MAZE maze.}}{28}{table.caption.40}\protected@file@percent }
+\newlabel{tab:u_maze_results_appendix}{{8}{28}{Decoding results for the U\_MAZE maze}{table.caption.40}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Decoding results for the U\_MAZE\_EVAL maze.}}{28}{table.caption.41}\protected@file@percent }
+\newlabel{tab:u_maze_eval_results_appendix}{{9}{28}{Decoding results for the U\_MAZE\_EVAL maze}{table.caption.41}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Decoding results for the SMALL\_MAZE maze.}}{28}{table.caption.42}\protected@file@percent }
+\newlabel{tab:small_maze_results_appendix}{{10}{28}{Decoding results for the SMALL\_MAZE maze}{table.caption.42}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces Decoding results for the MEDIUM\_MAZE maze.}}{28}{table.caption.43}\protected@file@percent }
+\newlabel{tab:medium_maze_results_appendix}{{11}{28}{Decoding results for the MEDIUM\_MAZE maze}{table.caption.43}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces Decoding results for the MEDIUM\_MAZE\_EVAL maze.}}{28}{table.caption.44}\protected@file@percent }
+\newlabel{tab:medium_maze_eval_results_appendix}{{12}{28}{Decoding results for the MEDIUM\_MAZE\_EVAL maze}{table.caption.44}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {13}{\ignorespaces Decoding results for the LARGE\_MAZE maze.}}{28}{table.caption.45}\protected@file@percent }
+\newlabel{tab:large_maze_results_appendix}{{13}{28}{Decoding results for the LARGE\_MAZE maze}{table.caption.45}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {14}{\ignorespaces Decoding results for the LARGE\_MAZE\_EVAL maze.}}{28}{table.caption.46}\protected@file@percent }
+\newlabel{tab:large_maze_eval_results_appendix}{{14}{28}{Decoding results for the LARGE\_MAZE\_EVAL maze}{table.caption.46}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {C}Partially Observed Per-Maze Results}{29}{appendix.C}\protected@file@percent }
+\newlabel{app:partial_per_maze_results}{{C}{29}{Partially Observed Per-Maze Results}{appendix.C}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {15}{\ignorespaces Partially observed decoding results for the OPEN maze.}}{29}{table.caption.47}\protected@file@percent }
+\newlabel{tab:partial_open_results_appendix}{{15}{29}{Partially observed decoding results for the OPEN maze}{table.caption.47}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {16}{\ignorespaces Partially observed decoding results for the U\_MAZE maze.}}{29}{table.caption.48}\protected@file@percent }
+\newlabel{tab:partial_u_maze_results_appendix}{{16}{29}{Partially observed decoding results for the U\_MAZE maze}{table.caption.48}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {17}{\ignorespaces Partially observed decoding results for the U\_MAZE\_EVAL maze.}}{29}{table.caption.49}\protected@file@percent }
+\newlabel{tab:partial_u_maze_eval_results_appendix}{{17}{29}{Partially observed decoding results for the U\_MAZE\_EVAL maze}{table.caption.49}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {18}{\ignorespaces Partially observed decoding results for the SMALL\_MAZE maze.}}{29}{table.caption.50}\protected@file@percent }
+\newlabel{tab:partial_small_maze_results_appendix}{{18}{29}{Partially observed decoding results for the SMALL\_MAZE maze}{table.caption.50}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {19}{\ignorespaces Partially observed decoding results for the MEDIUM\_MAZE maze.}}{29}{table.caption.51}\protected@file@percent }
+\newlabel{tab:partial_medium_maze_results_appendix}{{19}{29}{Partially observed decoding results for the MEDIUM\_MAZE maze}{table.caption.51}{}}
 \providecommand\NAT@force@numbers{}\NAT@force@numbers
-\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Decoding results for the MEDIUM\_MAZE\_EVAL maze.}}{27}{table.caption.39}\protected@file@percent }
-\newlabel{tab:medium_maze_eval_results_appendix}{{10}{27}{Decoding results for the MEDIUM\_MAZE\_EVAL maze}{table.caption.39}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces Decoding results for the LARGE\_MAZE maze.}}{27}{table.caption.40}\protected@file@percent }
-\newlabel{tab:large_maze_results_appendix}{{11}{27}{Decoding results for the LARGE\_MAZE maze}{table.caption.40}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces Decoding results for the LARGE\_MAZE\_EVAL maze.}}{27}{table.caption.41}\protected@file@percent }
-\newlabel{tab:large_maze_eval_results_appendix}{{12}{27}{Decoding results for the LARGE\_MAZE\_EVAL maze}{table.caption.41}{}}
-\gdef \@abspage@last{27}
+\@writefile{lot}{\contentsline {table}{\numberline {20}{\ignorespaces Partially observed decoding results for the MEDIUM\_MAZE\_EVAL maze.}}{30}{table.caption.52}\protected@file@percent }
+\newlabel{tab:partial_medium_maze_eval_results_appendix}{{20}{30}{Partially observed decoding results for the MEDIUM\_MAZE\_EVAL maze}{table.caption.52}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {21}{\ignorespaces Partially observed decoding results for the LARGE\_MAZE maze.}}{30}{table.caption.53}\protected@file@percent }
+\newlabel{tab:partial_large_maze_results_appendix}{{21}{30}{Partially observed decoding results for the LARGE\_MAZE maze}{table.caption.53}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {22}{\ignorespaces Partially observed decoding results for the LARGE\_MAZE\_EVAL maze.}}{30}{table.caption.54}\protected@file@percent }
+\newlabel{tab:partial_large_maze_eval_results_appendix}{{22}{30}{Partially observed decoding results for the LARGE\_MAZE\_EVAL maze}{table.caption.54}{}}
+\gdef \@abspage@last{30}
