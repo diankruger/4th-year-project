@@ -18,8 +18,8 @@ from benchmark_partial_observation_joint_receding_cv_decoding import (
     choose_device,
     observation_tokens,
     observed_action_indices,
-    plan_no_oracle_batched,
 )
+from benchmark_partial_observation_token_level_beam import plan_token_level_beam, retain_best
 from train_maze2d_discrete_transformer import TinyCausalTransformer
 
 
@@ -89,34 +89,39 @@ def plan_predicted_context_only(
         action_logits = batched_logits(
             model, [beam["tokens"] for beam in active], [beam["types"] for beam in active], device
         )
-        action_expansions = []
+        action_prefixes = []
         for beam, logits in zip(active, action_logits):
             scores = torch.log_softmax(
                 logits[action_offset:action_offset + len(action_deltas)], dim=-1
             )
             for action in observed_action_indices(beam["wall"], action_deltas):
-                action_expansions.append((beam, action, float(scores[action])))
-        if not action_expansions:
+                action_prefixes.append({
+                    **beam,
+                    "tokens": beam["tokens"] + [action_offset + action],
+                    "types": beam["types"] + [TYPE_ACTION],
+                    "score": beam["score"] + float(scores[action]),
+                    "actions": beam["actions"] + [action],
+                    "selected_action": action,
+                })
+        action_prefixes = retain_best(action_prefixes, width)
+        if not action_prefixes:
             break
 
-        action_tokens = [
-            beam["tokens"] + [action_offset + action]
-            for beam, action, _ in action_expansions
-        ]
-        action_types = [
-            beam["types"] + [TYPE_ACTION]
-            for beam, _, _ in action_expansions
-        ]
-        wall_logits = batched_logits(model, action_tokens, action_types, device)
+        wall_logits = batched_logits(
+            model,
+            [beam["tokens"] for beam in action_prefixes],
+            [beam["types"] for beam in action_prefixes],
+            device,
+        )
         predicted_walls = [
             int(torch.argmax(logits[wall_offset:wall_offset + 512]).item())
             for logits in wall_logits
         ]
         wall_tokens = [
-            tokens + [wall_offset + wall]
-            for tokens, wall in zip(action_tokens, predicted_walls)
+            beam["tokens"] + [wall_offset + wall]
+            for beam, wall in zip(action_prefixes, predicted_walls)
         ]
-        wall_types = [types + [TYPE_WALLS] for types in action_types]
+        wall_types = [beam["types"] + [TYPE_WALLS] for beam in action_prefixes]
         goal_logits = batched_logits(model, wall_tokens, wall_types, device)
         predicted_goals = [
             int(torch.argmax(logits[goal_offset:goal_offset + 10]).item())
@@ -124,10 +129,10 @@ def plan_predicted_context_only(
         ]
 
         candidates = []
-        for expansion, tokens, types, wall, visible in zip(
-            action_expansions, wall_tokens, wall_types, predicted_walls, predicted_goals
+        for beam, tokens, types, wall, visible in zip(
+            action_prefixes, wall_tokens, wall_types, predicted_walls, predicted_goals
         ):
-            beam, action, action_score = expansion
+            action = beam["selected_action"]
             dr, dc = (int(value) for value in action_deltas[action])
             next_row, next_col = beam["row"] - dr, beam["col"] - dc
             row_token = delta_offset + next_row - delta_min
@@ -142,14 +147,14 @@ def plan_predicted_context_only(
                 "wall": wall,
                 "row": next_row,
                 "col": next_col,
-                "score": beam["score"] + action_score,
-                "actions": beam["actions"] + [action],
+                "score": beam["score"],
+                "actions": beam["actions"],
                 "observations": beam["observations"] + [observation],
                 "done": next_row == 0 and next_col == 0,
             })
         if not candidates:
             break
-        beams = sorted(finished + candidates, key=lambda beam: (-beam["score"], beam["tokens"]))[:width]
+        beams = retain_best(finished + candidates, width)
 
     if not beams or not beams[0]["actions"]:
         raise RuntimeError("No action could be planned from the predicted observation")
@@ -190,7 +195,7 @@ def plan_oracle_context_only(
         action_logits = batched_logits(
             model, [beam["tokens"] for beam in active], [beam["types"] for beam in active], device
         )
-        candidates = []
+        action_prefixes = []
         for beam, logits in zip(active, action_logits):
             scores = torch.log_softmax(
                 logits[action_offset:action_offset + len(action_deltas)], dim=-1
@@ -201,23 +206,34 @@ def plan_oracle_context_only(
                 inside = 0 <= row < maze.shape[0] and 0 <= col < maze.shape[1]
                 if not inside or int(maze[row, col]) != 0:
                     continue
-                observation = observation_tokens(data, maze, next_cell, goal)
-                candidates.append({
-                    "tokens": beam["tokens"] + [action_offset + action] + observation,
-                    "types": beam["types"] + [
-                        TYPE_ACTION, TYPE_WALLS, TYPE_VISIBLE_GOAL,
-                        TYPE_GOAL_DELTA, TYPE_GOAL_DELTA,
-                    ],
-                    "wall": observation[0] - wall_offset,
-                    "cell": next_cell.astype(np.int16),
+                action_prefixes.append({
+                    **beam,
+                    "tokens": beam["tokens"] + [action_offset + action],
+                    "types": beam["types"] + [TYPE_ACTION],
                     "score": beam["score"] + float(scores[action]),
                     "actions": beam["actions"] + [action],
-                    "observations": beam["observations"] + [observation],
-                    "done": np.array_equal(next_cell, goal),
+                    "next_cell": next_cell.astype(np.int16),
                 })
-        if not candidates:
+        action_prefixes = retain_best(action_prefixes, width)
+        if not action_prefixes:
             break
-        beams = sorted(finished + candidates, key=lambda beam: (-beam["score"], beam["tokens"]))[:width]
+
+        candidates = []
+        for beam in action_prefixes:
+            observation = observation_tokens(data, maze, beam["next_cell"], goal)
+            candidates.append({
+                "tokens": beam["tokens"] + observation,
+                "types": beam["types"] + [
+                    TYPE_WALLS, TYPE_VISIBLE_GOAL, TYPE_GOAL_DELTA, TYPE_GOAL_DELTA,
+                ],
+                "wall": observation[0] - wall_offset,
+                "cell": beam["next_cell"],
+                "score": beam["score"],
+                "actions": beam["actions"],
+                "observations": beam["observations"] + [observation],
+                "done": np.array_equal(beam["next_cell"], goal),
+            })
+        beams = retain_best(finished + candidates, width)
 
     if not beams or not beams[0]["actions"]:
         raise RuntimeError("No action could be planned with the oracle observation simulator")
@@ -252,12 +268,12 @@ def rollout(
 
     for _ in range(max_steps):
         if condition == "predicted_scored":
-            action, predicted, _ = plan_no_oracle_batched(
+            action, predicted = plan_token_level_beam(
                 model,
                 history,
                 history_types,
                 action_deltas,
-                offsets[:5],
+                offsets,
                 horizon,
                 width,
                 device,

@@ -73,6 +73,24 @@
         "planning_horizon": 5,
         "device": "auto"
       }
+    },
+    {
+      "name": "fold0_partial_obs_mixed3_token_beam_4act",
+      "dataset": "maze2d_partial_obs_3x3_joint_obs_action_mixed3_4act_cv5.npz",
+      "evaluation_dataset": "maze2d_partial_obs_3x3_joint_obs_action_optimal_4act_cv5.npz",
+      "folds": [0],
+      "scripts": {
+        "train": "train_maze2d_discrete_transformer.py",
+        "evaluate": "benchmark_partial_observation_token_level_beam.py"
+      },
+      "evaluation": {
+        "queries_per_maze": 10000,
+        "max_steps": 19,
+        "planning_horizon": 5,
+        "device": "auto",
+        "strategies": ["receding_greedy", "token_level_beam_2", "token_level_beam_3"],
+        "resume": true
+      }
     }
   ]
 }
