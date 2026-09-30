@@ -96,7 +96,25 @@ This report investigates how the choice of decoding strategy affects planning pe
 formulation. A Transformer-based trajectory model is trained through next-token prediction on a
 dataset of valid maze trajectories, and the resulting model is evaluated using greedy decoding and
 beam search with different beam widths. The aim is to determine how these decoding rules affect
-goal-reaching success, path efficiency, and computational cost in the maze planning setting.
+goal-reaching success, path efficiency, and computational cost. The comparison is conducted in
+both fully observed and partially observed settings. In the fully observed setting, the model
+is provided with sufficient information to determine the complete states of the environment
+at every timestep. In the partially observed setting, the model instead receives only a 
+local neighbourhood around its current position together with the relative displacement of 
+the goal, requiring it to use trajectory history to reason about unobserved aspects of the 
+environment.
+The models used in these comparisons are trained on optimal trajectories, while an additional 
+experiment in the partially observed setting investigates how decoding performance changes 
+when the model is trained on a larger dataset containing trajectories of varying degrees of 
+optimality.
+
+The results suggest that broader searches are most beneficial when candidate future
+trajectories can be evaluated using sufficiently accurate information about the states or 
+observations that follow hypothetical actions. In the fully observed setting, where these 
+states can be determined exactly, beam search substantially outperforms greedy decoding. 
+Under partial observability, however, this
+advantage seems tp depend on how accurately future
+observations can be predicted by the model.
 
 
 \section{Background}
@@ -161,7 +179,7 @@ corresponds to adjacent non-wall cells, with adjacency restricted to horizontal 
 	\centering
 	\includegraphics[width=1\linewidth]{example_trajectory.png}
 	\captionsetup{font=small, justification=raggedright, singlelinecheck=false}
-	\captionof{figure}{Example of a valid trajectory in a discrete 2D maze environment}
+	\captionof{figure}{Example of a valid trajectory in a discrete 2D maze environment.}
 	\label{fig:example_trajectory}
 \end{minipage}
 
@@ -196,12 +214,12 @@ work, the former interpretation is used.
 If a dataset of valid trajectories is available, a generative model can be trained to learn the distribution over these trajectories. Once trained, the model can be used to generate new trajectories by sampling from the learned distribution. This approach treats planning as a problem of inference in a probabilistic model~\cite{janner2021trajectory}.
 So if we define a trajectory $\boldsymbol{\tau}$ with $T$ steps as: 
 \begin{equation}
-\boldsymbol{\tau} = (s_1, a_1, s_2, a_2, \dots, s_T, a_T)
+\boldsymbol{\tau} = (s_1, a_1, s_2, a_2, \dots, s_T, a_T),
 \end{equation}
 where $s_t$ is the state (coordinates) at time step $t$ and $a_t$ is the action (moving up, down, left or right) taken at time step $t$, the trained generative model defines an approximation $p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau})$ to the distribution over valid trajectories.
 Instead of directly modelling $p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau})$, an autoregressive model factorises this distribution into a product of conditional probabilities:
 \begin{equation}
-p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau}) = \prod_{t=1}^{T} p_{\hat{\boldsymbol{\theta}}}(z_t \mid z_{<t})
+p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau}) = \prod_{t=1}^{T} p_{\hat{\boldsymbol{\theta}}}(z_t \mid z_{<t}),
 \label{eq:autoregressive_generative_model}
 \end{equation}
 where $z_t$ denotes the $t^{\text{th}}$ token in the flattened trajectory sequence, 
@@ -452,10 +470,13 @@ p(s_t \mid s_{t-1},a_{t-1}).
 \label{eq:markovian_maze}
 \end{equation}
 
-If the next position is uniquely determined by the current position and selected action,
-then there exists a transition function $f$ such that
+Transition dynamics describe how the state of an environment changes after
+an action is taken, or equivalently, the probability distribution of the next
+state given the current state and selected action. If the next position is
+uniquely determined by the current position and selected action, then there
+exists a transition function \(f\) such that
 \begin{equation}
-s_t=f(s_{t-1},a_{t-1}).
+    s_t = f(s_{t-1},a_{t-1}).
 \end{equation}
 The maze environment therefore has deterministic Markovian transition dynamics.
 
@@ -654,7 +675,15 @@ identifying which of the eight layouts it belongs to. The model must infer the r
 constraints from this maze identifier together with the observed trajectory tokens. This design
 choice gives a simple and efficient encoding scheme, but it also means that the model is tied 
 to the set of maze layouts seen during training and cannot directly generalise to previously 
-unseen layouts without additional representation of maze geometry.
+unseen layouts without additional representation of maze geometry. Although the maze geometry is 
+not included explicitly in the token sequence, the
+maze identifier uniquely specifies one of the eight fixed layouts used in the
+experiment. Together with the current and goal coordinates, it therefore uniquely
+identifies the complete planning situation within this restricted set of mazes.
+The problem is consequently treated as fully observed: any uncertainty caused by
+the model learning the association between a maze identifier and its layout
+imperfectly is a limitation of the learned model rather than a consequence of
+partial observability.
 
 The tokenised input sequences are stored in an input matrix $X$ of dimensions $N \times L$, 
 where $N$ is the number of training trajectories and $L$ is the maximum token-sequence length 
@@ -754,7 +783,12 @@ state. In other words, candidate moves that
 would pass through walls or leave the maze are excluded before the decoding rule is applied. Once an
 action has been selected, the corresponding next state is deterministically computed from the current
 state and appended to the trajectory prefix, and the procedure repeats until the goal is reached or a
-step limit is exceeded.
+step limit is exceeded. This procedure assumes that the environment's transition dynamics are known to
+the planner. Since these dynamics are deterministic, the planner can calculate
+the next position exactly from the maze layout, current position, and selected
+action, rather than requiring the model to infer the transition dynamics or
+predict a probability distribution over possible next positions from the
+trajectory prefix.
 
 The step limit refers to the maximum number of decoding steps, equivalently the maximum number of 
 action predictions, that a decoding algorithm is allowed to generate for a query before termination 
@@ -895,6 +929,16 @@ This restriction did not arise in the fully observed experiment because the comp
 layout and deterministic movements made it possible to calculate the exact sequence of states 
 resulting from any candidate action sequence without executing it in the environment.
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{partial_observation_vs_true_state.png}
+	\caption{Comparison of the true maze state and the corresponding partial observation at the same time step. The left panel shows the full
+	\texttt{LARGE\_MAZE} layout, the agent's current position, and the goal using
+	absolute grid coordinates. The right panel shows only the local $3\times3$
+	neighbourhood and the goal's relative displacement.}
+	\label{fig:true_state_vs_partial_observation}
+\end{figure}
+
 Conditioning on the complete
 trajectory prefix allows the Transformer to use previous observations and actions to
 infer unobserved aspects of the maze layout. The partially observed setting therefore
@@ -984,17 +1028,6 @@ p_{\hat{\boldsymbol{\theta}}}
 \end{equation}
 
 
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=\textwidth]{partial_observation_vs_true_state.png}
-	\caption{Comparison of the true maze state and the corresponding partial observation at the same time step. The left panel shows the full
-	\texttt{LARGE\_MAZE} layout, the agent's current position, and the goal using
-	absolute grid coordinates. The right panel shows only the local $3\times3$
-	neighbourhood and the goal's relative displacement.}
-	\label{fig:true_state_vs_partial_observation}
-\end{figure}
-
-
 \subsection{Methodology}
 
 \subsubsection{Dataset Construction}
@@ -1054,9 +1087,7 @@ The same causal Transformer design and optimisation procedure as in the fully ob
 experiment are used, although the vocabulary size and maximum sequence length are adjusted
 for the new token representation. The hidden dimension, attention heads, Transformer
 layers, feedforward dimension, dropout, optimiser, learning rate, weight decay, batch size,
-and 20-epoch training limit are unchanged. Training is significantly more time-consuming
-in this experiment because each transition contains multiple observation tokens, producing
-longer input sequences. Supervision is also applied to both actions and post-action
+and 20-epoch training limit are unchanged. Supervision is also applied to both actions and post-action
 observations. Consequently, rather than repeating training for the complete five-fold
 cross-validation procedure, folds $1$--$4$ are used for training, while fold $0$ is used
 both for validation during checkpoint selection and for the final decoding evaluation. As
@@ -1067,7 +1098,7 @@ as before, but the trajectory-token types now identify wall-mask, visible-goal,
 goal-displacement, and action tokens. The loss remains categorical cross-entropy for causal
 next-token prediction, but its supervision mask is expanded. Active targets are placed at
 every action-token position and at each of the four tokens representing the subsequent
-observation. The model is therefore trained jointly to predict
+observation. The same Transformer is therefore trained jointly to predict
 $a_t$ and $(w_{t+1},v_{t+1},\Delta r_{t+1},\Delta c_{t+1})$ from the preceding trajectory
 prefix. The initial observation and padding positions remain context only and do not
 contribute to the loss.

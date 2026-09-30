@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.1)  24 SEP 2026 16:15
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.1)  30 SEP 2026 17:27
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -514,67 +514,61 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 [1
 
-{C:/Users/User/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}]
-<example_trajectory.png, id=170, 458.71375pt x 481.8pt>
+{C:/Users/User/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}] [2]
+<example_trajectory.png, id=190, 458.71375pt x 481.8pt>
 File: example_trajectory.png Graphic file (type png)
 <use example_trajectory.png>
-Package pdftex.def Info: example_trajectory.png  used on input line 162.
+Package pdftex.def Info: example_trajectory.png  used on input line 180.
 (pdftex.def)             Requested size: 136.5746pt x 143.44571pt.
 
 
 Package caption Warning: The option `hypcap=true' will be ignored for this
-(caption)                particular \caption on input line 164.
+(caption)                particular \caption on input line 182.
 See the caption package documentation for explanation.
 
-[2] [3 <./example_trajectory.png>] [4]
+[3 <./example_trajectory.png>] [4]
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
-nput line 277.
+nput line 295.
  [5] [6] [7] [8] [9] [10] [11]
-<maze_layouts.png, id=294, 1132.4709pt x 643.203pt>
+<maze_layouts.png, id=293, 1132.4709pt x 643.203pt>
 File: maze_layouts.png Graphic file (type png)
 <use maze_layouts.png>
-Package pdftex.def Info: maze_layouts.png  used on input line 621.
+Package pdftex.def Info: maze_layouts.png  used on input line 642.
 (pdftex.def)             Requested size: 409.71689pt x 232.70119pt.
- [12 <./maze_layouts.png>] [13] [14] [15] [16] [17]
-<partial_observation_vs_true_state.png, id=340, 1108.14pt x 499.8675pt>
+ [12 <./maze_layouts.png>] [13] [14] [15] [16]
+<partial_observation_vs_true_state.png, id=335, 1108.14pt x 499.8675pt>
 File: partial_observation_vs_true_state.png Graphic file (type png)
 <use partial_observation_vs_true_state.png>
 Package pdftex.def Info: partial_observation_vs_true_state.png  used on input l
-ine 989.
+ine 934.
 (pdftex.def)             Requested size: 455.24408pt x 205.35124pt.
- [18] [19 <./partial_observation_vs_true_state.png>]
-Overfull \hbox (0.63997pt too wide) in paragraph at lines 1065--1074
-\T1/cmr/m/n/12 ser-va-tion. The model is there-fore trained jointly to pre-dict
- $\OML/cmm/m/it/12 a[]$ \T1/cmr/m/n/12 and $\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 w
-[]; v[]; \OT1/cmr/m/n/12 ^^A\OML/cmm/m/it/12 r[]; \OT1/cmr/m/n/12 ^^A\OML/cmm/m
-/it/12 c[]\OT1/cmr/m/n/12 )$
- []
-
-[20] [21] [22] [23] [24] [25]
-Underfull \hbox (badness 10000) in paragraph at lines 1383--1386
+ [17] [18 <./partial_observation_vs_true_state.png>] [19] [20] [21] [22] [23] [
+24] [25]
+Underfull \hbox (badness 10000) in paragraph at lines 1414--1417
 []\T1/cmr/m/n/12 Farama Foun-da-tion. \T1/cmr/m/it/12 D4RL repos-i-tory, \T1/cm
 tt/m/it/12 d4rl/pointmaze/maze_model.py\T1/cmr/m/n/12 .
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1383--1386
+Underfull \hbox (badness 10000) in paragraph at lines 1414--1417
 [][]$\T1/cmr/m/n/12 https : / / github . com / Farama-[]Foundation / D4RL / blo
 b / master / d4rl / pointmaze /
  []
 
 
-Underfull \hbox (badness 4303) in paragraph at lines 1413--1414
+Underfull \hbox (badness 4303) in paragraph at lines 1444--1445
 []|\T1/cmr/m/n/12 Implementation of a min-i-mal end-to-end ex-per-i-men-tal
  []
 
-ignored error: Infinite glue shrinkage found in box being split [26]
+[26]
 ignored error: Infinite glue shrinkage found in box being split [27]
-Underfull \hbox (badness 1460) in paragraph at lines 1508--1509
+Underfull \hbox (badness 1460) in paragraph at lines 1539--1540
 []|\T1/cmr/m/n/12 Construction of a min-i-mal end-to-end Maze2D anal-y-sis
  []
 
-ignored error: Infinite glue shrinkage found in box being split [28] [29]
-[30] [31] [32] (Planning as autoregressive sequence modelling B Decoding.aux)
+ignored error: Infinite glue shrinkage found in box being split [28]
+ignored error: Infinite glue shrinkage found in box being split [29] [30]
+[31] [32] (Planning as autoregressive sequence modelling B Decoding.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
@@ -586,7 +580,7 @@ ng B Decoding".out' has not changed.
 Here is how much of TeX's memory you used:
  13925 strings out of 467871
  219284 string characters out of 5418861
- 654033 words of memory out of 5000000
+ 656033 words of memory out of 5000000
  42427 multiletter control sequences out of 15000+600000
  649080 words of font info for 98 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -622,9 +616,9 @@ s/User/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C
 cm/cmsy8.pfb><C:/Users/User/AppData/Local/Programs/MiKTeX/fonts/type1/public/am
 sfonts/symbols/msbm10.pfb>
 Output written on "Planning as autoregressive sequence modelling B Decoding.pdf
-" (32 pages, 701154 bytes).
+" (32 pages, 703162 bytes).
 PDF statistics:
- 976 PDF objects out of 1000 (max. 8388607)
+ 977 PDF objects out of 1000 (max. 8388607)
  131 named destinations out of 1000 (max. 500000)
  308 words of extra memory for PDF output out of 10000 (max. 10000000)
 

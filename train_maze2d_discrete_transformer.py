@@ -4,6 +4,7 @@ import argparse
 import json
 import math
 import random
+import time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -29,8 +30,13 @@ class MazeTokenDataset(Dataset):
         self.token_type_ids = torch.from_numpy(data["token_type_ids"][indices].astype(np.int64))
         self.sequence_lengths = torch.from_numpy(data["sequence_lengths"][indices].astype(np.int64))
         self.episode_ids = torch.from_numpy(data["episode_ids"][indices].astype(np.int64))
+        if "value_targets" in data.files:
+            self.value_targets = torch.from_numpy(data["value_targets"][indices].astype(np.float32))
+        else:
+            self.value_targets = torch.full(self.input_ids.shape, float("nan"), dtype=torch.float32)
 
         self.vocab_size = int(data["vocab_size"][0])
+        self.num_token_types = int(self.token_type_ids.max().item()) + 1
         self.pad_token_id = int(data["pad_token_id"][0])
         self.state_token_offset = int(data["state_token_offset"][0])
         self.action_token_offset = int(data["action_token_offset"][0])
@@ -50,6 +56,7 @@ class MazeTokenDataset(Dataset):
             "token_type_ids": self.token_type_ids[idx],
             "sequence_lengths": self.sequence_lengths[idx],
             "episode_id": self.episode_ids[idx],
+            "value_targets": self.value_targets[idx],
         }
 
 
@@ -78,6 +85,7 @@ class TinyCausalTransformer(nn.Module):
         dim_feedforward: int = 128,
         dropout: float = 0.1,
         num_token_types: int = 6,
+        value_head: bool = False,
     ) -> None:
         super().__init__()
         self.token_embed = nn.Embedding(vocab_size, d_model)
@@ -95,13 +103,16 @@ class TinyCausalTransformer(nn.Module):
         self.encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
         self.norm = nn.LayerNorm(d_model)
         self.lm_head = nn.Linear(d_model, vocab_size)
+        self.has_value_head = bool(value_head)
+        self.value_head = nn.Linear(d_model, 1) if self.has_value_head else None
 
-    def forward(
+    def hidden_states(
         self,
         input_ids: torch.Tensor,
         token_type_ids: torch.Tensor,
         attention_mask: torch.Tensor,
     ) -> torch.Tensor:
+        """Return causal Transformer representations before either output head."""
         x = self.token_embed(input_ids) + self.type_embed(token_type_ids)
         x = self.pos_encoder(x)
         seq_len = input_ids.size(1)
@@ -110,19 +121,38 @@ class TinyCausalTransformer(nn.Module):
             diagonal=1,
         )
         x = self.encoder(x, mask=causal_mask, src_key_padding_mask=~attention_mask)
-        x = self.norm(x)
-        return self.lm_head(x)
+        return self.norm(x)
+
+    def forward(
+        self,
+        input_ids: torch.Tensor,
+        token_type_ids: torch.Tensor,
+        attention_mask: torch.Tensor,
+        return_values: bool = False,
+    ) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
+        hidden = self.hidden_states(input_ids, token_type_ids, attention_mask)
+        logits = self.lm_head(hidden)
+        if not return_values:
+            return logits
+        if self.value_head is None:
+            raise RuntimeError("return_values=True requires a model configured with value_head=True")
+        return logits, self.value_head(hidden).squeeze(-1)
 
 
 @dataclass
 class EvalMetrics:
     loss: float
     action_accuracy: float
+    token_loss: float = float("nan")
+    value_loss: float = float("nan")
+    value_mae: float = float("nan")
     wall_mask_accuracy: float = float("nan")
     visible_goal_accuracy: float = float("nan")
     goal_row_accuracy: float = float("nan")
     goal_column_accuracy: float = float("nan")
     complete_observation_accuracy: float = float("nan")
+    reward_accuracy: float = float("nan")
+    return_to_go_accuracy: float = float("nan")
     all_supervised_accuracy: float = float("nan")
 
 
@@ -153,23 +183,58 @@ def run_epoch(
     loader: DataLoader,
     optimizer: torch.optim.Optimizer | None,
     device: torch.device,
+    value_loss_weight: float = 1.0,
+    progress_every: int = 0,
+    phase: str = "epoch",
 ) -> EvalMetrics:
     training = optimizer is not None
     model.train(training)
     total_loss = 0.0
+    total_token_loss = 0.0
+    total_value_loss = 0.0
+    value_absolute_error = 0.0
+    value_count = 0
     steps = 0
-    correct = {name: 0 for name in ("action", "wall", "visible", "row", "column", "all", "complete")}
+    correct = {name: 0 for name in (
+        "action", "wall", "visible", "row", "column", "reward", "return_to_go",
+        "all", "complete",
+    )}
     totals = {name: 0 for name in correct}
 
-    for batch in loader:
+    started = time.perf_counter()
+    batch_count = len(loader)
+    for batch_index, batch in enumerate(loader, start=1):
         input_ids = batch["input_ids"].to(device)
         labels = batch["labels"].to(device)
         attention_mask = batch["attention_mask"].to(device)
         token_type_ids = batch["token_type_ids"].to(device)
+        value_targets = batch["value_targets"].to(device)
 
         with torch.set_grad_enabled(training):
-            logits = model(input_ids=input_ids, token_type_ids=token_type_ids, attention_mask=attention_mask)
-            loss, acc = shifted_loss_and_accuracy(logits, labels)
+            if getattr(model, "has_value_head", False):
+                logits, predicted_values = model(
+                    input_ids=input_ids,
+                    token_type_ids=token_type_ids,
+                    attention_mask=attention_mask,
+                    return_values=True,
+                )
+            else:
+                logits = model(
+                    input_ids=input_ids,
+                    token_type_ids=token_type_ids,
+                    attention_mask=attention_mask,
+                )
+                predicted_values = None
+            token_loss, acc = shifted_loss_and_accuracy(logits, labels)
+            value_mask = torch.isfinite(value_targets) & attention_mask
+            if predicted_values is not None and value_mask.any():
+                value_loss = F.smooth_l1_loss(
+                    predicted_values[value_mask], value_targets[value_mask]
+                )
+                loss = token_loss + value_loss_weight * value_loss
+            else:
+                value_loss = token_loss.new_zeros(())
+                loss = token_loss
             if training:
                 optimizer.zero_grad(set_to_none=True)
                 loss.backward()
@@ -177,7 +242,14 @@ def run_epoch(
                 optimizer.step()
 
         total_loss += float(loss.item())
+        total_token_loss += float(token_loss.item())
+        total_value_loss += float(value_loss.item())
         with torch.no_grad():
+            if predicted_values is not None and value_mask.any():
+                value_absolute_error += float(
+                    torch.abs(predicted_values[value_mask] - value_targets[value_mask]).sum().item()
+                )
+                value_count += int(value_mask.sum().item())
             predictions = logits[:, :-1].argmax(dim=-1)
             targets = labels[:, 1:]
             target_types = token_type_ids[:, 1:]
@@ -187,12 +259,15 @@ def run_epoch(
                 "action": valid & (target_types == 5),
                 "wall": valid & (target_types == 2),
                 "visible": valid & (target_types == 3),
+                "reward": valid & (target_types == 6),
+                "return_to_go": valid & (target_types == 7),
                 "all": valid,
             }
             delta_positions = valid & (target_types == 4)
-            position_index = torch.arange(targets.shape[1], device=device).unsqueeze(0)
-            masks["row"] = delta_positions & (((position_index + 1) % 5) == 3)
-            masks["column"] = delta_positions & (((position_index + 1) % 5) == 4)
+            previous_types = torch.full_like(target_types, -1)
+            previous_types[:, 1:] = target_types[:, :-1]
+            masks["row"] = delta_positions & (previous_types == 3)
+            masks["column"] = delta_positions & (previous_types == 4)
             for name, metric_mask in masks.items():
                 correct[name] += int((matches & metric_mask).sum().item())
                 totals[name] += int(metric_mask.sum().item())
@@ -201,12 +276,29 @@ def run_epoch(
             correct["complete"] += int((complete_mask & complete_match).sum().item())
             totals["complete"] += int(complete_mask.sum().item())
         steps += 1
+        if progress_every > 0 and (batch_index % progress_every == 0 or batch_index == batch_count):
+            elapsed = time.perf_counter() - started
+            rate = batch_index / max(elapsed, 1e-9)
+            remaining = (batch_count - batch_index) / max(rate, 1e-9)
+            print(
+                f"  {phase}: {batch_index}/{batch_count} batches "
+                f"({100.0 * batch_index / max(batch_count, 1):5.1f}%) | "
+                f"elapsed {elapsed / 60:.1f} min | ETA {remaining / 60:.1f} min",
+                flush=True,
+            )
 
     ratio = lambda name: correct[name] / totals[name] if totals[name] else float("nan")
     return EvalMetrics(loss=total_loss / max(steps, 1), action_accuracy=ratio("action"),
+                       token_loss=total_token_loss / max(steps, 1),
+                       value_loss=(total_value_loss / max(steps, 1)
+                                   if getattr(model, "has_value_head", False) else float("nan")),
+                       value_mae=(value_absolute_error / value_count if value_count else float("nan")),
                        wall_mask_accuracy=ratio("wall"), visible_goal_accuracy=ratio("visible"),
                        goal_row_accuracy=ratio("row"), goal_column_accuracy=ratio("column"),
-                       complete_observation_accuracy=ratio("complete"), all_supervised_accuracy=ratio("all"))
+                       complete_observation_accuracy=ratio("complete"),
+                       reward_accuracy=ratio("reward"),
+                       return_to_go_accuracy=ratio("return_to_go"),
+                       all_supervised_accuracy=ratio("all"))
 
 
 def decode_token(token_id: int, action_token_offset: int, action_token_names: list[str]) -> str:
@@ -230,7 +322,7 @@ def greedy_generate_actions(
     action_positions = np.flatnonzero(
         (labels_full[:seq_len] != -100) & (token_types_full[:seq_len] == 5)
     )
-    prompt_end = 4  # [MAZE, START, GOAL, STATE_0]
+    prompt_end = int(action_positions[0]) if len(action_positions) else seq_len
     generated = input_ids_full[:prompt_end].tolist()
     generated_types = token_types_full[:prompt_end].tolist()
     target_actions = []
@@ -291,6 +383,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--cv-fold", type=int, default=None)
     parser.add_argument("--fold-ids-key", type=str, default="fold_ids")
     parser.add_argument("--seed", type=int, default=7)
+    parser.add_argument("--value-head", action="store_true")
+    parser.add_argument("--value-loss-weight", type=float, default=1.0)
+    parser.add_argument(
+        "--progress-every", type=int, default=20,
+        help="Print batch progress every N batches; use 0 to disable.",
+    )
     parser.add_argument("--output", type=Path, default=Path("checkpoints/maze2d_discrete_transformer_tiny.pt"))
     return parser.parse_args()
 
@@ -334,6 +432,8 @@ def main() -> None:
 
     train_ds = MazeTokenDataset(args.dataset, train_idx)
     val_ds = MazeTokenDataset(args.dataset, val_idx)
+    if args.value_head and not torch.isfinite(train_ds.value_targets).any():
+        raise ValueError("--value-head requires a dataset containing finite value_targets")
 
     train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True)
     val_loader = DataLoader(val_ds, batch_size=args.batch_size, shuffle=False)
@@ -346,6 +446,8 @@ def main() -> None:
         num_layers=args.num_layers,
         dim_feedforward=args.ffn_dim,
         dropout=args.dropout,
+        num_token_types=train_ds.num_token_types,
+        value_head=args.value_head,
     ).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
 
@@ -358,6 +460,9 @@ def main() -> None:
                 "seq_len": int(train_ds.input_ids.shape[1]),
                 "vocab_size": train_ds.vocab_size,
                 "device": str(device),
+                "value_head": args.value_head,
+                "value_loss_weight": args.value_loss_weight,
+                "cpu_threads": torch.get_num_threads(),
             },
             indent=2,
         )
@@ -366,24 +471,45 @@ def main() -> None:
     best_val = float("inf")
     history: list[dict[str, float]] = []
     for epoch in range(1, args.epochs + 1):
-        train_metrics = run_epoch(model, train_loader, optimizer, device)
-        val_metrics = run_epoch(model, val_loader, None, device)
+        epoch_started = time.perf_counter()
+        train_metrics = run_epoch(
+            model, train_loader, optimizer, device,
+            value_loss_weight=args.value_loss_weight,
+            progress_every=args.progress_every,
+            phase=f"epoch {epoch}/{args.epochs} train",
+        )
+        val_metrics = run_epoch(
+            model, val_loader, None, device,
+            value_loss_weight=args.value_loss_weight,
+            progress_every=args.progress_every,
+            phase=f"epoch {epoch}/{args.epochs} validation",
+        )
         row = {
             "epoch": float(epoch),
             "train_loss": train_metrics.loss,
             "train_action_accuracy": train_metrics.action_accuracy,
             "val_loss": val_metrics.loss,
             "val_action_accuracy": val_metrics.action_accuracy,
+            "train_token_loss": train_metrics.token_loss,
+            "val_token_loss": val_metrics.token_loss,
+            "train_value_loss": train_metrics.value_loss,
+            "val_value_loss": val_metrics.value_loss,
+            "train_value_mae": train_metrics.value_mae,
+            "val_value_mae": val_metrics.value_mae,
         }
         for prefix, metrics in (("train", train_metrics), ("val", val_metrics)):
             for name in ("wall_mask_accuracy", "visible_goal_accuracy", "goal_row_accuracy",
-                         "goal_column_accuracy", "complete_observation_accuracy", "all_supervised_accuracy"):
+                         "goal_column_accuracy", "complete_observation_accuracy", "reward_accuracy",
+                         "return_to_go_accuracy", "all_supervised_accuracy"):
                 row[f"{prefix}_{name}"] = getattr(metrics, name)
         history.append(row)
         print(
             f"epoch {epoch:02d} | "
             f"train_loss={train_metrics.loss:.4f} train_acc={train_metrics.action_accuracy:.4f} | "
-            f"val_loss={val_metrics.loss:.4f} val_acc={val_metrics.action_accuracy:.4f}"
+            f"val_loss={val_metrics.loss:.4f} val_acc={val_metrics.action_accuracy:.4f} | "
+            f"val_value_mae={val_metrics.value_mae:.4f} | "
+            f"epoch_time={(time.perf_counter() - epoch_started) / 60:.1f} min",
+            flush=True,
         )
         if val_metrics.loss < best_val:
             best_val = val_metrics.loss
@@ -399,14 +525,21 @@ def main() -> None:
                         "num_layers": args.num_layers,
                         "dim_feedforward": args.ffn_dim,
                         "dropout": args.dropout,
+                        "num_token_types": train_ds.num_token_types,
+                        "value_head": args.value_head,
                     },
                     "history": history,
                     "dataset_metadata": {
                         key: data[key].tolist() for key in (
                             "dataset_version", "supervision", "observation_encoding", "observation_group_size",
                             "wall_token_offset", "wall_token_count", "visible_goal_token_offset",
-                            "visible_goal_token_count", "goal_delta_token_offset", "goal_delta_min",
+                             "visible_goal_token_count", "goal_delta_token_offset", "goal_delta_min",
                             "goal_delta_max", "action_token_offset", "bos_token_id",
+                            "reward_token_offset", "reward_token_count", "reward_values_cents",
+                            "return_to_go_token_offset", "return_to_go_token_count",
+                            "return_to_go_min_cents", "return_to_go_max_cents", "reward_scale",
+                            "discount_factor", "token_type_reward", "token_type_return_to_go",
+                            "value_target_name", "value_target_units",
                         ) if key in data.files
                     },
                 },
