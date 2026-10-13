@@ -83,7 +83,7 @@ Planning is a central problem in artificial intelligence, concerned with finding
 actions that moves an environment from an initial state to a desired goal state
 ~\cite{Alarnaouti2023planning}. In this project, the planning problem is studied in a discrete 2D
 maze environment, where the task is to generate a valid trajectory from a given start position to a
-specified goal position without passing through walls.
+specified goal position.
 
 One way to approach such a problem is to treat trajectories as data and learn a probability
 distribution over successful trajectories from examples. From this perspective, planning can be
@@ -117,12 +117,13 @@ experiment in the partially observed setting investigates how decoding performan
 when the model is trained on a larger dataset containing trajectories of varying degrees of 
 optimality.
 
-The results suggest that broader searches are most beneficial when candidate future
+The results suggest that broader searches, which retain and compare more candidate 
+trajectories before selecting an action, are most beneficial when candidate future
 trajectories can be evaluated using sufficiently accurate information about the states or 
 observations that follow hypothetical actions. In the fully observed setting, where these 
 states can be determined exactly, beam search substantially outperforms greedy decoding. 
 Under partial observability, however, this
-advantage seems tp depend on how accurately future
+advantage seems to depend on how accurately future
 observations can be predicted by the model.
 
 
@@ -334,40 +335,31 @@ The key components of the Transformer are now briefly introduced. For intuition,
 primarily to natural language processing examples, where the role of these components is often easier to 
 interpret than in trajectory modelling. 
 
-\minorheading{1. Input Representation}
+\subsubsection{Input Representation}
 
 Before raw data enters the Transformer, it must be converted into a high dimensional vector representation
 as follows.
 
-\minorheading{Tokenisation}
-
-
-The first step involves tokenisation, where the input sequence is broken down into discrete tokens. In an NLP scenario, 
+\textbf{\small Tokenisation.} The input sequence is broken down into discrete tokens. In an NLP scenario, 
 this could involve splitting text into words, subwords or characters~\cite{jurafsky2026speech}. For the purposes of this discussion, it is assumed that 
 the input has been tokenised at the word level.
 
-\minorheading{Embeddings ($E$)}
-
-Each token ID is used to index into an embedding matrix $E$, which maps 
+\textbf{\small Embeddings ($E$).} Each token ID is used to index into an embedding matrix $E$, which maps 
 the discrete ID to a dense vector of dimensionality $d$. This matrix has shape $|V| \times d$, where $|V|$ is 
 the vocabulary size, i.e.\ the total number of distinct tokens that the model can represent~\cite{jurafsky2026speech}.
 When tokens correspond to words, the embedding can be interpreted as capturing semantic and syntactic properties of 
 those words. Intuitively, words with similar meanings, such as ``big'' and ``large,'' may be represented by vectors 
 that are close to one another in the embedding space~\cite{jurafsky2026speech}.
 
-\minorheading{Positional Encoding}
-
-Since the Transformer processes sequences in parallel, it does not 
+\textbf{\small Positional Encoding.} Since the Transformer processes sequences in parallel, it does not 
 inherently encode the order of tokens, so a positional encoding is added to the token embeddings to ensure that the 
 position of each token in the sequence is represented. This is done by adding a positional encoding vector to each
 token embedding~\cite{jurafsky2026speech}.
 
-\minorheading{Input Formation}
-
-For a sequence of $N$ tokens, the individual $d$-dimensional vector embeddings are 
+\textbf{\small Input Formation.} For a sequence of $N$ tokens, the individual $d$-dimensional vector embeddings are 
 placed into a single matrix $X$ of size $N \times d$. This matrix serves as the input for the model~\cite{jurafsky2026speech}.
 
-\minorheading{2. Transformer Blocks}
+\subsubsection{Transformer Blocks}
 
 Each block consists of a multi-head self-attention mechanism followed by a feedforward neural network, with each sublayer
 followed by a layer normalisation and a residual connection~\cite{jurafsky2026speech}. 
@@ -378,9 +370,7 @@ the task at hand. For example, in an NLP context, the model may refine the repre
 word so that it better reflects its meaning in the context of the sentence~\cite{jurafsky2026speech}.
 Each block is described as follows.
 
-\minorheading{Layer Normalisation}
-
-For training stability, layer normalisation is applied to ensure the values in the sublayers remain within a reasonable range.
+\textbf{\small Layer Normalisation.} For training stability, layer normalisation is applied to ensure the values in the sublayers remain within a reasonable range.
 For a vector $x$, it is calculated as:
 \begin{equation}
 \mathrm{LayerNorm}(x) = \gamma \odot \frac{x - \mu}{\sigma} + \beta
@@ -390,9 +380,7 @@ learned parameters that scale and shift the normalised output~\cite{jurafsky2026
 vector product.
 
 
-\minorheading{Multi-Head Self-Attention}
-
-This is the core mechanism that allows the model to incorporate information from all tokens in the sequence
+\textbf{\small Multi-Head Self-Attention.} This is the core mechanism that allows the model to incorporate information from all tokens in the sequence
 when processing each token~\cite{jurafsky2026speech}. Under the interpretation that each sublayer progressively 
 refines word representations, the self-attention mechanism allows the representation of each word to be updated in 
 light of the representations of all other words in the sequence. For example, if the word ``fly'' is preceded by the 
@@ -415,9 +403,7 @@ instability. In causal (left-to-right) models, such as predicting the next word 
 in a trajectory, a mask is applied to ensure that tokens can only attend to the 
 past, preventing the model from ``cheating'' by looking at future tokens during training~\cite{jurafsky2026speech}.
 
-\minorheading{Feedforward Neural Network}
-
-After the attention layer incorporates information across tokens, the Feedforward Network (FFN) processes each token position 
+\textbf{\small Feedforward Neural Network.} After the attention layer incorporates information across tokens, the Feedforward Network (FFN) processes each token position 
 independently and in parallel~\cite{jurafsky2026speech}. It is usually a two-layer network with a non-linear activation such as ReLU:
 \begin{equation}
 \mathrm{FFN}(x) = \mathrm{ReLU}(xW_1 + b_1)W_2 + b_2
@@ -430,23 +416,18 @@ updating each word representation using information from the other words in the 
 further refines each of these updated representations independently at each position, using transformations 
 learned from many training sequences.
 
-\minorheading{3. Prediction Head}
+\subsubsection{Prediction Head}
 
 After the data passes through the final transformer block, the final representations are passed 
 to the next-token prediction head, which converts them into a probability distribution over possible next 
 tokens in the sequence. This is done through the following steps.
 
-\minorheading{Output Projection}
-
-
-Let $\mathbf{h}_t$ denote the final hidden representation produced after
+\textbf{\small Output Projection.} Let $\mathbf{h}_t$ denote the final hidden representation produced after
 the model has processed the prefix up to position $t$. This $d$-dimensional vector summarises the
 information in the observed prefix and is then projected back into the vocabulary space, often by
 multiplying it by the transpose of the embedding matrix $E^T$~\cite{jurafsky2026speech}.
 
-\minorheading{Softmax}
-
-The resulting logits are passed through a softmax function to produce a 
+\textbf{\small Softmax.} The resulting logits are passed through a softmax function to produce a 
 probability distribution over the next token:
 \begin{equation}
 \mathbf{p}_{t+1} = \mathrm{softmax}(\mathbf{h}_t E^T)
@@ -524,26 +505,133 @@ environment, or a model predicting aspects of it, may assume that the Markov pro
 Under this assumption, the probability distribution of the next state depends only on the 
 current state and selected action, rather than on the complete history of previous states and 
 actions. If the complete current state and the environment’s transition dynamics are known, the 
-probability distribution of the next state after taking a particular action can be calculated. In practice, 
+probability distribution of the next state after taking a particular action can be calculated. 
+The environment is then said to be fully observed from the perspectove of the model. In practice, 
 however, an agent or model may not have access to the complete state of the environment. Instead, only
 certain parts or aspects of that state may be observed. In this case, the environment is said to be
 partially observed from the perspective of the agent or model.
 
 In the context of the maze planning problem, the maze layout being known implies that 
 coordinates of the current position provide
-enough information to know the exact position within the maze. If the
+enough information to know the exact position within the maze, making the environment fully
+observed. If the
 model is however not provided with its exact coordinates in a maze,
 but rather with a local view of the maze layout, such as a 3x3 grid of cells 
 surrounding the current position, then the model does not have enough information 
 to know its exact position in the maze, as multiple positions in multiple maze 
 layouts may correspond to the same local view. These local views
 are denoted as observations $(\mathbf{o}_1,\mathbf{o}_2,\dots,\mathbf{o}_t)$, 
-and are provided to the model instead of the exact states. When the complete
-states are not made available to the model, the states are said to be partially observed.
+and are provided to the model instead of the exact states, making the environment partially observed.
 The environment can still be Markovian, but the current observation and action may not 
 provide enough information to determine the next observation, so the observation 
 process may not satisfy the Markov property. A model may need to rely on 
 previous observations and actions to infer its current position in the maze.
+
+\section{Literature Review}
+
+\subsection{Partial Observability and Conditioning on Observation History}
+
+A Deep Q-Network (DQN) uses a neural network to estimate the expected cumulative reward associated
+with each action from a given state or observation. In \textit{Deep Recurrent Q-Learning for Partially
+Observable MDPs}, Hausknecht and Stone modify a DQN to include an LSTM that incorporates
+previously observed information, investigating whether this improves performance on Atari games~\cite{hausknecht2015deep}.
+
+As part of their study, Hausknecht and Stone investigate the performance of these modified
+networks on partially observed games. In such games, previous frames can provide information
+that is missing from the current observation. Their Deep Recurrent Q-Network outperformed a
+standard DQN on the partially observed Flickering Pong task, although they found no systematic
+advantage across the other games they examined~\cite{hausknecht2015deep}.
+
+Their findings suggest that past observations can be useful when the current observation
+does not provide enough information to identify the best action. Motivated by this, the
+partially observed experiment in the present study conditions a Transformer on a trajectory
+prefix containing both past observations and actions, allowing the model to use both when
+estimating probabilities over next moves.
+
+\subsection{Decoding Strategies for Sequence Generation}
+
+\textit{Sequence to Sequence Learning with Neural Networks} by Sutskever, Vinyals and Quoc V. Le
+is an early example of beam search being used to generate sequences from a learned sequence model,
+aiming to maximise sequence likelihoods~\cite{sutskever2014sequence}.
+
+Sutskever et al. primarily investigate the use of long short-term memory (LSTM) networks, a type of
+recurrent neural network designed to capture long-range dependencies, for English-to-French translation
+while making minimal assumptions about the underlying sequence structure. Although they used LSTMs rather than
+Transformers and studied translation rather than planning, the process of using beam search
+to generate sequences remains similar in Sutskever et al.'s approach and the present study.
+They found that their model performed well even with a beam width of one, while a width of two
+provided most of the benefits of a wider beam~\cite{sutskever2014sequence}.
+
+In \textit{Massive Exploration of Neural Machine Translation Architectures}, Britz et al. investigate
+how various parameters, such as embedding size, network depth, RNN cell type and residual connections,
+affect performance in machine translation tasks. In particular, one of the investigated parameters is
+the decoding heuristic~\cite{britz2017massive}. 
+
+Britz et al. fix the trained model and compare machine translation performance when beam search of various
+widths is used as the decoding heuristic, including a beam width of one, corresponding to greedy decoding in
+their experiments. They found that moderate beam widths improved translation performance relative to
+greedy decoding, but very wide beams reduced performance~\cite{britz2017massive}.
+
+The present study utilises a similar experimental design to the decoding algorithm comparison by
+Britz et al., where a model and problem are held fixed, and performance is measured across multiple
+decoding algorithms.
+
+\subsection{Planning as Sequence Modelling}
+
+In their paper \textit{Offline Reinforcement Learning as One Big Sequence Modeling Problem},
+Michael Janner, Qiyang Li and Sergey Levine investigated how various planning problems
+can be solved by modelling states, actions and rewards related to each environment
+as a sequence of tokens and fitting a Transformer to autoregressively predict
+the next token in the sequence. This process is proposed as a method for
+offline reinforcement learning, challenging traditional methods such as
+conservative Q-learning (CQL)~\cite{janner2021trajectory}.
+
+Janner et al. utilised beam search as a planner, using it to generate trajectories from the
+learned model. They used likelihood-based beam search for imitation learning and goal-reaching,
+and reward-guided beam search for offline reinforcement learning~\cite{janner2021trajectory}.
+
+Janner et al. found that the sequence-modelling view of reinforcement learning is effective.
+They also noted that prediction with their Transformer is slower and more resource-intensive
+than prediction with conventional models that estimate one environment transition at a time~\cite{janner2021trajectory}.
+
+The present study is closely related to some of the work done by Janner et al.,
+specifically in modelling states and actions or observations in a planning problem as a sequence,
+training a Transformer on many trajectory sequences, and generating final trajectories by
+decoding the trained Transformer. A fundamental difference is that
+Janner et al. aim to show whether the previously mentioned strategy is effective in solving reinforcement learning
+problems, without conducting an experiment investigating how decoding algorithms of varying breadths
+affect performance when sampling from a fixed model. In contrast, the present study
+investigates a planning problem in only one environment, and compares the performance of three decoding strategies.
+
+The present study also does not include rewards in the training trajectories, and rewards are thus not learned and
+cannot be predicted by the trained model. The decoding algorithms therefore maximise the likelihoods predicted by the
+model, thus performing imitation learning. Janner et al. investigate both imitation learning and using
+the predicted rewards to determine decoding choices. 
+
+Furthermore, Janner et al. aim to solve a series of continuous planning problems by discretising the states, actions and rewards~\cite{janner2021trajectory}.
+The problem investigated in the present study, however, is discrete by design.
+
+\subsection{Positioning of This Study}
+
+The previously mentioned papers show how planning problems can be approached through sequence modelling,
+demonstrate the use of beam search in sequence generation, investigate the effects of different beam widths,
+and provide evidence that observation histories can be beneficial in partially observed environments.
+The present study demonstrates an empirical procedure for comparing
+decoding strategies in a specific set of planning problems.
+
+The partially and fully observed maze navigation problems explored in this research have many possible
+solutions and approaches. Even when attempting to solve the maze planning problems through autoregressive sequence
+modelling, there are many variables and design choices that affect the results, including but not limited to
+the data preprocessing, the choice of supervised learning model, the design of the model, the conditioning
+of the data provided to the model and how complete trajectories are generated using the trained model.
+Within each planning experiment, the decoding algorithms are compared using the same trained model
+and evaluation queries.
+
+The present study therefore does not aim to find a state-of-the-art solution to the particular maze planning
+problems, nor does it attempt to contribute new theory on decoding or sequence modelling. The study
+aims to develop an understanding of how a planning problem can be solved through sequence modelling
+and how the choice of decoding strategy affects goal-reaching success, path efficiency, and computational cost.
+
 
 
 
@@ -556,7 +644,7 @@ greedy decoding and beam search with different beam widths are evaluated in term
 trajectory validity, goal-reaching success, path efficiency, and computational cost.
 
 The decoding strategies are compared under different representations of the environment.
-The first experiment is conducted in a discrete maze environment, where the maze
+The first experiment is conducted in a maze environment where the maze
 layout as well as the exact coordinates of the goal position, starting position and subsequent
 states are provided. Decoding algorithms are thus evaluated in a fully observable setting, where the 
 model has access to all relevant information about the environment.
@@ -571,17 +659,25 @@ need to rely on previously observed trajectory information to infer unobserved
 information about the maze layout.
 
 Both of the preceding experiments compare decoding strategies using models trained on
- datasets of optimal trajectories. An additional experiment uses the same partially 
+ datasets of optimal trajectories. Another experiment uses the same partially 
  observed setting as the second experiment, but trains the model on a larger dataset 
  containing a mixture of optimal, suboptimal, and unsuccessful trajectories. This 
  experiment investigates how decoding performance changes when the training data 
- contains multiple trajectories of varying.
+ contains multiple trajectories of varying quality.
+
+A final experiment modifies the decoding algorithms used with the model trained on the mixed-quality
+dataset in the partially observed setting. Rather than ranking candidate trajectories solely by their
+model-predicted likelihoods, the algorithms also apply an inference-time bonus to actions favoured by
+a predefined local rule. This introduces an inductive bias: an assumption about which moves are likely
+to be productive, without retraining the model.
+
+
 
 \section{Fully Observed Planning}
 
 \subsection{Problem Formulation}
 
-The objective of this experiment is to evaluate different decoding strategies
+The experiments to follow evaluate different decoding strategies
 by training a conditional trajectory model through next-token prediction in a fully
 observed maze environment.
 Given a maze layout identifier, a start state, a goal state, and a trajectory prefix consisting
@@ -619,8 +715,6 @@ p_{\hat{\boldsymbol{\theta}}}(a_t \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}},
 Ideally, generating a complete plan would require sampling from the full joint conditional
 distribution over actions and observations above; in practice, the decoding algorithms instead operate on
 its autoregressive conditional factors.
-
-
 
 A Transformer was selected as the generative model because of its demonstrated
 performance on sequence-modelling tasks~\cite{vaswani2017attention},
@@ -973,10 +1067,14 @@ At inference time, the same decoding algorithms as in the previous experiment ar
 used to construct complete trajectories by selecting continuations with high probability
 under the learned model. As in the previous experiment, the model is trained by
 imitating demonstrated trajectories, and decoding is based on model probability rather
-than reward maximisation. The action-selection component therefore remains based on
-imitation learning, while observation prediction allows beam search to evaluate imagined
+than reward maximisation. The action-selection component initially remains based on
+imitation learning, and observation prediction allows beam search to evaluate imagined
 continuations, which refer to predicted values of unknown future observations that 
-would follow candidate action sequences.
+would follow candidate action sequences. 
+
+A modified version of the decoding algorthim where a predefined rule influence action choices
+is also investigated. This rule alongside model probability determine what candidate trajectories
+is preferred by the decoders.
 
 During decoding, beam search needs to form a set of candidate trajectories. In the previous experiment,
 beam search could calculate the exact trajectories corresponding to each candidate action sequence, 
@@ -1189,6 +1287,7 @@ boundary until it can return to that line closer to the goal. The algorithm sele
 executes one action at a time and is evaluated on the same fold-$0$ queries with the same
 $19$-action limit as the decoding strategies.
 
+\subsubsection{Incorporating }
 \subsubsection{Evaluation Metrics}
 
 The decoding strategies are evaluated using the same metrics as in the fully observed
@@ -1463,12 +1562,12 @@ for similar problems.
 
 
 
-\section{Conclusion}
+\section{Conclusion and Future Work}
 
 This work investigated the effect of decoding strategy on planning performance when maze planning is
 formulated as autoregressive sequence modelling under a learned generative model. In particular,
 greedy decoding and beam search were compared in terms of goal-reaching success, path efficiency,
-and computational cost in a discrete 2D maze setting.
+and computational cost in a fully- and partially observed discrete 2D maze setting.
 
 The results demonstrate that in a fully observed maze environment, beam search is a more effective decoding strategy than greedy
 decoding for the maze planning problem under the learned trajectory model, both in terms of
@@ -1492,9 +1591,21 @@ the partially observed experiment, however, wider searches also had longer avera
 compute times per query because they did not substantially reduce the number of executed 
 steps.
 
+Planning problems vary considerably, and autoregressive sequence modelling is only one of many ways
+to approach them. Its advantages include the ability to use the scalable Transformer architecture
+and to condition the model on a prefix of past states or observations and actions, allowing it to use
+information from earlier steps. This work demonstrates that, when autoregressive sequence modelling
+is used for planning, the choice of decoding algorithm merits attention. The decoding algorithm can
+affect both trajectory quality and generation speed, so comparing different algorithms can help in
+designing a more effective planner.
 
 
-\begin{thebibliography}{9}
+
+I will write the future work section closer to the deadline, in case I ended up writing about more of
+my experiments.
+
+
+\begin{thebibliography}{99}
 
 \bibitem{sutton2018rl}
 Richard S. Sutton and Andrew G. Barto.
@@ -1511,6 +1622,22 @@ Intelligence (IJCAI)}, pages 1088--1094, 1995.
 Michael Janner, Qiyang Li, and Sergey Levine.
 Offline Reinforcement Learning as One Big Sequence Modeling Problem.
 \textit{Advances in Neural Information Processing Systems}, 2021.
+
+\bibitem{sutskever2014sequence}
+Ilya Sutskever, Oriol Vinyals, and Quoc V. Le.
+Sequence to Sequence Learning with Neural Networks.
+\textit{Advances in Neural Information Processing Systems}, 27, 2014.
+
+\bibitem{britz2017massive}
+Denny Britz, Anna Goldie, Minh-Thang Luong, and Quoc Le.
+Massive Exploration of Neural Machine Translation Architectures.
+In \textit{Proceedings of the 2017 Conference on Empirical Methods in Natural Language Processing},
+pages 1442--1451, 2017.
+
+\bibitem{hausknecht2015deep}
+Matthew Hausknecht and Peter Stone.
+Deep Recurrent Q-Learning for Partially Observable MDPs.
+In \textit{AAAI Fall Symposium on Sequential Decision Making for Intelligent Agents}, 2015.
 
 \bibitem{jurafsky2026speech}
 Daniel Jurafsky and James H. Martin.
