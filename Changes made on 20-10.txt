@@ -1,0 +1,11 @@
+Changes made on 20/10
+
+Fixed equation 3 and 4 contradiction
+
+Modified beam search pseudocode to match actual implementation in the experiments rather than the general algorithm
+
+changed this sentence: "If the complete current state is made available, the environment is then said to be 
+fully observed from the perspective of the model. The complete states and the environment’s transition dynamics being known, means
+the probability distribution of the next state after taking a particular action can be calculated. 
+
+Experiments now measure average steps till termination as opposed to average steps to goal. This makes two algorithms with different completion rates more directly comparable.

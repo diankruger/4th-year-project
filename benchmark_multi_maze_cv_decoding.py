@@ -182,6 +182,7 @@ def beam_decode_query(
                 continue
             action_logits = logits_batch[active_cursor]
             active_cursor += 1
+            action_log_probs = action_logits - np.logaddexp.reduce(action_logits)
             for action_idx, next_cell in valid_action_candidates(
                 np.asarray(beam["path"][-1], dtype=np.int16), maze, action_deltas
             ):
@@ -190,7 +191,7 @@ def beam_decode_query(
                     + [action_token_offset + action_idx, state_token(next_cell, state_token_offset, global_grid_shape)],
                     "types": list(beam["types"]) + [TOKEN_TYPE_ACTION, TOKEN_TYPE_STATE],
                     "path": list(beam["path"]) + [np.asarray(next_cell, dtype=np.int16)],
-                    "score": float(beam["score"]) + float(action_logits[action_idx]),
+                    "score": float(beam["score"]) + float(action_log_probs[action_idx]),
                     "done": bool(np.array_equal(next_cell, goal_cell)),
                 }
                 candidates.append(next_beam)
