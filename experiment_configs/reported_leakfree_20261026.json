@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "defaults": {
+    "output_root": "experiment_runs/leakfree_20261026",
+    "folds": [0, 1, 2, 3, 4],
+    "mazes": [
+      "OPEN", "U_MAZE", "U_MAZE_EVAL", "SMALL_MAZE",
+      "MEDIUM_MAZE", "MEDIUM_MAZE_EVAL", "LARGE_MAZE", "LARGE_MAZE_EVAL"
+    ],
+    "scripts": {
+      "train": "train_maze2d_discrete_transformer.py",
+      "evaluate": "benchmark_multi_maze_cv_decoding.py"
+    },
+    "training": {
+      "epochs": 20,
+      "max_train_episodes": 1000000,
+      "max_val_episodes": 1000000,
+      "batch_size": 128,
+      "d_model": 64,
+      "nhead": 4,
+      "num_layers": 2,
+      "ffn_dim": 128,
+      "dropout": 0.1,
+      "lr": 0.0003,
+      "weight_decay": 0.0001,
+      "seed": 7,
+      "inner_val_fraction": 0.1
+    },
+    "evaluation": {
+      "queries_per_maze": 10000,
+      "max_steps": 19
+    }
+  },
+  "experiments": [
+    {
+      "name": "fully_observed_optimal",
+      "dataset": "maze2d_all_mazes_transformer_ready_4act_cv5.npz"
+    },
+    {
+      "name": "partially_observed_optimal",
+      "dataset": "maze2d_partial_obs_3x3_joint_obs_action_optimal_4act_cv5.npz",
+      "folds": [0],
+      "scripts": {
+        "evaluate": "benchmark_partial_observation_token_level_beam.py"
+      },
+      "evaluation": {
+        "planning_horizon": 5,
+        "device": "auto",
+        "strategies": ["receding_greedy", "token_level_beam_2", "token_level_beam_3"],
+        "resume": true
+      }
+    },
+    {
+      "name": "partially_observed_mixed",
+      "dataset": "maze2d_partial_obs_3x3_joint_obs_action_mixed3_4act_cv5.npz",
+      "evaluation_dataset": "maze2d_partial_obs_3x3_joint_obs_action_optimal_4act_cv5.npz",
+      "folds": [0],
+      "scripts": {
+        "evaluate": "benchmark_partial_observation_token_level_beam.py"
+      },
+      "evaluation": {
+        "planning_horizon": 5,
+        "device": "auto",
+        "strategies": ["receding_greedy", "token_level_beam_2", "token_level_beam_3"],
+        "resume": true
+      }
+    }
+  ]
+}

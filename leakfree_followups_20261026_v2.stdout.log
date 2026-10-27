@@ -1,0 +1,253 @@
+Running C:\Users\User\AppData\Local\Python\pythoncore-3.14-64\python.exe "C:\Users\User\Documents\4th year\project\benchmark_partial_observation_beam_ablation.py" --checkpoint "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\partially_observed_optimal\fold_0\checkpoint.pt" --dataset "C:\Users\User\Documents\4th year\project\maze2d_partial_obs_3x3_joint_obs_action_optimal_4act_cv5.npz" --cv-fold 0 --queries-per-maze 10000 --max-steps 19 --planning-horizon 5 --mazes OPEN U_MAZE U_MAZE_EVAL SMALL_MAZE MEDIUM_MAZE MEDIUM_MAZE_EVAL LARGE_MAZE LARGE_MAZE_EVAL --device auto --resume --beam-widths 2 3 --conditions predicted_context_only oracle_context_only --results-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\partially_observed_optimal\observation_diagnostic\results.csv" --summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\partially_observed_optimal\observation_diagnostic\summary.csv" --per-maze-summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\partially_observed_optimal\observation_diagnostic\per_maze_summary.csv"
+{
+  "device": "cpu",
+  "fold": 0,
+  "conditions": [
+    "predicted_context_only",
+    "oracle_context_only"
+  ],
+  "beam_widths": [
+    2,
+    3
+  ],
+  "existing_rows": 0
+}
+Completed OPEN: 192 rows saved
+Completed U_MAZE: 264 rows saved
+Completed U_MAZE_EVAL: 336 rows saved
+Completed SMALL_MAZE: 356 rows saved
+Completed MEDIUM_MAZE: 876 rows saved
+Completed MEDIUM_MAZE_EVAL: 1396 rows saved
+Completed LARGE_MAZE: 3052 rows saved
+Completed LARGE_MAZE_EVAL: 4784 rows saved
+             condition  beam_width  completion_rate  average_steps_to_goal  average_compute_seconds  average_seconds_per_step  invalid_real_action_count  invalid_real_action_rate  first_wall_mask_accuracy  first_visible_goal_accuracy  first_goal_row_accuracy  first_goal_column_accuracy  complete_next_observation_accuracy
+   oracle_context_only           2         0.971572               6.833907                 0.149163                  0.019041                          0                       0.0                  1.000000                     1.000000                      1.0                         1.0                            1.000000
+   oracle_context_only           3         0.979933               6.845563                 0.176667                  0.023406                          0                       0.0                  1.000000                     1.000000                      1.0                         1.0                            1.000000
+predicted_context_only           2         0.803512               6.902185                 0.370511                  0.036688                          0                       0.0                  0.267239                     0.817991                      1.0                         1.0                            0.231413
+predicted_context_only           3         0.779264               6.887339                 0.442805                  0.042397                          0                       0.0                  0.262810                     0.817384                      1.0                         1.0                            0.227081
+Finished C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\partially_observed_optimal\observation_diagnostic
+Running C:\Users\User\AppData\Local\Python\pythoncore-3.14-64\python.exe "C:\Users\User\Documents\4th year\project\benchmark_partial_observation_local_bonus.py" --checkpoint "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\partially_observed_mixed\fold_0\checkpoint.pt" --dataset "C:\Users\User\Documents\4th year\project\maze2d_partial_obs_3x3_joint_obs_action_optimal_4act_cv5.npz" --cv-fold 0 --queries-per-maze 10000 --max-steps 19 --planning-horizon 5 --mazes OPEN U_MAZE U_MAZE_EVAL SMALL_MAZE MEDIUM_MAZE MEDIUM_MAZE_EVAL LARGE_MAZE LARGE_MAZE_EVAL --device auto --resume --local-bonuses 0 0.25 0.5 1 2 --strategies receding_greedy token_level_beam_2 token_level_beam_3 --results-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\partially_observed_mixed\local_bonus\results.csv" --summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\partially_observed_mixed\local_bonus\summary.csv" --per-maze-summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\partially_observed_mixed\local_bonus\per_maze_summary.csv"
+{
+  "device": "cpu",
+  "fold": 0,
+  "checkpoint": "C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\leakfree_20261026\\partially_observed_mixed\\fold_0\\checkpoint.pt",
+  "training": false,
+  "strategies": [
+    "receding_greedy",
+    "token_level_beam_2",
+    "token_level_beam_3"
+  ],
+  "local_bonuses": [
+    0.0,
+    0.25,
+    0.5,
+    1.0,
+    2.0
+  ],
+  "existing_rows": 0
+}
+Progress: 100/17940 evaluations; elapsed=0.0 min; ETA=4.7 min
+Progress: 200/17940 evaluations; elapsed=0.1 min; ETA=7.1 min
+Progress: 300/17940 evaluations; elapsed=0.1 min; ETA=8.6 min
+Progress: 400/17940 evaluations; elapsed=0.3 min; ETA=11.5 min
+Progress: 500/17940 evaluations; elapsed=0.4 min; ETA=14.1 min
+Progress: 600/17940 evaluations; elapsed=0.6 min; ETA=17.1 min
+Progress: 700/17940 evaluations; elapsed=0.9 min; ETA=21.6 min
+Completed OPEN: 720/17940 evaluations; elapsed=1.0 min; ETA=22.7 min
+Progress: 800/17940 evaluations; elapsed=1.0 min; ETA=21.1 min
+Progress: 900/17940 evaluations; elapsed=1.1 min; ETA=21.7 min
+Completed U_MAZE: 990/17940 evaluations; elapsed=1.9 min; ETA=32.3 min
+Progress: 1000/17940 evaluations; elapsed=1.9 min; ETA=32.1 min
+Progress: 1100/17940 evaluations; elapsed=1.9 min; ETA=29.7 min
+Progress: 1200/17940 evaluations; elapsed=2.3 min; ETA=32.5 min
+Completed U_MAZE_EVAL: 1260/17940 evaluations; elapsed=3.1 min; ETA=41.6 min
+Progress: 1300/17940 evaluations; elapsed=3.2 min; ETA=40.4 min
+Completed SMALL_MAZE: 1335/17940 evaluations; elapsed=3.2 min; ETA=39.7 min
+Progress: 1400/17940 evaluations; elapsed=3.2 min; ETA=37.9 min
+Progress: 1500/17940 evaluations; elapsed=3.2 min; ETA=35.5 min
+Progress: 1600/17940 evaluations; elapsed=3.3 min; ETA=33.7 min
+Progress: 1700/17940 evaluations; elapsed=3.4 min; ETA=32.3 min
+Progress: 1800/17940 evaluations; elapsed=3.6 min; ETA=31.9 min
+Progress: 1900/17940 evaluations; elapsed=3.7 min; ETA=31.2 min
+Progress: 2000/17940 evaluations; elapsed=4.0 min; ETA=31.8 min
+Progress: 2100/17940 evaluations; elapsed=4.4 min; ETA=33.3 min
+Progress: 2200/17940 evaluations; elapsed=5.0 min; ETA=35.7 min
+Progress: 2300/17940 evaluations; elapsed=5.6 min; ETA=38.1 min
+Progress: 2400/17940 evaluations; elapsed=5.9 min; ETA=38.5 min
+Progress: 2500/17940 evaluations; elapsed=6.6 min; ETA=41.0 min
+Progress: 2600/17940 evaluations; elapsed=7.2 min; ETA=42.6 min
+Progress: 2700/17940 evaluations; elapsed=7.8 min; ETA=44.0 min
+Progress: 2800/17940 evaluations; elapsed=8.5 min; ETA=46.1 min
+Progress: 2900/17940 evaluations; elapsed=9.4 min; ETA=48.9 min
+Progress: 3000/17940 evaluations; elapsed=10.4 min; ETA=51.6 min
+Progress: 3100/17940 evaluations; elapsed=11.2 min; ETA=53.7 min
+Progress: 3200/17940 evaluations; elapsed=11.9 min; ETA=55.0 min
+Completed MEDIUM_MAZE: 3285/17940 evaluations; elapsed=12.9 min; ETA=57.3 min
+Progress: 3300/17940 evaluations; elapsed=12.9 min; ETA=57.0 min
+Progress: 3400/17940 evaluations; elapsed=12.9 min; ETA=55.1 min
+Progress: 3500/17940 evaluations; elapsed=12.9 min; ETA=53.4 min
+Progress: 3600/17940 evaluations; elapsed=13.0 min; ETA=51.8 min
+Progress: 3700/17940 evaluations; elapsed=13.1 min; ETA=50.5 min
+Progress: 3800/17940 evaluations; elapsed=13.3 min; ETA=49.5 min
+Progress: 3900/17940 evaluations; elapsed=13.4 min; ETA=48.4 min
+Progress: 4000/17940 evaluations; elapsed=13.6 min; ETA=47.6 min
+Progress: 4100/17940 evaluations; elapsed=13.9 min; ETA=46.9 min
+Progress: 4200/17940 evaluations; elapsed=14.1 min; ETA=46.3 min
+Progress: 4300/17940 evaluations; elapsed=14.6 min; ETA=46.4 min
+Progress: 4400/17940 evaluations; elapsed=14.9 min; ETA=45.9 min
+Progress: 4500/17940 evaluations; elapsed=15.5 min; ETA=46.4 min
+Progress: 4600/17940 evaluations; elapsed=16.0 min; ETA=46.4 min
+Progress: 4700/17940 evaluations; elapsed=16.8 min; ETA=47.4 min
+Progress: 4800/17940 evaluations; elapsed=17.5 min; ETA=48.0 min
+Progress: 4900/17940 evaluations; elapsed=18.6 min; ETA=49.6 min
+Progress: 5000/17940 evaluations; elapsed=19.4 min; ETA=50.3 min
+Progress: 5100/17940 evaluations; elapsed=20.6 min; ETA=51.8 min
+Progress: 5200/17940 evaluations; elapsed=21.9 min; ETA=53.7 min
+Completed MEDIUM_MAZE_EVAL: 5235/17940 evaluations; elapsed=22.7 min; ETA=55.1 min
+Progress: 5300/17940 evaluations; elapsed=22.7 min; ETA=54.2 min
+Progress: 5400/17940 evaluations; elapsed=22.8 min; ETA=52.9 min
+Progress: 5500/17940 evaluations; elapsed=22.8 min; ETA=51.6 min
+Progress: 5600/17940 evaluations; elapsed=22.9 min; ETA=50.4 min
+Progress: 5700/17940 evaluations; elapsed=23.0 min; ETA=49.3 min
+Progress: 5800/17940 evaluations; elapsed=23.1 min; ETA=48.3 min
+Progress: 5900/17940 evaluations; elapsed=23.2 min; ETA=47.2 min
+Progress: 6000/17940 evaluations; elapsed=23.3 min; ETA=46.4 min
+Progress: 6100/17940 evaluations; elapsed=23.5 min; ETA=45.6 min
+Progress: 6200/17940 evaluations; elapsed=23.7 min; ETA=44.8 min
+Progress: 6300/17940 evaluations; elapsed=23.8 min; ETA=44.0 min
+Progress: 6400/17940 evaluations; elapsed=24.1 min; ETA=43.4 min
+Progress: 6500/17940 evaluations; elapsed=24.4 min; ETA=42.9 min
+Progress: 6600/17940 evaluations; elapsed=24.6 min; ETA=42.3 min
+Progress: 6700/17940 evaluations; elapsed=25.0 min; ETA=41.9 min
+Progress: 6800/17940 evaluations; elapsed=25.4 min; ETA=41.6 min
+Progress: 6900/17940 evaluations; elapsed=26.0 min; ETA=41.6 min
+Progress: 7000/17940 evaluations; elapsed=26.4 min; ETA=41.3 min
+Progress: 7100/17940 evaluations; elapsed=26.9 min; ETA=41.0 min
+Progress: 7200/17940 evaluations; elapsed=27.3 min; ETA=40.8 min
+Progress: 7300/17940 evaluations; elapsed=27.8 min; ETA=40.5 min
+Progress: 7400/17940 evaluations; elapsed=28.6 min; ETA=40.7 min
+Progress: 7500/17940 evaluations; elapsed=29.2 min; ETA=40.6 min
+Progress: 7600/17940 evaluations; elapsed=29.6 min; ETA=40.3 min
+Progress: 7700/17940 evaluations; elapsed=30.3 min; ETA=40.3 min
+Progress: 7800/17940 evaluations; elapsed=31.0 min; ETA=40.3 min
+Progress: 7900/17940 evaluations; elapsed=32.0 min; ETA=40.7 min
+Progress: 8000/17940 evaluations; elapsed=32.6 min; ETA=40.5 min
+Progress: 8100/17940 evaluations; elapsed=33.5 min; ETA=40.8 min
+Progress: 8200/17940 evaluations; elapsed=34.5 min; ETA=41.0 min
+Progress: 8300/17940 evaluations; elapsed=35.4 min; ETA=41.1 min
+Progress: 8400/17940 evaluations; elapsed=36.5 min; ETA=41.4 min
+Progress: 8500/17940 evaluations; elapsed=37.4 min; ETA=41.5 min
+Progress: 8600/17940 evaluations; elapsed=38.2 min; ETA=41.5 min
+Progress: 8700/17940 evaluations; elapsed=39.1 min; ETA=41.5 min
+Progress: 8800/17940 evaluations; elapsed=40.5 min; ETA=42.0 min
+Progress: 8900/17940 evaluations; elapsed=41.6 min; ETA=42.2 min
+Progress: 9000/17940 evaluations; elapsed=42.8 min; ETA=42.5 min
+Progress: 9100/17940 evaluations; elapsed=43.9 min; ETA=42.7 min
+Progress: 9200/17940 evaluations; elapsed=45.1 min; ETA=42.8 min
+Progress: 9300/17940 evaluations; elapsed=46.0 min; ETA=42.7 min
+Progress: 9400/17940 evaluations; elapsed=47.0 min; ETA=42.7 min
+Progress: 9500/17940 evaluations; elapsed=48.3 min; ETA=42.9 min
+Progress: 9600/17940 evaluations; elapsed=49.7 min; ETA=43.2 min
+Progress: 9700/17940 evaluations; elapsed=51.0 min; ETA=43.3 min
+Progress: 9800/17940 evaluations; elapsed=52.4 min; ETA=43.5 min
+Progress: 9900/17940 evaluations; elapsed=53.6 min; ETA=43.5 min
+Progress: 10000/17940 evaluations; elapsed=54.9 min; ETA=43.6 min
+Progress: 10100/17940 evaluations; elapsed=56.2 min; ETA=43.7 min
+Progress: 10200/17940 evaluations; elapsed=57.6 min; ETA=43.7 min
+Progress: 10300/17940 evaluations; elapsed=58.9 min; ETA=43.7 min
+Progress: 10400/17940 evaluations; elapsed=60.2 min; ETA=43.6 min
+Progress: 10500/17940 evaluations; elapsed=61.8 min; ETA=43.8 min
+Progress: 10600/17940 evaluations; elapsed=63.1 min; ETA=43.7 min
+Progress: 10700/17940 evaluations; elapsed=64.7 min; ETA=43.8 min
+Progress: 10800/17940 evaluations; elapsed=66.3 min; ETA=43.8 min
+Progress: 10900/17940 evaluations; elapsed=67.8 min; ETA=43.8 min
+Progress: 11000/17940 evaluations; elapsed=69.8 min; ETA=44.0 min
+Progress: 11100/17940 evaluations; elapsed=71.4 min; ETA=44.0 min
+Progress: 11200/17940 evaluations; elapsed=73.5 min; ETA=44.2 min
+Progress: 11300/17940 evaluations; elapsed=75.6 min; ETA=44.4 min
+Progress: 11400/17940 evaluations; elapsed=77.6 min; ETA=44.5 min
+Completed LARGE_MAZE: 11445/17940 evaluations; elapsed=78.7 min; ETA=44.6 min
+Progress: 11500/17940 evaluations; elapsed=78.7 min; ETA=44.1 min
+Progress: 11600/17940 evaluations; elapsed=78.7 min; ETA=43.0 min
+Progress: 11700/17940 evaluations; elapsed=78.8 min; ETA=42.0 min
+Progress: 11800/17940 evaluations; elapsed=78.8 min; ETA=41.0 min
+Progress: 11900/17940 evaluations; elapsed=78.9 min; ETA=40.1 min
+Progress: 12000/17940 evaluations; elapsed=79.0 min; ETA=39.1 min
+Progress: 12100/17940 evaluations; elapsed=79.1 min; ETA=38.2 min
+Progress: 12200/17940 evaluations; elapsed=79.2 min; ETA=37.3 min
+Progress: 12300/17940 evaluations; elapsed=79.4 min; ETA=36.4 min
+Progress: 12400/17940 evaluations; elapsed=79.6 min; ETA=35.6 min
+Progress: 12500/17940 evaluations; elapsed=79.9 min; ETA=34.8 min
+Progress: 12600/17940 evaluations; elapsed=80.1 min; ETA=33.9 min
+Progress: 12700/17940 evaluations; elapsed=80.3 min; ETA=33.1 min
+Progress: 12800/17940 evaluations; elapsed=80.7 min; ETA=32.4 min
+Progress: 12900/17940 evaluations; elapsed=81.0 min; ETA=31.7 min
+Progress: 13000/17940 evaluations; elapsed=81.3 min; ETA=30.9 min
+Progress: 13100/17940 evaluations; elapsed=81.6 min; ETA=30.2 min
+Progress: 13200/17940 evaluations; elapsed=81.9 min; ETA=29.4 min
+Progress: 13300/17940 evaluations; elapsed=82.3 min; ETA=28.7 min
+Progress: 13400/17940 evaluations; elapsed=82.8 min; ETA=28.1 min
+Progress: 13500/17940 evaluations; elapsed=83.2 min; ETA=27.4 min
+Progress: 13600/17940 evaluations; elapsed=83.6 min; ETA=26.7 min
+Progress: 13700/17940 evaluations; elapsed=84.1 min; ETA=26.0 min
+Progress: 13800/17940 evaluations; elapsed=84.5 min; ETA=25.4 min
+Progress: 13900/17940 evaluations; elapsed=85.0 min; ETA=24.7 min
+Progress: 14000/17940 evaluations; elapsed=85.7 min; ETA=24.1 min
+Progress: 14100/17940 evaluations; elapsed=86.2 min; ETA=23.5 min
+Progress: 14200/17940 evaluations; elapsed=86.9 min; ETA=22.9 min
+Progress: 14300/17940 evaluations; elapsed=87.7 min; ETA=22.3 min
+Progress: 14400/17940 evaluations; elapsed=88.3 min; ETA=21.7 min
+Progress: 14500/17940 evaluations; elapsed=88.9 min; ETA=21.1 min
+Progress: 14600/17940 evaluations; elapsed=89.5 min; ETA=20.5 min
+Progress: 14700/17940 evaluations; elapsed=90.1 min; ETA=19.9 min
+Progress: 14800/17940 evaluations; elapsed=91.0 min; ETA=19.3 min
+Progress: 14900/17940 evaluations; elapsed=91.7 min; ETA=18.7 min
+Progress: 15000/17940 evaluations; elapsed=92.5 min; ETA=18.1 min
+Progress: 15100/17940 evaluations; elapsed=93.2 min; ETA=17.5 min
+Progress: 15200/17940 evaluations; elapsed=93.9 min; ETA=16.9 min
+Progress: 15300/17940 evaluations; elapsed=94.9 min; ETA=16.4 min
+Progress: 15400/17940 evaluations; elapsed=95.7 min; ETA=15.8 min
+Progress: 15500/17940 evaluations; elapsed=96.6 min; ETA=15.2 min
+Progress: 15600/17940 evaluations; elapsed=97.6 min; ETA=14.6 min
+Progress: 15700/17940 evaluations; elapsed=98.5 min; ETA=14.1 min
+Progress: 15800/17940 evaluations; elapsed=99.4 min; ETA=13.5 min
+Progress: 15900/17940 evaluations; elapsed=100.3 min; ETA=12.9 min
+Progress: 16000/17940 evaluations; elapsed=101.1 min; ETA=12.3 min
+Progress: 16100/17940 evaluations; elapsed=102.4 min; ETA=11.7 min
+Progress: 16200/17940 evaluations; elapsed=103.5 min; ETA=11.1 min
+Progress: 16300/17940 evaluations; elapsed=104.7 min; ETA=10.5 min
+Progress: 16400/17940 evaluations; elapsed=105.7 min; ETA=9.9 min
+Progress: 16500/17940 evaluations; elapsed=106.8 min; ETA=9.3 min
+Progress: 16600/17940 evaluations; elapsed=107.9 min; ETA=8.7 min
+Progress: 16700/17940 evaluations; elapsed=109.2 min; ETA=8.1 min
+Progress: 16800/17940 evaluations; elapsed=110.3 min; ETA=7.5 min
+Progress: 16900/17940 evaluations; elapsed=111.6 min; ETA=6.9 min
+Progress: 17000/17940 evaluations; elapsed=113.2 min; ETA=6.3 min
+Progress: 17100/17940 evaluations; elapsed=114.5 min; ETA=5.6 min
+Progress: 17200/17940 evaluations; elapsed=115.8 min; ETA=5.0 min
+Progress: 17300/17940 evaluations; elapsed=117.2 min; ETA=4.3 min
+Progress: 17400/17940 evaluations; elapsed=118.8 min; ETA=3.7 min
+Progress: 17500/17940 evaluations; elapsed=120.2 min; ETA=3.0 min
+Progress: 17600/17940 evaluations; elapsed=122.0 min; ETA=2.4 min
+Progress: 17700/17940 evaluations; elapsed=123.8 min; ETA=1.7 min
+Progress: 17800/17940 evaluations; elapsed=125.4 min; ETA=1.0 min
+Progress: 17900/17940 evaluations; elapsed=127.4 min; ETA=0.3 min
+Completed LARGE_MAZE_EVAL: 17940/17940 evaluations; elapsed=128.3 min; ETA=0.0 min
+ local_bonus           strategy  completion_rate  average_steps_to_goal  average_compute_seconds  average_seconds_per_step  selected_candidate_local_rate  invalid_real_action_count  invalid_real_action_rate  first_wall_mask_accuracy  first_visible_goal_accuracy  first_goal_row_accuracy  first_goal_column_accuracy  complete_next_observation_accuracy
+        0.00    receding_greedy         0.889632               7.024436                 0.030448                  0.003768                       0.966196                          0                       0.0                       NaN                          NaN                      NaN                         NaN                                 NaN
+        0.00 token_level_beam_2         0.938963               6.961710                 0.539413                  0.058441                       0.978482                          0                       0.0                  0.805791                     0.989547                      1.0                         1.0                            0.800699
+        0.00 token_level_beam_3         0.945652               6.956676                 0.672447                  0.074835                       0.979316                          0                       0.0                  0.808971                     0.995456                      1.0                         1.0                            0.806363
+        0.25    receding_greedy         0.870401               6.886647                 0.030927                  0.003813                       0.972741                          0                       0.0                       NaN                          NaN                      NaN                         NaN                                 NaN
+        0.25 token_level_beam_2         0.929766               6.882194                 0.538965                  0.057700                       0.981556                          0                       0.0                  0.804341                     0.989258                      1.0                         1.0                            0.799136
+        0.25 token_level_beam_3         0.936455               6.837500                 0.665427                  0.073206                       0.982021                          0                       0.0                  0.804337                     0.995827                      1.0                         1.0                            0.802310
+        0.50    receding_greedy         0.852007               6.771344                 0.031593                  0.003805                       0.977605                          0                       0.0                       NaN                          NaN                      NaN                         NaN                                 NaN
+        0.50 token_level_beam_2         0.918060               6.812386                 0.544454                  0.057054                       0.984219                          0                       0.0                  0.799689                     0.988314                      1.0                         1.0                            0.794563
+        0.50 token_level_beam_3         0.924749               6.774864                 0.671051                  0.071951                       0.983865                          0                       0.0                  0.801420                     0.995508                      1.0                         1.0                            0.799261
+        1.00    receding_greedy         0.815217               6.578462                 0.032466                  0.003773                       0.984613                          0                       0.0                       NaN                          NaN                      NaN                         NaN                                 NaN
+        1.00 token_level_beam_2         0.888796               6.645343                 0.562856                  0.056006                       0.989401                          0                       0.0                  0.793458                     0.987720                      1.0                         1.0                            0.788194
+        1.00 token_level_beam_3         0.905518               6.650970                 0.679821                  0.069700                       0.988067                          0                       0.0                  0.793265                     0.994799                      1.0                         1.0                            0.790989
+        2.00    receding_greedy         0.739967               5.989831                 0.034775                  0.003827                       0.994343                          0                       0.0                       NaN                          NaN                      NaN                         NaN                                 NaN
+        2.00 token_level_beam_2         0.838629               6.424726                 0.614937                  0.056530                       0.995417                          0                       0.0                  0.779470                     0.987380                      1.0                         1.0                            0.773974
+        2.00 token_level_beam_3         0.853679               6.468168                 0.737119                  0.069002                       0.994456                          0                       0.0                  0.779390                     0.994388                      1.0                         1.0                            0.776878
+Finished C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\partially_observed_mixed\local_bonus
+Finished comparison C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\old_vs_leakfree_comparison.txt

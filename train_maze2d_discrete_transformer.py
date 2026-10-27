@@ -21,6 +21,72 @@ def set_seed(seed: int) -> None:
     torch.manual_seed(seed)
 
 
+def split_cv_training_queries(
+    data: np.lib.npyio.NpzFile,
+    fold_ids: np.ndarray,
+    test_fold: int,
+    validation_fraction: float,
+    seed: int,
+) -> tuple[np.ndarray, np.ndarray, dict[str, object]]:
+    """Reserve validation queries within the outer training folds, never the test fold."""
+    if not 0.0 < validation_fraction < 1.0:
+        raise ValueError("--inner-val-fraction must lie strictly between 0 and 1")
+    required = ("maze_indices", "start_cells", "goal_cells")
+    missing = [key for key in required if key not in data.files]
+    if missing:
+        raise KeyError(f"Query-grouped CV validation requires dataset keys: {missing}")
+
+    maze_indices = np.asarray(data["maze_indices"], dtype=np.int64)
+    starts = np.asarray(data["start_cells"], dtype=np.int64)
+    goals = np.asarray(data["goal_cells"], dtype=np.int64)
+    if starts.shape != goals.shape or starts.shape != (len(fold_ids), 2):
+        raise ValueError("Expected one two-coordinate start and goal per trajectory")
+    query_keys = [
+        (int(maze_indices[i]), *map(int, starts[i]), *map(int, goals[i]))
+        for i in range(len(fold_ids))
+    ]
+    test_indices = np.flatnonzero(fold_ids == test_fold)
+    outer_train_indices = np.flatnonzero(fold_ids != test_fold)
+    if not len(test_indices) or not len(outer_train_indices):
+        raise ValueError(f"Fold {test_fold} does not define nonempty train and test sets")
+
+    test_keys = {query_keys[i] for i in test_indices}
+    outer_train_keys = {query_keys[i] for i in outer_train_indices}
+    if not test_keys.isdisjoint(outer_train_keys):
+        raise ValueError("A start-goal query appears in both the test and training folds")
+
+    validation_keys: set[tuple[int, ...]] = set()
+    for maze_index in sorted({key[0] for key in outer_train_keys}):
+        maze_keys = sorted(key for key in outer_train_keys if key[0] == maze_index)
+        if len(maze_keys) < 2:
+            raise ValueError(f"Maze {maze_index} has too few training queries to split")
+        count = min(len(maze_keys) - 1, max(1, round(len(maze_keys) * validation_fraction)))
+        rng = np.random.default_rng(np.random.SeedSequence([seed, test_fold, maze_index, 9137]))
+        validation_keys.update(maze_keys[int(j)] for j in rng.permutation(len(maze_keys))[:count])
+
+    train_indices = np.asarray(
+        [i for i in outer_train_indices if query_keys[i] not in validation_keys], dtype=np.int64
+    )
+    validation_indices = np.asarray(
+        [i for i in outer_train_indices if query_keys[i] in validation_keys], dtype=np.int64
+    )
+    if not len(train_indices) or not len(validation_indices):
+        raise ValueError("The inner training or validation split is empty")
+    if set(train_indices).intersection(validation_indices, test_indices):
+        raise AssertionError("Train, validation, and test indices must be disjoint")
+    return train_indices, validation_indices, {
+        "test_fold": int(test_fold),
+        "inner_val_fraction": float(validation_fraction),
+        "split_seed": int(seed),
+        "train_queries": len(outer_train_keys) - len(validation_keys),
+        "validation_queries": len(validation_keys),
+        "test_queries": len(test_keys),
+        "train_episodes": len(train_indices),
+        "validation_episodes": len(validation_indices),
+        "test_episodes": len(test_indices),
+    }
+
+
 class MazeTokenDataset(Dataset):
     def __init__(self, npz_path: Path, indices: np.ndarray) -> None:
         data = np.load(npz_path, allow_pickle=True)
@@ -381,6 +447,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--train-mask-key", type=str, default="train_mask")
     parser.add_argument("--val-mask-key", type=str, default="eval_mask")
     parser.add_argument("--cv-fold", type=int, default=None)
+    parser.add_argument("--inner-val-fraction", type=float, default=0.1)
     parser.add_argument("--fold-ids-key", type=str, default="fold_ids")
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--value-head", action="store_true")
@@ -400,13 +467,15 @@ def main() -> None:
 
     data = np.load(args.dataset, allow_pickle=True)
     num_episodes = int(data["input_ids"].shape[0])
+    split_metadata: dict[str, object] = {}
 
     if args.cv_fold is not None:
         if args.fold_ids_key not in data.files:
             raise KeyError(f"Requested cv fold split, but dataset is missing {args.fold_ids_key!r}.")
         fold_ids = np.asarray(data[args.fold_ids_key], dtype=np.int32)
-        train_idx_all = np.flatnonzero(fold_ids != int(args.cv_fold))
-        val_idx_all = np.flatnonzero(fold_ids == int(args.cv_fold))
+        train_idx_all, val_idx_all, split_metadata = split_cv_training_queries(
+            data, fold_ids, int(args.cv_fold), args.inner_val_fraction, args.seed
+        )
         train_count = min(args.max_train_episodes, int(train_idx_all.size))
         val_count = min(args.max_val_episodes, int(val_idx_all.size))
         train_idx = train_idx_all[:train_count]
@@ -463,6 +532,7 @@ def main() -> None:
                 "value_head": args.value_head,
                 "value_loss_weight": args.value_loss_weight,
                 "cpu_threads": torch.get_num_threads(),
+                "split_metadata": split_metadata,
             },
             indent=2,
         )
@@ -529,6 +599,8 @@ def main() -> None:
                         "value_head": args.value_head,
                     },
                     "history": history,
+                    "selected_epoch": epoch,
+                    "split_metadata": split_metadata,
                     "dataset_metadata": {
                         key: data[key].tolist() for key in (
                             "dataset_version", "supervision", "observation_encoding", "observation_group_size",

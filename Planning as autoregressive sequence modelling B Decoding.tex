@@ -79,7 +79,7 @@
 
 \begin{abstract}
 
-Planning concerns designing an agent living within an environment to find a sequence of actions that transforms the environment 
+Planning concerns designing an agent placed in an environment to find a sequence of actions that transforms the environment 
 from an initial state to a desired state. Recently, planning tasks
 have been modelled as a sequence prediction problem, where a supervised	
 learning model is trained to predict sequences of actions or states.
@@ -89,12 +89,9 @@ from a trained sequence model in order to solve a discrete maze navigation probl
 both fully observed scenarios, where the complete maze layout is available to the planner,
 and partially observed scenarios, where the model can only see a local neighbourhood and a
 goal displacement vector at each position in the maze. This work compares
-greedy decoding and beam search as decoding strategies. Greedy decoding
-always selects the most probable next action at every time step, while beam search
-considers multiple sequences of tokens, which could be actions or observations, as candidates and compares these sequences
-as opposed to individual tokens. Decoding strategies were compared in terms
+greedy decoding and beam search as decoding strategies. The strategies were evaluated in terms
 of completion rate, average steps until termination, average computation time per trajectory, and
-average computation time per step. Beam search consistently required more computation time
+average computation time per step. In vast majority of cases, beam search required more computation time
 per step compared to greedy decoding in the experiments that were conducted,
 and in the fully observed maze environment investigated, beam search also achieved a higher 
 completion rate and lower average steps until termination than greedy decoding. In the
@@ -116,14 +113,18 @@ One way to approach such a problem is to treat trajectories as data and learn a 
 distribution over successful trajectories from examples. From this perspective, planning can be
 viewed as inference in a learned generative model~\cite{janner2021trajectory}. If the model is trained on valid and efficient
 demonstration trajectories, then complete plans can be generated autoregressively by repeatedly
-predicting the next token in a trajectory sequence.
+predicting the next token in a trajectory sequence. The process of generating a trajecotry from a trained model is known as decoding.
 
 The decoding rule used during this generation process is important. At each step, the learned model
 may assign non-negligible probability to multiple possible continuations, and different decoding
 strategies can therefore produce trajectories with different levels of validity, efficiency, and
-computational cost~\cite{jurafsky2026speech,janner2021trajectory}. In the setting considered in
-this work, decoding is based on model probability rather than on a reward-maximising objective, so
-the planning problem is approached through imitation learning rather than offline reinforcement
+computational cost~\cite{jurafsky2026speech,janner2021trajectory}. Adjusting the decoding algorithm,
+therefore has potential to improve planning performance without retraining the model, which 
+is attractive because training a generative model can be computationally expensive and time-consuming.
+
+In the setting considered in
+this work, decoding is based on model probability rather than on a reward-maximising objective.
+The planning problem is therefore approached through imitation learning rather than offline reinforcement
 learning~\cite{janner2021trajectory}. 
 
 This report investigates how the choice of decoding strategy affects planning performance under this
@@ -139,8 +140,8 @@ at every timestep. In the partially observed setting, the model instead receives
 local neighbourhood around its current position together with the relative displacement of 
 the goal, requiring it to use trajectory history to reason about unobserved aspects of the 
 environment.
-The models used in these comparisons are trained on optimal trajectories, while an additional 
-experiment in the partially observed setting investigates how decoding performance changes 
+The models used in these comparisons are trained on optimal trajectories, while some 
+experiments in the partially observed setting investigates how decoding performance changes 
 when the model is trained on a larger dataset containing trajectories of varying degrees of 
 optimality.
 
@@ -158,7 +159,7 @@ observations can be predicted by the model.
 \subsection{Generative Models}
 Generative models are types of machine learning systems that aim to represent a probability distribution over data,
 or to draw samples from that distribution~\cite{goodfellow2016deep}.
-Specifically, if $\mathbf{x}$ is a collection of features observed from an object or event, like words in a sentence or coordinates in a maze, and $p(\mathbf{x})$ is the true joint distribution of those features, a generative model learns an approximation $\hat{p}(\mathbf{x})$ of this distribution from training observations~\cite{goodfellow2016deep}.
+Specifically, if the data, $\mathbf{x}$, is a collection of features observed from an object or event, like words in a sentence or coordinates in a maze, and $p(\mathbf{x})$ is the true joint distribution of those features, a generative model learns an approximation $\hat{p}(\mathbf{x})$ of this distribution from training observations~\cite{goodfellow2016deep}.
 Once such a distribution has been learned, it can be used to generate new observations that are similar to the observations in the training data by sampling from $\hat{p}(\mathbf{x})$~\cite{goodfellow2016deep}.
 In practice, assumptions are often made to simplify the learning problem, such as assuming a 
 particular parametric form for the distribution (e.g., Gaussian), so instead of learning an arbitrary 
@@ -186,20 +187,18 @@ maximising $\mathbb{E}_{\mathbf{x} \sim p(\mathbf{x})} [\log p_{\boldsymbol{\the
 expected log-likelihood of the data under the model~\cite{goodfellow2016deep}.
 The process of finding $\hat{\boldsymbol{\theta}}$ that maximises the likelihood of the training data under
 $p_{\boldsymbol{\theta}}(\mathbf{x})$ is known as maximum likelihood estimation (MLE), and is a common approach to
-training generative models~\cite{goodfellow2016deep}.
+training likelihood based generative models~\cite{goodfellow2016deep}.
 
 \subsection{The Planning Problem}
 \noindent
 Broadly, automated planning is the field of research addressing the problem of finding an ordered or 
 partially ordered series of actions that changes an environment from its initial state to a desired goal 
-state~\cite{Alarnaouti2023planning}. One can imagine an agent living in an environment, where the agent can 
+state~\cite{Alarnaouti2023planning}. One can imagine an agent placed in an environment, where the agent can 
 take actions that change the state of the environment. Planning is then concerned with determining a sequence of
 actions to be executed by the agent to achieve some goal.
 
 
 \noindent
-\begin{minipage}[t]{0.65\textwidth}
-\vspace{0pt}
 In this work, the planning problem is to generate a valid trajectory from a given starting position to a 
 specified goal position in a 2D maze environment, as shown in Figure~\ref{fig:example_trajectory}.
 In this environment, a trajectory consists of a sequence of maze positions from the start location to 
@@ -208,17 +207,18 @@ not pass through walls.
 Assuming a discrete grid-based representation, maze coordinates are integers identifying grid cells. A 
 trajectory can therefore be represented as a sequence of coordinates in which each consecutive pair 
 corresponds to adjacent non-wall cells, with adjacency restricted to horizontal and vertical moves.
-\end{minipage}\hfill
-\begin{minipage}[t]{0.30\textwidth}
-\vspace{0pt}
-	\centering
-	\includegraphics[width=1\linewidth]{example_trajectory.png}
-	\captionsetup{font=small, justification=raggedright, singlelinecheck=false}
-	\captionof{figure}{Example of a valid trajectory in a discrete 2D maze environment.}
-	\label{fig:example_trajectory}
-\end{minipage}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.38\textwidth]{example_trajectory.png}
+    \captionsetup{font=small}
+    \caption{Example of a valid trajectory in a discrete 2D maze environment.}
+    \label{fig:example_trajectory}
+\end{figure}
 
 \subsection{Approaches to Planning}
+
+\subsubsection{Reinforcement Learning and Imitation Learning}
 
 Reinforcement learning (RL) is a machine learning paradigm in which a system learns to choose
 appropriate sequences of actions by interacting with an environment in order to maximise cumulative reward,
@@ -240,7 +240,7 @@ planning as a problem of generating a sequence of actions to reach a goal, and p
 process of using a model to improve decision-making in reinforcement learning. In this 
 work, the former interpretation is used.
 
-\subsection{Generative Modelling for Planning}
+\subsubsection{Generative Modelling for Planning}
 
 If a dataset of valid trajectories is available, a generative model can be trained to learn the distribution over these trajectories. Once trained, the model can be used to generate new trajectories by sampling from the learned distribution. This approach treats planning as a problem of inference in a probabilistic model~\cite{janner2021trajectory}.
 So if we define a trajectory $\boldsymbol{\tau}$ with $T$ action steps as: 
@@ -248,7 +248,7 @@ So if we define a trajectory $\boldsymbol{\tau}$ with $T$ action steps as:
 \boldsymbol{\tau} = (s_1, a_1, s_2, a_2, \dots, s_T, a_T),
 \end{equation}
 where $s_t$ is the state (coordinates) at time step $t$ and $a_t$ is the action (moving up, down, left or right) taken at time step $t$, the trained generative model defines an approximation $p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau})$ to the distribution over valid trajectories.
-Instead of directly modelling $p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau})$, an autoregressive model factorises this distribution into a product of conditional probabilities:
+Instead of directly modelling the joint distribution, $p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau})$, an autoregressive model factorises it into a product of conditional probabilities:
 \begin{equation}
 p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau}) = \prod_{k=1}^{2T} p_{\hat{\boldsymbol{\theta}}}(z_k \mid z_{<k}),
 \label{eq:autoregressive_generative_model}
@@ -257,16 +257,27 @@ where $z_k$ denotes the $k^{\text{th}}$ token in the flattened trajectory sequen
 Specifically, $z_{2t-1}=s_t$ and $z_{2t}=a_t$ for $t=1,\ldots,T$, so odd-indexed
 tokens are states and even-indexed tokens are actions. The trajectory prefix
 $z_{<k}$ denotes the sequence of preceding tokens up to $z_{k-1}$~\cite{goodfellow2016deep}.
-This simplifies the supervised learning problem to estimating $p_{\boldsymbol{\theta}}(z_k \mid z_{<k})$, so given a prefix 
-of trajectory tokens, predict the probability of the next token in the sequence. 
+This simplifies the supervised learning problem to estimating $p_{\boldsymbol{\theta}}(z_k \mid z_{<k})$ where, given a prefix 
+of trajectory tokens, the task is to predict the probability of the next token in the sequence. 
 
-A complete trajectory is then generated autoregressively by repeatedly predicting the next token until a full plan is produced, with the decoding strategy determining how each next-token choice is made. The choice of decoding strategy is important because the model's predicted distribution may assign non-negligible probability mass to multiple valid continuations at each step, and the continuation selected during decoding can significantly affect both the quality of the final trajectory and the computational cost of generation~\cite{janner2021trajectory}. Since the learned distribution is only an approximation to the true trajectory distribution, it may also assign non-negligible probability to invalid continuations. As a result, the decoding strategy can influence whether a valid trajectory is generated at all. Even when multiple valid trajectories are possible, some may be more desirable than others, for example because they require fewer steps, and the decoding strategy can therefore affect whether a more efficient trajectory is produced~\cite{janner2021trajectory,jurafsky2026speech}.
+A complete trajectory is then generated autoregressively by repeatedly predicting the next token 
+until a full plan is produced, with the decoding strategy determining how each next-token choice 
+is made. The choice of decoding strategy is important because the model's predicted distribution
+ may assign non-negligible probability mass to multiple valid continuations at each step, and the 
+ continuation selected during decoding can significantly affect both the quality of the final 
+ trajectory and the computational cost of generation~\cite{janner2021trajectory}. Since the learned 
+ distribution is only an approximation to the true trajectory distribution, it may also assign 
+ non-negligible probability to invalid continuations. As a result, the decoding strategy can 
+ influence whether a valid trajectory is generated at all. Even when multiple valid trajectories 
+ are possible, some may be more desirable than others. For example, some require fewer steps. 
+ The decoding strategy can therefore affect whether a more 
+ efficient trajectory is produced~\cite{janner2021trajectory,jurafsky2026speech}.
 
 \subsection{Decoding Methods}
-Direct sampling from $p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau})$ is challenging, since the number of possible trajectories grows exponentially with trajectory
+Finding the most probable trajectory under $p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau})$ is challenging, since the number of possible trajectories grows exponentially with trajectory
 length, so explicitly calculating and storing the probabilities for all complete trajectories quickly  becomes computationally 
 infeasible~\cite{goodfellow2016deep}. 
-This creates a need for decoding algorithms to approximately sample from, or search within $p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau})$.
+This creates a need for decoding algorithms to search for a high-probability trajectory under $p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau})$ without enumerating all possible trajectories.
 
 
 
@@ -289,15 +300,13 @@ $p_{\hat{\boldsymbol{\theta}}}(\boldsymbol{\tau})$~\cite{jurafsky2026speech}.
 
 Beam search extends greedy decoding by retaining multiple candidate sequences at each step rather 
 than only the single most likely continuation~\cite{jurafsky2026speech}. The number of retained 
-candidates is fixed in advance and is known as the beam width $B$. At each stage, all valid one-step 
-continuations of the current candidates are scored autoregressively under the model, and the top $B$ 
-highest-scoring sequences are kept. If a retained candidate reaches the goal, the
-highest-scoring goal-reaching candidate is returned. Otherwise, search stops at the
-action limit and returns the highest-scoring retained trajectory.
-
-The beam search algorithm for the fully observed experiment is summarised in
-Listing~\ref{lst:beam_search_pseudocode}. Its partially observed adaptation is described
-separately in Section~\ref{sec:partial_decoding}.
+candidates is fixed in advance and is known as the beam width $B$. At each stage, all valid one-token
+continuations of the current candidates are scored autoregressively under the model, and the top $B$
+highest-scoring sequences are kept. Search stops when a retained candidate reaches the goal or
+the token limit is reached. It then returns the highest-scoring goal-reaching candidate, if one
+exists, or otherwise the highest-scoring retained sequence.
+The beam search algorithm is summarised in
+Listing~\ref{lst:beam_search_pseudocode}. 
 
 \begin{center}
 \begin{minipage}{0.9\linewidth}
@@ -310,16 +319,15 @@ separately in Section~\ref{sec:partial_decoding}.
 \vspace{0.6em}
 
 \begin{tabular}{r p{0.82\textwidth}}
-1: & \textbf{Require} maximum number of actions $H$, beam width $B$, maze layout, start state $s_{\mathrm{start}}$, and goal state $s_{\mathrm{goal}}$ \\[0.3em]
-2: & \textbf{Initialize} $\mathcal{T}_0$ with the prefix containing the maze identifier, start and goal tokens, and initial state token; set its score to zero \\[0.3em]
-3: & \textbf{for} $t = 0, \dots, H-1$ \textbf{do} \\[0.3em]
-4: & \hspace*{1.5em}Keep any goal-reaching trajectories in $\mathcal{T}_t$ unchanged as candidates \\[0.3em]
-5: & \hspace*{1.5em}For each other $\boldsymbol{\tau} \in \mathcal{T}_t$ and each valid action $a$ from its final state, append $a$ and the resulting state $s'$ to form a candidate $\boldsymbol{\tau}'$ \\[0.3em]
-6: & \hspace*{1.5em}Set $S(\boldsymbol{\tau}') \leftarrow S(\boldsymbol{\tau}) + \log p_{\hat{\boldsymbol{\theta}}}(a \mid \boldsymbol{\tau})$ \\[0.3em]
-7: & \hspace*{1.5em}$\mathcal{T}_{t+1} \leftarrow$ the $B$ highest-scoring candidates \\[0.3em]
-8: & \hspace*{1.5em}\textbf{if} any trajectory in $\mathcal{T}_{t+1}$ reaches $s_{\mathrm{goal}}$, \textbf{return} the highest-scoring goal-reaching trajectory \\[0.3em]
-9: & \textbf{end for} \\[0.3em]
-10: & \textbf{Return} the highest-scoring trajectory in $\mathcal{T}_H$ if the action limit is reached
+1: & \textbf{Require} maximum number of generated tokens $L$, beam width $B$, and initial token prefix $\boldsymbol{z}_{\mathrm{init}}$ \\[0.3em]
+2: & \textbf{Initialize} $\mathcal{T}_0=\{\boldsymbol{z}_{\mathrm{init}}\}$ with score $S(\boldsymbol{z}_{\mathrm{init}})=0$ \\[0.3em]
+3: & \textbf{for} $t=0,\dots,L-1$ \textbf{do} \\[0.3em]
+4: & \hspace*{1.5em}For each $\boldsymbol{z}=(z_1,\dots,z_n)\in\mathcal{T}_t$ and each valid next token $z_{n+1}$, form $\boldsymbol{z}'=(z_1,\dots,z_n,z_{n+1})$ \\[0.3em]
+5: & \hspace*{1.5em}Set $S(\boldsymbol{z}')\leftarrow S(\boldsymbol{z})+\log p_{\hat{\boldsymbol{\theta}}}(z_{n+1}\mid z_1,\dots,z_n)$ \\[0.3em]
+6: & \hspace*{1.5em}$\mathcal{T}_{t+1}\leftarrow$ the $B$ highest-scoring candidates \\[0.3em]
+7: & \hspace*{1.5em}\textbf{if} any sequence in $\mathcal{T}_{t+1}$ reaches the goal, \textbf{break} \\[0.3em]
+8: & \textbf{end for} \\[0.3em]
+9: & \textbf{Return} the highest-scoring goal-reaching sequence in the final beam, if one exists; otherwise return the highest-scoring sequence in that beam
 \end{tabular}
 
 \vspace{0.6em}
@@ -327,14 +335,13 @@ separately in Section~\ref{sec:partial_decoding}.
 \end{flushleft}
 \end{minipage}
 \captionsetup{type=lstlisting}
-\captionof{lstlisting}{Pseudocode for beam search in the fully observed setting.}
+\captionof{lstlisting}{Pseudocode for beam search.}
 \label{lst:beam_search_pseudocode}
 \end{center}
-Here, $t$ denotes the current decoding step, $\mathcal{T}_t$ is the set of retained partial
-trajectories at that step, and $S(\boldsymbol{\tau})$ is a trajectory's accumulated score.
-The resulting state $s'$ is calculated from the current state and selected action.
-The beam width bounds the number of retained trajectories, while the number of candidates
-depends on how many valid actions extend them. Maintaining the candidate scores remains computationally
+Here, $t$ denotes the current token-generation step, $\mathcal{T}_t$ is the set of retained partial
+sequences at that step, and $S(\boldsymbol{z})$ is a sequence's accumulated score.
+The beam width bounds the number of retained sequences, while the number of candidates
+depends on how many valid tokens extend them. Maintaining the candidate scores remains computationally
 feasible when the beam width is sufficiently small
 ~\cite{jurafsky2026speech}.
 
@@ -538,7 +545,7 @@ coordinates of the current position provide
 enough information to know the exact position within the maze, making the environment fully
 observed. If the
 model is however not provided with its exact coordinates in a maze,
-but rather with a local view of the maze layout, such as a 3x3 grid of cells 
+but rather with a local view of the maze layout, such as a $3 \times 3$ grid of cells 
 surrounding the current position, then the model does not have enough information 
 to know its exact position in the maze, as multiple positions in multiple maze 
 layouts may correspond to the same local view. These local views
@@ -551,52 +558,46 @@ previous observations and actions to infer its current position in the maze.
 
 \section{Literature Review}
 
-\subsection{Partial Observability and Conditioning on Observation History}
-
-Recall that planning is concerned with finding a sequence of actions that an agent living in
-an environment can take to reach a goal state from a starting state. 
-A Deep Q-Network (DQN) uses a neural network to estimate the expected cumulative reward associated
-with each action from a given state or observation. \citet{hausknecht2015deep} modify a DQN to include
-an LSTM that incorporates previously observed information, investigating whether this improves
-performance on Atari games.
-
-As part of their study, Hausknecht and Stone investigate the performance of these modified
-networks on partially observed games. In such games, previous frames can provide information
-that is missing from the current observation. Their Deep Recurrent Q-Network outperformed a
-standard DQN on the partially observed Flickering Pong task, although they found no systematic
-advantage across the other games they examined~\cite{hausknecht2015deep}.
-
-Their findings suggest that past observations can be useful when the current observation
-does not provide enough information to identify the best action. Motivated by this, the
-partially observed experiment in the present study conditions a Transformer on a trajectory
-prefix containing both past observations and actions, allowing the model to use both when
-estimating probabilities over next moves.
 
 \subsection{Decoding Strategies for Sequence Generation}
 
 \citet{sutskever2014sequence} provide an early example of beam search being used to generate
 sequences from a learned sequence model, aiming to maximise sequence likelihoods.
-
-Sutskever et al. primarily investigate the use of long short-term memory (LSTM) networks, a type of
+\citet{sutskever2014sequence} primarily investigate the use of long short-term memory (LSTM) networks, a type of
 recurrent neural network designed to capture long-range dependencies, for English-to-French translation
 while making minimal assumptions about the underlying sequence structure. Although they used LSTMs rather than
 Transformers and studied translation rather than planning, the process of using beam search
-to generate sequences remains similar in Sutskever et al.'s approach and the present study.
-They found that their model performed well even with a beam width of one, while a width of two
-provided most of the benefits of a wider beam~\cite{sutskever2014sequence}.
+to generate sequences remains similar in the approach of \citet{sutskever2014sequence} and the present study.
 
 \citet{britz2017massive} investigate
 how various parameters, such as embedding size, network depth, RNN cell type and residual connections,
 affect performance in machine translation tasks. In particular, one of the investigated parameters is
 the decoding heuristic. 
 
-Britz et al. fix the trained model and compare machine translation performance when beam search of various
+\citet{britz2017massive} fix the trained model and compare machine translation performance when beam search of various
 widths is used as the decoding heuristic, including a beam width of one, corresponding to greedy decoding in
-their experiments. They found that moderate beam widths improved translation performance relative to
-greedy decoding, but very wide beams reduced performance~\cite{britz2017massive}.
+their experiments. 
 The present study utilises a similar experimental design to the decoding algorithm comparison by
-Britz et al., where a model and problem are held fixed, and performance is measured across multiple
+\citet{britz2017massive}, where a model and problem are held fixed, and performance is measured across multiple
 decoding algorithms.
+
+\subsection{Partial Observability and Conditioning on Observation History}
+
+The current study utilises sequence models, particularly Transformers, to model the 
+distribution over trajectories in a planning problem. This approach is motivated by the idea that 
+in partially observed environments, past observations can provide valuable information for 
+predicting future actions.
+\citet{hausknecht2015deep} investigated the use of reinforcement learning to train an agent 
+to play Atari games, and explored the effects of partial observability on the agent's performance.
+They utilise an LSTM to encapsulate previously observed information, investigating whether this improves
+performance on partially observed Atari games. In such games, previous frames can provide information
+that is missing from the current observation. 
+
+Their findings suggest that past observations can be useful when the current observation
+does not provide enough information to identify the best action. Motivated by this, the
+partially observed experiment in the present study conditions a Transformer on a trajectory
+prefix containing both past observations and actions, allowing the model to use both when
+estimating probabilities over next moves.
 
 \subsection{Planning as Sequence Modelling}
 
@@ -605,55 +606,23 @@ can be solved by modelling states, actions and rewards related to each environme
 as a sequence of tokens and fitting a Transformer to autoregressively predict
 the next token in the sequence. This process is proposed as a method for
 offline reinforcement learning, challenging traditional methods such as
-conservative Q-learning (CQL).
+conservative Q-learning.
 
-Janner et al. utilised beam search as a planner, using it to generate trajectories from the
+\citet{janner2021trajectory} utilised beam search as a planner, using it to generate trajectories from the
 learned model. They used likelihood-based beam search for imitation learning and goal-reaching,
-and reward-guided beam search for offline reinforcement learning~\cite{janner2021trajectory}.
+and reward-guided beam search for offline reinforcement learning.
 
-Janner et al. found that the sequence-modelling view of reinforcement learning is effective.
-They also noted that prediction with their Transformer is slower and more resource-intensive
-than prediction with conventional models that estimate one environment transition at a time~\cite{janner2021trajectory}.
-
-The present study is closely related to some of the work done by Janner et al.,
+The present study is closely related to some of the work done by \citet{janner2021trajectory},
 specifically in modelling states and actions or observations in a planning problem as a sequence,
 training a Transformer on many trajectory sequences, and generating final trajectories by
 decoding the trained Transformer. A fundamental difference is that
-Janner et al. aim to show whether the previously mentioned strategy is effective in solving reinforcement learning
+\citet{janner2021trajectory} aim to show whether the previously mentioned strategy is effective in solving reinforcement learning
 problems, without conducting an experiment investigating how decoding algorithms of varying breadths
 affect performance when sampling from a fixed model. In contrast, the present study
 investigates a planning problem in only one environment, and compares the performance of three decoding strategies.
 
-The present study also does not include rewards in the training trajectories, and rewards are thus not learned and
-cannot be predicted by the trained model. The decoding algorithms therefore maximise the likelihoods predicted by the
-model, thus performing imitation learning. Janner et al. investigate both imitation learning and using
-the predicted rewards to determine decoding choices. 
-
-Furthermore, Janner et al. aim to solve a series of continuous planning problems by discretising the states, actions and rewards~\cite{janner2021trajectory}.
+Furthermore, \citet{janner2021trajectory} aim to solve a series of continuous planning problems by discretising the states, actions and rewards.
 The problem investigated in the present study, however, is discrete by design.
-
-\subsection{Positioning of This Study}
-
-The previously mentioned papers show how planning problems can be approached through sequence modelling,
-demonstrate the use of beam search in sequence generation, investigate the effects of different beam widths,
-and provide evidence that observation histories can be beneficial in partially observed environments.
-The present study demonstrates an empirical procedure for comparing
-decoding strategies in a specific set of planning problems.
-
-The partially and fully observed maze navigation problems explored in this research have many possible
-solutions and approaches. Even when attempting to solve the maze planning problems through autoregressive sequence
-modelling, there are many variables and design choices that affect the results, including but not limited to
-the data preprocessing, the choice of supervised learning model, the design of the model, the conditioning
-of the data provided to the model and how complete trajectories are generated using the trained model.
-Within each planning experiment, the decoding algorithms are compared using the same trained model
-and evaluation queries.
-
-The present study therefore does not aim to find a state-of-the-art solution to the particular maze planning
-problems, nor does it attempt to contribute new theory on decoding or sequence modelling. The study
-aims to develop an understanding of how a planning problem can be solved through sequence modelling
-and how the choice of decoding strategy affects goal-reaching success, steps until termination, and computational cost.
-
-
 
 
 \section{Research Questions}
@@ -664,7 +633,7 @@ trajectory model trained through next-token prediction. The performance of
 greedy decoding and beam search with different beam widths are evaluated in terms of 
 trajectory validity, goal-reaching success, steps until termination, and computational cost.
 
-Four experiments were conducted to compare the decoding strategies.
+Five experiments were conducted to compare the decoding strategies.
 The first experiment is conducted in a maze environment where the maze
 indentity as well as the exact coordinates of the goal position, starting position and subsequent
 states are provided. Decoding algorithms are thus evaluated in a fully observable setting, where the 
@@ -678,13 +647,15 @@ complete states.
 This formulation is therefore a partially observable setting, and the model will 
 need to rely on previously observed trajectory information to infer unobserved 
 information about the maze layout.
+A third experiment served as a supplemtary diagnostic to the second experiment,
+investigating how predicted observations affect beam search.
 
 Both of the preceding experiments compare decoding strategies using models trained on
  datasets of optimal trajectories. A third experiment uses the same partially 
  observed setting as the second experiment, but trains the model on a larger dataset 
  containing a mixture of optimal, suboptimal, and unsuccessful trajectories. This 
  experiment investigates how decoding performance changes when the training data 
- contains multiple trajectories of varying quality.
+ contains multiple trajectories of varying quality per start-goal pair.
 
 A final experiment modifies the decoding algorithms used with the model trained on the mixed-quality
 dataset in the partially observed setting. Rather than ranking candidate trajectories solely by their
@@ -697,8 +668,7 @@ uses model likelihoods to generate candidate transitions before ranking trajecto
 predicted reward and a reward-to-go estimate. The mixed-quality dataset
 used here contains no reward or return targets. Following their approach would therefore require
 defining a reward signal, augmenting the training data, and training another model. The final
-experiment instead calculates a local bonus during decoding. However,
-a poorly chosen rule or bonus strength could reduce decoding performance.
+experiment instead calculates a local bonus during decoding.
 
 
 
@@ -713,7 +683,7 @@ Given a maze layout identifier, a start state, a goal state, and a trajectory pr
 of previous actions and explicit coordinates of previous states in the maze, the model 
 predicts the next action in the trajectory sequence. At inference time, decoding algorithms are
 then used to construct complete trajectories by selecting continuations with high probability 
-under the learned model. Since decoding is based on model probability rather than a reward-maximising 
+under the learned model. As alluded to before, since decoding is based on model probability rather than a reward-maximising 
 objective, this amounts to using imitation learning to solve the planning problem.
 
 A trajectory $\boldsymbol{\tau} = (z_1, z_2, \dots, z_{2T})$ consists of alternating state and action 
@@ -722,9 +692,10 @@ the actions correspond to the moves (up, down, left, or right) between consecuti
 Thus, $z_{2t-1}=s_t$ and $z_{2t}=a_t$ for $t=1,\ldots,T$: odd-indexed tokens are states
 and even-indexed tokens are actions. In this
 environment, the state immediately following an action is fully determined by that action and the 
-preceding state. Supervision is therefore applied only at action-token positions, so the learning problem 
-is more precisely to predict the next action conditioned on the maze layout, the start state, the goal 
-state, and the previously observed trajectory prefix.
+preceding state. Supervision is therefore applied only at action-token positions, meaning that only
+errors in action-token predictions contribute to the training loss. The learning problem is thus
+more precisely to predict the next action conditioned on the maze layout, the start state, the goal
+state, and the previously observed trajectory prefix. 
 
 Let $m$ denote a maze layout identifier, let $s_{\mathrm{start}}$ and $s_{\mathrm{goal}}$ denote the start and goal states. 
 The model therefore learns conditional predictions of the form
@@ -743,7 +714,7 @@ Ideally, generating a complete plan would require sampling from the full joint c
 distribution over actions and observations above; in practice, the decoding algorithms instead operate on
 its autoregressive conditional factors.
 
-A Transformer was selected as the generative model because of its demonstrated
+A Transformer was selected as the parameterisation of the generative model because of its demonstrated
 performance on sequence-modelling tasks~\cite{vaswani2017attention},
 the wide range of Python libraries available for working with it, and its computational efficiency when the architecture is 
 kept small. The research question, however, is not whether a Transformer can represent such a distribution in principle, but
@@ -761,7 +732,7 @@ A trajectory token
 sequence provides multiple supervised training examples, since for each token position $k$
 in a given trajectory, the prefix
 \begin{equation}
-(z_1, z_2, \dots, z_{k-1})
+(z_1, z_2, \dots, z_{k-1}),
 \end{equation}
 can be used to predict the next token $z_k$.
 In addition to the trajectory tokens themselves, the model input must encode which maze the trajectory 
@@ -863,8 +834,8 @@ To compare decoding strategies on unseen queries, the transformer-ready dataset 
 that is connected by a valid shortest path in a given maze. Within each maze, trajectories were 
 ordered lexicographically by path length,
 start row, start column, goal row, and goal column. They were then assigned to
-the five folds in round-robin order: the first trajectory was assigned to fold
-1, the second to fold 2, and so on, returning to fold 1 after every fifth
+the five folds in round-robin order: the first trajectory was assigned to \texttt{fold
+1}, the second to \texttt{fold 2}, and so on, returning to \texttt{fold 1} after every fifth
 trajectory. This deterministic
 procedure was chosen to make the cross-validation split reproducible. Because each
 start-goal pair appears only once in the dataset, no exact query appears in both the training and
@@ -893,7 +864,11 @@ The model was kept small for faster training. The architecture used a hidden dim
 heads, 2 Transformer layers, a feedforward dimension of 128, and dropout of 0.1. Training was performed using the 
 AdamW optimiser with learning rate $3 \times 10^{-4}$ and weight decay $10^{-4}$. For each training fold,
 the model was trained for 20 epochs on the training partition of the fold, with a batch size of 128.
+An epoch is one complete pass through the training partition.
+Within the four folds assigned to training, approximately $10\%$ of the start--goal queries
+were set aside for validation and checkpoint selection. The held-out evaluation fold was not used for this purpose.
 After every epoch, the model was evaluated on both the training and validation partitions of the fold.
+A checkpoint is a saved copy of the model parameters after a particular epoch.
 The checkpoint with the best validation loss was saved and used for decoding evaluation.
 
 The training objective was cross-entropy loss applied to next-token prediction, 
@@ -944,7 +919,7 @@ therefore reflects both goal-reaching success and the number of steps taken; a l
 does not by itself establish that successful paths are shorter.
 
 The remaining two metrics quantify computational cost. For each decoded trajectory, the total wall-clock
-time required to perform decoding is recorded. This yields average Compute Seconds, defined
+time required to perform decoding is recorded. This yields average compute seconds, defined
 as the mean total decoding time per evaluation query. In addition, the total decoding time for a
 query is divided by the number of decoded actions taken for that query, yielding a per-query seconds
 per step quantity. Averaging this value over evaluation queries gives average seconds per
@@ -953,10 +928,9 @@ computational efficiency.
 
 \subsection{Results and Discussion}
 
-Table~\ref{tab:completion_rate_all8} and Table~\ref{tab:avg_steps_all8} report decoding performance across the eight fully observed maze layouts, aggregated over the
-full cross-validation evaluation. The main text focuses on completion rate and average steps until termination.
-The full set of results, including completion rate, average steps until termination, average compute time, and average 
-time per step, is reported in Appendix~\ref{app:per_maze_results}.
+Tables~\ref{tab:completion_rate_all8}--\ref{tab:time_per_step_all8} report decoding performance across the eight fully observed maze layouts, aggregated over the
+full cross-validation evaluation. They show completion rate, average steps until termination,
+average compute time per query, and average time per step.
 
 \begin{table}[H]
 \centering
@@ -970,14 +944,14 @@ time per step, is reported in Appendix~\ref{app:per_maze_results}.
 		\hline
 		Maze layout & Greedy & Beam 2 & Beam 3 \\
 		\hline
-		\texttt{open} & 0.8292 & 0.9708 & 1.0000 \\
-		\texttt{u\_maze} & 0.7333 & 0.9778 & 1.0000 \\
-		\texttt{u\_maze\_eval} & 0.8667 & 1.0000 & 1.0000 \\
+		\texttt{open} & 0.8167 & 0.9667 & 0.9958 \\
+		\texttt{u\_maze} & 0.7556 & 1.0000 & 1.0000 \\
+		\texttt{u\_maze\_eval} & 0.8556 & 1.0000 & 1.0000 \\
 		\texttt{small\_maze} & 1.0000 & 1.0000 & 1.0000 \\
-		\texttt{medium\_maze} & 0.7492 & 0.9446 & 0.9877 \\
-		\texttt{medium\_maze\_eval} & 0.6292 & 0.9077 & 0.9723 \\
-		\texttt{large\_maze} & 0.6657 & 0.9213 & 0.9845 \\
-		\texttt{large\_maze\_eval} & 0.6901 & 0.8992 & 0.9699 \\
+		\texttt{medium\_maze} & 0.7308 & 0.9538 & 0.9908 \\
+		\texttt{medium\_maze\_eval} & 0.6369 & 0.9277 & 0.9785 \\
+		\texttt{large\_maze} & 0.6599 & 0.9174 & 0.9836 \\
+		\texttt{large\_maze\_eval} & 0.6957 & 0.9019 & 0.9667 \\
 		\hline
 	\end{tabular}
 \end{minipage}
@@ -992,19 +966,66 @@ time per step, is reported in Appendix~\ref{app:per_maze_results}.
 		\hline
 		Maze layout & Greedy & Beam 2 & Beam 3 \\
 		\hline
-		\texttt{open} & 8.0417 & 4.4292 & 3.3750 \\
-		\texttt{u\_maze} & 8.0111 & 4.0556 & 3.6889 \\
-		\texttt{u\_maze\_eval} & 6.3222 & 3.6667 & 3.6667 \\
-		\texttt{small\_maze} & 2.2500 & 1.6667 & 1.6667 \\
-		\texttt{medium\_maze} & 9.6185 & 6.1631 & 5.3246 \\
-		\texttt{medium\_maze\_eval} & 10.8523 & 6.5815 & 5.6123 \\
-		\texttt{large\_maze} & 12.0778 & 9.0691 & 8.1986 \\
-		\texttt{large\_maze\_eval} & 11.7229 & 9.0037 & 8.0014 \\
+		\texttt{open} & 7.9208 & 4.8292 & 3.4792 \\
+		\texttt{u\_maze} & 7.9778 & 3.8000 & 3.6889 \\
+		\texttt{u\_maze\_eval} & 6.5111 & 3.6667 & 3.6667 \\
+		\texttt{small\_maze} & 2.0833 & 1.6667 & 1.6667 \\
+		\texttt{medium\_maze} & 9.7046 & 5.9938 & 5.3185 \\
+		\texttt{medium\_maze\_eval} & 10.8615 & 6.4262 & 5.5077 \\
+		\texttt{large\_maze} & 12.1271 & 9.1106 & 8.2159 \\
+		\texttt{large\_maze\_eval} & 11.6688 & 8.9103 & 8.0652 \\
 		\hline
 	\end{tabular}
 \end{minipage}
 \end{table}
 
+
+\begin{table}[H]
+\centering
+\begin{minipage}[t]{0.49\textwidth}
+	\centering
+	\caption{Average compute time per query (ms).}
+	\label{tab:compute_time_all8}
+	\scriptsize
+	\setlength{\tabcolsep}{3pt}
+	\begin{tabular}{lccc}
+		\hline
+		Maze layout & Greedy & Beam 2 & Beam 3 \\
+		\hline
+		\texttt{open} & 12.586 & 8.195 & 6.306 \\
+		\texttt{u\_maze} & 12.301 & 6.012 & 6.148 \\
+		\texttt{u\_maze\_eval} & 9.044 & 5.754 & 5.879 \\
+		\texttt{small\_maze} & 3.249 & 2.663 & 2.667 \\
+		\texttt{medium\_maze} & 15.382 & 10.485 & 9.589 \\
+		\texttt{medium\_maze\_eval} & 16.192 & 10.601 & 9.227 \\
+		\texttt{large\_maze} & 18.878 & 15.355 & 14.628 \\
+		\texttt{large\_maze\_eval} & 18.719 & 15.518 & 14.655 \\
+		\hline
+	\end{tabular}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.49\textwidth}
+	\centering
+	\caption{Average time per step\protect\\(ms).}
+	\label{tab:time_per_step_all8}
+	\scriptsize
+	\setlength{\tabcolsep}{3pt}
+	\begin{tabular}{lccc}
+		\hline
+		Maze layout & Greedy & Beam 2 & Beam 3 \\
+		\hline
+		\texttt{open} & 1.613 & 1.655 & 1.722 \\
+		\texttt{u\_maze} & 1.510 & 1.548 & 1.589 \\
+		\texttt{u\_maze\_eval} & 1.380 & 1.498 & 1.528 \\
+		\texttt{small\_maze} & 1.523 & 1.560 & 1.543 \\
+		\texttt{medium\_maze} & 1.577 & 1.702 & 1.753 \\
+		\texttt{medium\_maze\_eval} & 1.465 & 1.592 & 1.635 \\
+		\texttt{large\_maze} & 1.533 & 1.648 & 1.722 \\
+		\texttt{large\_maze\_eval} & 1.611 & 1.754 & 1.814 \\
+		\hline
+	\end{tabular}
+\end{minipage}
+\end{table}
 
 It is observed in Tables~\ref{tab:completion_rate_all8} and~\ref{tab:avg_steps_all8} that beam
 search with width $B=2$ and $B=3$ outperforms greedy decoding in terms of both completion rate and average steps until termination,
@@ -1017,18 +1038,18 @@ to the goal.
 The trade-off typically associated with beam search, relative to greedy decoding, and with
 increasing beam width, is that the broader search requires more computation. In the aggregate, the
 average time per step is indeed higher for beam search than for greedy decoding, and it also
-increases with beam width. However, in this
+increases with beam width (Table~\ref{tab:time_per_step_all8}). However, in this
 implementation the average total compute time per query
 is lower for beam search than for greedy
-decoding, and is also lower for $B=3$ than for $B=2$. This can be explained by the fact that
+decoding, and is also lower for $B=3$ than for $B=2$ in most layouts
+(Table~\ref{tab:compute_time_all8}). This can be explained by the fact that
 broader searches more often reach the goal before the step limit, so the reduction in the number of
 decoded steps outweighs the increase in time per step, yielding a lower total compute time.
 
 The performance of the decoding strategies did vary across maze layouts. However, the relative ordering in completion rate and average
 steps until termination was consistent across all maze layouts: beam search performed at least as well as
 greedy decoding, and $B=3$ performed at least as well as $B=2$. For average time per step, the same overall pattern also
-held in almost all cases. The only exception was the U\_MAZE layout, where beam search with width
-$B=3$ had a slightly lower average time per step than beam search with width $B=2$.
+held in almost all cases. 
 
 In some mazes, the average total compute time did not decrease monotonically with beam width. This
 occurred in layouts where there were typically fewer valid path options from a given state, so the
@@ -1046,11 +1067,11 @@ full evaluation.
 
 \subsection{Problem Formulation}
 
-The objective of this experiment is to evaluate different decoding strategies for a
+The objective of this set of experiments is to evaluate different decoding strategies for a
 conditional trajectory model trained through next-token prediction under a partially
 observed setting. At each time step, the model is
 provided with neither the maze layout nor the absolute coordinates of the agent or goal.
-Instead, it receives a $3\times3$ grid of cells centred on its current position and the
+Instead, it receives a $3 \times 3$ grid of cells centred on its current position and the
 displacement of the goal relative to that position. The relative displacement provides
 the row and column offsets of the goal, including their directions, without revealing the agent's
 absolute position or the unobserved maze layout. It does not provide the shortest-path
@@ -1109,7 +1130,7 @@ predicted.
 Supervision during training is thus applied to the observations as well as the actions in 
 the sequences. 
 
-Let $o_t$ denote the local observation at time step $t$, consisting of the $3\times3$
+Let $o_t$ denote the local observation at time step $t$, consisting of the $3 \times 3$
 grid of cells surrounding the agent's current position. The position of the goal is
 provided separately as the relative displacement
 \begin{equation}
@@ -1121,7 +1142,10 @@ c_{\mathrm{goal}}-c_t
 \end{pmatrix},
 \end{equation}
 where $(r_t,c_t)$ denotes the agent's current position and
-$(r_{\mathrm{goal}},c_{\mathrm{goal}})$ denotes the goal position. For notational
+$(r_{\mathrm{goal}},c_{\mathrm{goal}})$ denotes the goal position. The local observation
+contains only the surrounding grid, while the complete observation supplied to the model
+includes both this grid and the relative goal displacement. Here, ``complete'' does not
+mean that the entire maze is observed. For notational
 convenience, the complete observation supplied at time step $t$ is denoted by
 \begin{equation}
 \mathbf{y}_t=(o_t,\Delta \mathbf{g}_t).
@@ -1175,7 +1199,7 @@ p_{\hat{\boldsymbol{\theta}}}
 \subsubsection{Dataset Construction}
 \label{sec:partial_dataset_construction}
 
-The original partially observed dataset is constructed from the same eight mazes and the same
+The dataset for the first partially observed experiment is constructed from the same eight mazes and the same
 optimal BFS trajectories as the fully observed dataset. The ordered start-goal queries,
 action sequences, path lengths, episode identifiers, maze assignments, and five-fold
 split assignments are retained unchanged. The trajectories are therefore not generated
@@ -1196,7 +1220,7 @@ trajectories and are not provided to the Transformer.
 
 At each position in both datasets, the local observation $o_t$ is encoded using two discrete tokens. The
 first is a nine-bit wall mask $w_t$, with one bit for each cell in the $3\times3$
-neighbourhood; cells containing walls or lying outside the maze boundary are marked as
+neighbourhood and cells containing walls or lying outside the maze boundary are marked as
 blocked. The neighbourhood retains the fixed orientation of the maze, and the bits are
 ordered from left to right across the top row, followed by the middle row and then the
 bottom row. The second token $v_t$ indicates the local position of the goal when it is visible
@@ -1241,8 +1265,8 @@ for the new token representation. The hidden dimension, attention heads, Transfo
 layers, feedforward dimension, dropout, optimiser, learning rate, weight decay, batch size,
 and 20-epoch training limit are unchanged. Supervision is also applied to both actions and post-action
 observations. Consequently, rather than repeating training for the complete five-fold
-cross-validation procedure, folds $1$--$4$ are used for training, while fold $0$ is used
-both for validation during checkpoint selection and for the final decoding evaluation. As
+cross-validation procedure, folds $2$--$5$ are used for training, while fold $1$ is used
+for the final decoding evaluation. As
 before, the checkpoint with the lowest validation loss is retained for decoding evaluation.
 
 The input, token-type, label, and padding-mask matrices are constructed in the same manner
@@ -1273,10 +1297,11 @@ ranked using their accumulated log-probabilities, and only the $2$ or $3$ highes
 prefixes are retained. Beam search therefore applies the same token-level pruning procedure
 throughout the generated action and observation sequence.
 
-When a candidate trajectory is extended, possible actions are restricted using the wall mask 
-associated with the final observation in that candidate trajectory. 
-For the first action, this wall mask comes from the observation received from the environment. 
-For later imagined actions, it comes from an observation predicted by the model. 
+The wall mask in the most recent observation of a candidate trajectory determines which next 
+actions are valid. The entire trajectory prefix, including earlier observations and actions, 
+still influences the probabilities assigned to those valid actions. For the first imagined 
+action at each replanning step, the most recent wall mask comes from the environment. 
+For later imagined actions, it is predicted by the model.
 Each retained action prefix is then extended with predicted wall-mask and visible-goal
 tokens, with the beam pruned after each token is added. The relative goal displacement is
 updated directly from the previous displacement and the candidate action, while the
@@ -1301,8 +1326,8 @@ observation, and repeats. Predicting a longer continuation is unnecessary becaus
 decoding does not retain alternative first actions, so later predictions cannot influence
 the selected action.
 
-An additional experiment uses the model trained on the mixed-quality dataset without retraining it,
-but adds a local bonus to the decoding scores. Using the available $3\times3$ wall mask and goal
+The final experiment uses the model trained on the mixed-quality dataset without retraining it,
+but adds a local bonus to the decoding scores. Using the available $3 \times 3$ wall mask and goal
 displacement, the rule favours valid actions that minimise the Manhattan distance from the next
 square to the goal. Ties are resolved by considering the closest free square reachable from each
 candidate within the observed neighbourhood. Actions favoured by this rule receive a bonus of
@@ -1326,12 +1351,21 @@ actions, before the observed trajectory has revealed much of the current maze la
 
 \subsubsection{Grid-Bug2 Baseline}
 
-Grid-Bug2 is included as a deterministic, non-learning baseline. It receives the same
+Grid-Bug2 is a simple deterministic algorithm that is included as a baseline. It receives the same
 current $3\times3$ observation and relative goal displacement as the model. It attempts
 to move along a direct grid line connecting the initial position to the goal, when blocked, follows the obstacle
 boundary until it can return to that line closer to the goal. The algorithm selects and
-executes one action at a time and is evaluated on the same fold-$0$ queries with the same
+executes one action at a time and is evaluated on the same fold-$1$ queries with the same
 $19$-action limit as the decoding strategies.
+
+
+\subsubsection{Experiment Overview}
+
+Four experiments are conducted in the partially observed setting. The first compares decoding
+strategies using a model trained on optimal trajectories. The second examines how predicted
+observations affect beam search. The third repeats the decoding comparison using a model trained
+on the larger mixed-quality dataset. The fourth tests the local bonus added during decoding
+without retraining that model.
 
 
 \subsubsection{Evaluation Metrics}
@@ -1342,22 +1376,35 @@ time per query, and average compute time per executed step. These metrics respec
 how often the goal is reached within the $19$-action limit, how many steps are taken before termination,
 and the computational cost of each decoding strategy.
 
+Wall-mask accuracy is also measured for beam search. It is the proportion of real decision
+steps at which the first predicted wall mask in the selected candidate trajectory matches
+the true wall mask revealed after executing the selected action:
+\begin{equation}
+\operatorname{WallMaskAccuracy}
+=
+\frac{1}{N_{\mathrm{steps}}}
+\sum_{t=1}^{N_{\mathrm{steps}}}
+\mathbf{1}\left\{\hat{w}_{t+1}=w_{t+1}\right\},
+\end{equation}
+where $N_{\mathrm{steps}}$ is the total number of decoded steps across all evaluation queries,
+$\hat{w}_{t+1}$ is the first predicted wall mask in the selected candidate trajectory at step $t$,
+and $w_{t+1}$ is the true wall mask at the resulting position. The resulting proportion is
+reported as a percentage. This metric does not measure the accuracy of every observation
+in every imagined trajectory.
+
 \subsection{Results and Discussion}\
 
 \subsubsection{Optimal-Trajectory Training}
 
-Tables~\ref{tab:partial_completion_rate} and~\ref{tab:partial_avg_steps} report
-performance on the fold-$0$ evaluation queries across the eight maze layouts. The model
-was trained on folds $1$--$4$, as described above, using only optimal trajectories. 
-The comparison focuses on completion
-rate and average steps until termination. The complete results, including the computational-cost
-metrics, are reported in Appendix~\ref{app:partial_per_maze_results}. Grid-Bug2, a
-deterministic algorithm for navigating towards a known goal using local observations, is
-included as a non-learning baseline.
+Tables~\ref{tab:partial_completion_rate}--\ref{tab:partial_time_per_step} report
+performance on the fold-$1$ evaluation queries across the eight maze layouts. The model
+was trained on folds $2$--$5$, as described above, using only optimal trajectories. 
+The tables show completion rate, average steps until termination, average compute time per query,
+and average time per step.
 
 \begin{table}[H]
 \centering
-\caption{Completion rate on the partially observed fold-$0$ evaluation queries.}
+\caption{Completion rate on the evaluation queries.}
 \label{tab:partial_completion_rate}
 \footnotesize
 \begin{tabular}{lcccc}
@@ -1366,12 +1413,12 @@ Maze Layout & Grid-Bug2 & Greedy & Beam 2 & Beam 3 \\
 \hline
 OPEN & 1.0000 & 1.0000 & 1.0000 & 1.0000 \\
 U\_MAZE & 1.0000 & 0.9444 & 0.9444 & 0.9444 \\
-U\_MAZE\_EVAL & 1.0000 & 1.0000 & 0.8889 & 0.8889 \\
+U\_MAZE\_EVAL & 1.0000 & 0.9444 & 0.8889 & 0.8889 \\
 SMALL\_MAZE & 1.0000 & 1.0000 & 1.0000 & 1.0000 \\
-MEDIUM\_MAZE & 0.6308 & 0.9308 & 0.9462 & 0.9385 \\
-MEDIUM\_MAZE\_EVAL & 0.6538 & 0.8538 & 0.8538 & 0.8462 \\
-LARGE\_MAZE & 0.3454 & 0.8671 & 0.8333 & 0.8043 \\
-LARGE\_MAZE\_EVAL & 0.3395 & 0.8453 & 0.8568 & 0.8406 \\
+MEDIUM\_MAZE & 0.6308 & 0.9231 & 0.9462 & 0.9308 \\
+MEDIUM\_MAZE\_EVAL & 0.6538 & 0.8538 & 0.8385 & 0.8385 \\
+LARGE\_MAZE & 0.3454 & 0.8430 & 0.8116 & 0.7899 \\
+LARGE\_MAZE\_EVAL & 0.3395 & 0.8037 & 0.8083 & 0.7898 \\
 \hline
 \end{tabular}
 \normalsize
@@ -1379,21 +1426,65 @@ LARGE\_MAZE\_EVAL & 0.3395 & 0.8453 & 0.8568 & 0.8406 \\
 
 \begin{table}[H]
 \centering
-\caption{Average steps until termination over all partially observed fold-$0$ queries.}
+\caption{Average steps until termination over the evaluation queries.}
 \label{tab:partial_avg_steps}
 \footnotesize
 \begin{tabular}{lcccc}
 \hline
 Maze Layout & Grid-Bug2 & Greedy & Beam 2 & Beam 3 \\
 \hline
-OPEN & 2.6250 & 2.6667 & 2.6250 & 2.6667 \\
-U\_MAZE & 4.6667 & 4.8333 & 4.9444 & 4.9444 \\
-U\_MAZE\_EVAL & 5.5556 & 4.3333 & 4.8333 & 4.8333 \\
+OPEN & 2.6250 & 2.6667 & 2.6250 & 2.6250 \\
+U\_MAZE & 4.6667 & 4.8333 & 4.8333 & 4.9444 \\
+U\_MAZE\_EVAL & 5.5556 & 4.5000 & 4.8333 & 4.8333 \\
 SMALL\_MAZE & 1.6000 & 1.6000 & 1.6000 & 1.6000 \\
-MEDIUM\_MAZE & 11.1538 & 6.6462 & 6.1923 & 6.2385 \\
-MEDIUM\_MAZE\_EVAL & 10.7231 & 6.9692 & 6.9923 & 7.0000 \\
-LARGE\_MAZE & 15.3406 & 9.3889 & 9.6353 & 9.8961 \\
-LARGE\_MAZE\_EVAL & 14.7529 & 9.5081 & 9.2702 & 9.3857 \\
+MEDIUM\_MAZE & 11.1538 & 6.5154 & 6.1308 & 6.4000 \\
+MEDIUM\_MAZE\_EVAL & 10.7231 & 6.8923 & 7.1154 & 7.1462 \\
+LARGE\_MAZE & 15.3406 & 9.6014 & 9.8237 & 10.1063 \\
+LARGE\_MAZE\_EVAL & 14.7529 & 9.7159 & 9.7737 & 9.8453 \\
+\hline
+\end{tabular}
+\normalsize
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Average compute time per query (ms) on the evaluation queries.}
+\label{tab:partial_compute_time}
+\footnotesize
+\begin{tabular}{lcccc}
+\hline
+Maze Layout & Grid-Bug2 & Greedy & Beam 2 & Beam 3 \\
+\hline
+OPEN & 0.069 & 9.405 & 100.888 & 111.530 \\
+U\_MAZE & 0.102 & 16.517 & 303.465 & 361.400 \\
+U\_MAZE\_EVAL & 0.109 & 18.620 & 305.202 & 347.356 \\
+SMALL\_MAZE & 0.042 & 7.641 & 59.262 & 79.250 \\
+MEDIUM\_MAZE & 0.201 & 20.100 & 351.864 & 439.742 \\
+MEDIUM\_MAZE\_EVAL & 0.194 & 23.343 & 521.941 & 599.053 \\
+LARGE\_MAZE & 0.277 & 33.426 & 773.027 & 938.165 \\
+LARGE\_MAZE\_EVAL & 0.270 & 31.750 & 708.408 & 856.037 \\
+\hline
+\end{tabular}
+\normalsize
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Average time per step (ms) on the evaluation queries.}
+\label{tab:partial_time_per_step}
+\footnotesize
+\begin{tabular}{lcccc}
+\hline
+Maze Layout & Grid-Bug2 & Greedy & Beam 2 & Beam 3 \\
+\hline
+OPEN & 0.029 & 3.848 & 32.201 & 35.736 \\
+U\_MAZE & 0.024 & 3.569 & 41.559 & 44.330 \\
+U\_MAZE\_EVAL & 0.023 & 3.834 & 41.900 & 45.088 \\
+SMALL\_MAZE & 0.028 & 4.773 & 29.665 & 36.874 \\
+MEDIUM\_MAZE & 0.020 & 3.385 & 49.135 & 57.009 \\
+MEDIUM\_MAZE\_EVAL & 0.021 & 3.424 & 54.976 & 60.749 \\
+LARGE\_MAZE & 0.019 & 3.434 & 65.177 & 75.940 \\
+LARGE\_MAZE\_EVAL & 0.020 & 3.388 & 61.844 & 72.514 \\
 \hline
 \end{tabular}
 \normalsize
@@ -1403,7 +1494,8 @@ The three decoding strategies yielded similar completion rates across the eight 
 and beam search with width $B=3$ performed slightly worse than the other two strategies in most layouts.
 The three decoding strategies also yielded similar average steps until termination in the smaller
 maze layouts, but differed more in the larger layouts.
-Wider searches had longer average compute times and longer average time per step across all maze layouts.
+Wider searches had longer average compute times and longer average time per step across all maze layouts
+(Tables~\ref{tab:partial_compute_time} and~\ref{tab:partial_time_per_step}).
 The performance of Grid-Bug2 in terms of completion rate and average steps until termination was competitive
 with the decoding strategies in the OPEN, U\_MAZE, U\_MAZE\_EVAL, and SMALL\_MAZE layouts, but its
 performance degraded more sharply than that of the decoding strategies as the maze layouts became
@@ -1425,23 +1517,10 @@ more candidate trajectories therefore does not provide useful information for se
 over simply selecting the highest-probability valid action at the current position. 
 
 In the current experiment, the model performed poorly when predicting the first wall mask associated
-with the selected candidate trajectory at each real decision step. The wall-mask accuracy was $0.3347$
-for beam search with width $B=2$ and $0.3202$ for beam search with width $B=3$. These values were obtained
-from the token-by-token beam-search evaluation on the fold-$0$ queries. The metric is defined as
-\begin{equation}
-\operatorname{WallMaskAccuracy}
-=
-\frac{1}{N_{\mathrm{steps}}}
-\sum_{t=1}^{N_{\mathrm{steps}}}
-\mathbf{1}\left\{\hat{w}_{t+1}=w_{t+1}\right\},
-\end{equation}
-where $N_{\mathrm{steps}}$ is the total number of decoded steps across all evaluation queries, 
-$\hat{w}_{t+1}$ is the first predicted wall mask in the candidate trajectory selected by beam search
-at step $t$, and $w_{t+1}$ is the true wall mask at the resulting position at time $t+1$, revealed after
-executing the selected action in the environment. This low accuracy suggests that the model often fails
-to predict the local wall configuration that results from the executed action. The metric only evaluates
-the first predicted wall mask in the selected candidate trajectory; it does not measure the accuracy of
-every observation in every imagined trajectory. It is therefore reasonable to hypothesise that errors
+with the selected candidate trajectory at each real decision step. The wall-mask accuracy was $27.74\%$
+for beam search with width $B=2$ and $27.67\%$ for beam search with width $B=3$. These values were obtained
+from the beam-search evaluation on the fold-$1$ queries. This low accuracy suggests that the model often fails
+to predict the local wall configuration that results from the executed action. It is therefore reasonable to hypothesise that errors
 may accumulate over multiple imagined steps, but the wall-mask accuracy alone does not establish that
 multi-step predictions are less accurate.
 
@@ -1450,7 +1529,7 @@ multi-step predictions are less accurate.
 
 To investigate whether inaccurate observation prediction contributes to the lack of performance
 improvement with beam search, an additional experiment compares beam search with a modified version
-called \textit{Oracle Beam}. After each imagined candidate action, Oracle Beam uses the hidden maze
+called Oracle Beam. After each imagined candidate action, Oracle Beam uses the hidden maze
 simulator to obtain the complete true next observation instead of using an observation predicted by
 the model. Future actions in each candidate trajectory are therefore selected using the true simulated
 observations. Oracle Beam has access to information that is unavailable under partial observability,
@@ -1461,7 +1540,7 @@ Because the observation tokens used by Oracle Beam are supplied by the simulator
 from the model's predictions, their probabilities are not included in the accumulated log-probability
 of a candidate trajectory. Candidate trajectories in this condition are scored using only action-token
 log-probabilities. For a closer comparison with Oracle Beam, a second modified version, referred to as
-\textit{Context-Only Beam}, is also evaluated. Context-Only Beam adds the model's most probable predicted
+Context-Only Beam, is also evaluated. Context-Only Beam adds the model's most probable predicted
 wall-mask and visible-goal tokens to each candidate trajectory, while the relative goal displacement is
 updated deterministically from the selected action. It does not add the probabilities of any of these
 observation tokens to the trajectory score. The predicted tokens can still affect the probabilities of later
@@ -1473,7 +1552,7 @@ a valid planner for the partially observed problem.
 
 \begin{table}[H]
 \centering
-\caption{Observation-ablation results on the 1,196 partially observed fold-$0$ evaluation queries. Average steps until termination are calculated over all queries.}
+\caption{Observation-ablation results on the 1,196 partially observed fold-$1$ evaluation queries. Average steps until termination are calculated over all queries.}
 \label{tab:partial_observation_ablation}
 \footnotesize
 \resizebox{\textwidth}{!}{%
@@ -1481,12 +1560,12 @@ a valid planner for the partially observed problem.
 \hline
 Method & $B$ & Completion Rate & Avg. Steps to Stop & Wall-Mask Agreement \\	
 \hline
-Beam Search & 2 & 0.8662 & 8.3838 & 0.3347 \\
-Beam Search & 3 & 0.8487 & 8.5234 & 0.3202 \\
-Context-Only Beam & 2 & 0.8303 & 9.0987 & 0.3163 \\
-Context-Only Beam & 3 & 0.8035 & 9.3821 & 0.3081 \\
-Oracle Beam & 2 & 0.9808 & 7.1455 & 1.0000 \\
-Oracle Beam & 3 & 0.9858 & 7.0736 & 1.0000 \\
+Beam Search & 2 & 0.8395 & 8.6363 & 27.74\% \\
+Beam Search & 3 & 0.8236 & 8.7943 & 27.67\% \\
+Context-Only Beam & 2 & 0.8035 & 9.2793 & 26.72\% \\
+Context-Only Beam & 3 & 0.7793 & 9.5610 & 26.28\% \\
+Oracle Beam & 2 & 0.9716 & 7.1798 & 100.00\% \\
+Oracle Beam & 3 & 0.9799 & 7.0895 & 100.00\% \\
 \hline
 \end{tabular}
 }
@@ -1498,7 +1577,7 @@ all queries, and wall-mask agreement for Beam Search, Context-Only Beam, and Ora
 For Beam Search and Context-Only Beam, wall-mask agreement is the proportion of decoded steps at which
 the first predicted wall mask in the selected candidate trajectory matches the true wall mask at the
 resulting position after executing the selected action. For Oracle Beam, the wall mask is supplied by
-the hidden maze simulator rather than predicted by the model, so its agreement is $1$ by construction.
+the hidden maze simulator rather than predicted by the model, so its agreement is $100\%$ by construction.
 
 Oracle Beam substantially outperformed both Beam Search and Context-Only Beam in terms of completion
 rate and had lower average steps until termination. Since unsuccessful queries reach the $19$-step
@@ -1554,16 +1633,16 @@ training dataset.
 
 \begin{table}[H]
 \centering
-\caption{Results on the partially observed fold-$0$ evaluation queries after training on the mixed-quality dataset. Average steps until termination are calculated over all queries.}
+\caption{Results on the partially observed fold-$1$ evaluation queries after training on the mixed-quality dataset. Average steps until termination are calculated over all queries.}
 \label{tab:partial_mixed_quality_results}
 \footnotesize
 \begin{tabular}{lccc}
 \hline
 Method & Completion Rate & Avg. Steps to Stop & Wall-Mask Accuracy \\
 \hline
-Greedy Decoding & $0.9038$ & $8.1028$ & -- \\
-Beam Search ($B=2$) & $0.9448$ & $7.5543$ & $0.8283$ \\
-Beam Search ($B=3$) & $0.9523$ & $7.5008$ & $0.8318$ \\
+Greedy Decoding & $0.8896$ & $8.3462$ & -- \\
+Beam Search ($B=2$) & $0.9390$ & $7.6965$ & $80.58\%$ \\
+Beam Search ($B=3$) & $0.9457$ & $7.6112$ & $80.90\%$ \\
 \hline
 \end{tabular}
 \end{table}
@@ -1589,7 +1668,7 @@ Despite this potential disadvantage, the completion rates of all the decoding st
 improved in this experiment relative to the optimal-trajectory training experiment.
 
 Wall-mask accuracy improved substantially as expected. Averaged across the two beam widths, the wall-
-mask accuracy is now $0.8300$, whereas it was $0.3275$ in the optimal trajectory training experiment. 
+mask accuracy is now $80.74\%$, whereas it was $27.71\%$ in the optimal trajectory training experiment. 
 The results, however,
 do not prove that higher
 wall-mask accuracies lead to greater advantages of wider searches relative to narrower searches, since
@@ -1608,34 +1687,34 @@ for similar problems.
 
 Table~\ref{tab:partial_rule_guided_results} reports the completion rate and average steps until termination
 for greedy decoding and beam search with local bonus strengths $\lambda\in\{0,0.25,0.5,1,2\}$.
-The same model trained on the mixed-quality dataset and the same fold-$0$ evaluation queries
+The same model trained on the mixed-quality dataset and the same fold-$1$ evaluation queries
 are used for each setting. The $\lambda=0$ rows correspond to decoding without the local bonus.
 Average steps until termination are calculated over all queries.
 
 \begin{table}[H]
 \centering
-\caption{Rule-guided decoding results on the partially observed fold-$0$ evaluation queries. Average steps until termination are calculated over all queries.}
+\caption{Rule-guided decoding results on the partially observed fold-$1$ evaluation queries. Average steps until termination are calculated over all queries.}
 \label{tab:partial_rule_guided_results}
 \footnotesize
 \begin{tabular}{clcc}
 \hline
 $\lambda$ & Method & Completion Rate & Avg. Steps to Stop \\
 \hline
-$0$ & Greedy Decoding & $0.9038$ & $8.1028$ \\
-      & Beam Search ($B=2$) & $0.9448$ & $7.5543$ \\
-      & Beam Search ($B=3$) & $0.9523$ & $7.5008$ \\
-$0.25$ & Greedy Decoding & $0.8871$ & $8.1839$ \\
-         & Beam Search ($B=2$) & $0.9365$ & $7.5736$ \\
-         & Beam Search ($B=3$) & $0.9423$ & $7.5017$ \\
-$0.5$ & Greedy Decoding & $0.8687$ & $8.3294$ \\
-        & Beam Search ($B=2$) & $0.9247$ & $7.6697$ \\
-        & Beam Search ($B=3$) & $0.9348$ & $7.5485$ \\
-$1$ & Greedy Decoding & $0.8294$ & $8.6572$ \\
-      & Beam Search ($B=2$) & $0.8963$ & $7.9038$ \\
-      & Beam Search ($B=3$) & $0.9156$ & $7.7508$ \\
-$2$ & Greedy Decoding & $0.7617$ & $9.0970$ \\
-      & Beam Search ($B=2$) & $0.8370$ & $8.4147$ \\
-      & Beam Search ($B=3$) & $0.8671$ & $8.3972$ \\
+$0$ & Greedy Decoding & $0.8896$ & $8.3462$ \\
+      & Beam Search ($B=2$) & $0.9390$ & $7.6965$ \\
+      & Beam Search ($B=3$) & $0.9457$ & $7.6112$ \\
+$0.25$ & Greedy Decoding & $0.8704$ & $8.4565$ \\
+         & Beam Search ($B=2$) & $0.9298$ & $7.7333$ \\
+         & Beam Search ($B=3$) & $0.9365$ & $7.6104$ \\
+$0.5$ & Greedy Decoding & $0.8520$ & $8.5811$ \\
+        & Beam Search ($B=2$) & $0.9181$ & $7.8110$ \\
+        & Beam Search ($B=3$) & $0.9247$ & $7.6948$ \\
+$1$ & Greedy Decoding & $0.8152$ & $8.8737$ \\
+      & Beam Search ($B=2$) & $0.8888$ & $8.0192$ \\
+      & Beam Search ($B=3$) & $0.9055$ & $7.8177$ \\
+$2$ & Greedy Decoding & $0.7400$ & $9.3729$ \\
+      & Beam Search ($B=2$) & $0.8386$ & $8.4540$ \\
+      & Beam Search ($B=3$) & $0.8537$ & $8.3018$ \\
 \hline
 \end{tabular}
 \end{table}
@@ -1653,7 +1732,7 @@ complex mazes. Together with the decline in completion rate when this local rule
 provides further evidence that the trained model supplies useful guidance in this planning setting.
 
 
-\section{Conclusion and Future Work}
+\section{Conclusion}
 
 This work investigated the effect of decoding strategy on planning performance when maze planning is
 formulated as autoregressive sequence modelling under a learned generative model. In particular,
@@ -1682,12 +1761,23 @@ the partially observed experiment, however, wider searches also had longer avera
 compute times per query because they did not substantially reduce the number of executed 
 steps.
 
+In reality, planning problems vary considerably, and autoregressive sequence modelling is only one of many ways
+to approach them. Its advantages include the ability to use the scalable Transformer architecture
+and to condition the model on a prefix of past states or observations and actions, allowing it to use
+information from earlier steps. This work demonstrates that, when autoregressive sequence modelling
+is used for planning, the choice of decoding algorithm merits attention. The decoding algorithm can
+affect both trajectory quality and generation speed, so comparing different algorithms can help in
+designing a more effective planner, especially in practical applications where both trajectory quality and 
+generation speed are critical.
+
+\section{Future Work}
+
 In this work, planning was performed on the same maze layouts that were used for training. Future work could
 investigate the generalisation of the trained model to unseen maze layouts in both fully and partially observed settings.
 Such a model would need to learn general maze-navigation strategies and would have greater utility as a
 maze planner, rather than only generating reasonable trajectories in a small set of mazes.
-
-This objective would pose some challenges. In the fully observed setting, the model currently
+To accomplish this, the way the maze layout is encoded for the model would need to be changed.
+In the fully observed setting, the model currently
 encodes a maze layout as a single integer, without explicitly representing its structure.
 The assumption is that the model learns to associate this integer with the corresponding maze layout during training.
 An arbitrary identifier for an unseen layout would not convey its structure, so the model would require a different
@@ -1714,26 +1804,13 @@ reinforcement learning, and the planner could be evaluated on these datasets usi
 decoding strategies. This would allow its performance and that of the decoding strategies
 to be compared with other offline reinforcement learning methods.
 
-Furthermore, additional decoding strategies can be investigated. Possible additional strategies
-include temperature sampling, where the model's logits are scaled by a temperature parameter before
-probabilities are calculated and sampling takes place, and top-$k$ or nucleus sampling, where sampling
-is restricted to the $k$ most probable actions or the smallest set of actions whose cumulative
-probability reaches a threshold $p$, respectively~\cite{holtzman2020curious}.
-These strategies can provide a balance between exploration and exploitation during planning.
-Modern LLMs commonly combine temperature scaling with nucleus sampling: temperature is applied to
-the model's logits, the resulting logits are converted to probabilities, and the next token is
-sampled from the set whose cumulative probability reaches $p$~\cite{huggingface2026generation}.
-It would be interesting to investigate whether this combined approach is more advantageous than
-greedy decoding or beam search in various planning problems.
+Furthermore, temperature sampling, top-$k$ sampling, and nucleus sampling could be investigated
+as additional decoding strategies~\cite{holtzman2020curious}. Unlike greedy decoding, these
+strategies can select lower-probability actions, which may help the planner explore alternative
+routes when its most likely move is unproductive. Top-$k$ and nucleus sampling can also exclude
+very unlikely actions while retaining some diversity. Their performance and computational cost
+could be compared with those of greedy decoding and beam search in maze planning problems.
 
-In reality, planning problems vary considerably, and autoregressive sequence modelling is only one of many ways
-to approach them. Its advantages include the ability to use the scalable Transformer architecture
-and to condition the model on a prefix of past states or observations and actions, allowing it to use
-information from earlier steps. This work demonstrates that, when autoregressive sequence modelling
-is used for planning, the choice of decoding algorithm merits attention. The decoding algorithm can
-affect both trajectory quality and generation speed, so comparing different algorithms can help in
-designing a more effective planner, especially in practical applications where both trajectory quality and 
-generation speed are critical.
 
 
 
@@ -2006,297 +2083,6 @@ Final project presentation. \\
 
 \end{longtable}
 
-\section{Per-Maze Decoding Results}
-\label{app:per_maze_results}
-
-This appendix reports decoding performance for each maze layout.
-
-\begin{table}[H]
-\centering
-\caption{Decoding results for the OPEN maze.}
-\label{tab:open_results_appendix}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lcccc}
-\hline
-Strategy & Completion Rate & Avg. Steps to Stop & Avg. Compute Time (s) & Avg. Time per Step (s) \\
-\hline
-Greedy & 0.829167 & 8.041667 & 0.016394 & 0.002006 \\
-Beam 2 & 0.970833 & 4.429167 & 0.008924 & 0.001971 \\
-Beam 3 & 1.000000 & 3.375000 & 0.007130 & 0.002033 \\
-\hline
-\end{tabular}%
-}
-\end{table}
-
-\begin{table}[H]
-\centering
-\caption{Decoding results for the U\_MAZE maze.}
-\label{tab:u_maze_results_appendix}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lcccc}
-\hline
-Strategy & Completion Rate & Avg. Steps to Stop & Avg. Compute Time (s) & Avg. Time per Step (s) \\
-\hline
-Greedy & 0.733333 & 8.011111 & 0.014807 & 0.001859 \\
-Beam 2 & 0.977778 & 4.055556 & 0.007882 & 0.002033 \\
-Beam 3 & 1.000000 & 3.688889 & 0.007291 & 0.001993 \\
-\hline
-\end{tabular}%
-}
-\end{table}
-
-\begin{table}[H]
-\centering
-\caption{Decoding results for the U\_MAZE\_EVAL maze.}
-\label{tab:u_maze_eval_results_appendix}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lcccc}
-\hline
-Strategy & Completion Rate & Avg. Steps to Stop & Avg. Compute Time (s) & Avg. Time per Step (s) \\
-\hline
-Greedy & 0.866667 & 6.322222 & 0.011050 & 0.001743 \\
-Beam 2 & 1.000000 & 3.666667 & 0.007046 & 0.001833 \\
-Beam 3 & 1.000000 & 3.666667 & 0.007423 & 0.001867 \\
-\hline
-\end{tabular}%
-}
-\end{table}
-
-\begin{table}[H]
-\centering
-\caption{Decoding results for the SMALL\_MAZE maze.}
-\label{tab:small_maze_results_appendix}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lcccc}
-\hline
-Strategy & Completion Rate & Avg. Steps to Stop & Avg. Compute Time (s) & Avg. Time per Step (s) \\
-\hline
-Greedy & 1.000000 & 2.250000 & 0.004439 & 0.001950 \\
-Beam 2 & 1.000000 & 1.666667 & 0.004274 & 0.002933 \\
-Beam 3 & 1.000000 & 1.666667 & 0.007515 & 0.006156 \\
-\hline
-\end{tabular}%
-}
-\end{table}
-
-\begin{table}[H]
-\centering
-\caption{Decoding results for the MEDIUM\_MAZE maze.}
-\label{tab:medium_maze_results_appendix}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lcccc}
-\hline
-Strategy & Completion Rate & Avg. Steps to Stop & Avg. Compute Time (s) & Avg. Time per Step (s) \\
-\hline
-Greedy & 0.749231 & 9.618462 & 0.017360 & 0.001794 \\
-Beam 2 & 0.944615 & 6.163077 & 0.011570 & 0.001889 \\
-Beam 3 & 0.987692 & 5.324615 & 0.010345 & 0.001954 \\
-\hline
-\end{tabular}%
-}
-\end{table}
-
-\begin{table}[H]
-\centering
-\caption{Decoding results for the MEDIUM\_MAZE\_EVAL maze.}
-\label{tab:medium_maze_eval_results_appendix}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lcccc}
-\hline
-Strategy & Completion Rate & Avg. Steps to Stop & Avg. Compute Time (s) & Avg. Time per Step (s) \\
-\hline
-Greedy & 0.629231 & 10.852308 & 0.017826 & 0.001627 \\
-Beam 2 & 0.907692 & 6.581538 & 0.011681 & 0.001734 \\
-Beam 3 & 0.972308 & 5.612308 & 0.010373 & 0.001783 \\
-\hline
-\end{tabular}%
-}
-\end{table}
-
-\begin{table}[H]
-\centering
-\caption{Decoding results for the LARGE\_MAZE maze.}
-\label{tab:large_maze_results_appendix}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lcccc}
-\hline
-Strategy & Completion Rate & Avg. Steps to Stop & Avg. Compute Time (s) & Avg. Time per Step (s) \\
-\hline
-Greedy & 0.665700 & 12.077778 & 0.020590 & 0.001692 \\
-Beam 2 & 0.921256 & 9.069082 & 0.017019 & 0.001850 \\
-Beam 3 & 0.984541 & 8.198551 & 0.016133 & 0.001904 \\
-\hline
-\end{tabular}%
-}
-\end{table}
-
-\begin{table}[H]
-\centering
-\caption{Decoding results for the LARGE\_MAZE\_EVAL maze.}
-\label{tab:large_maze_eval_results_appendix}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lcccc}
-\hline
-Strategy & Completion Rate & Avg. Steps to Stop & Avg. Compute Time (s) & Avg. Time per Step (s) \\
-\hline
-Greedy & 0.690102 & 11.722942 & 0.018061 & 0.001525 \\
-Beam 2 & 0.899167 & 9.003700 & 0.015226 & 0.001658 \\
-Beam 3 & 0.969935 & 8.001388 & 0.014145 & 0.001731 \\
-\hline
-\end{tabular}%
-}
-\end{table}
-
-\section{Partially Observed Per-Maze Results}
-\label{app:partial_per_maze_results}
-
-This appendix reports the complete fold-$0$ results for the partially observed
-experiment. Beam 2 and Beam 3 use the token-level beam-search implementation described
-in the main text.
-
-\begin{table}[H]
-\centering
-\caption{Partially observed decoding results for the OPEN maze.}
-\label{tab:partial_open_results_appendix}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lcccc}
-\hline
-Strategy & Completion Rate & Avg. Steps to Stop & Avg. Compute Time (s) & Avg. Time per Step (s) \\
-\hline
-Grid-Bug2 & 1.000000 & 2.625000 & 0.000069 & 0.000029 \\
-Greedy & 1.000000 & 2.666667 & 0.007918 & 0.003244 \\
-Beam 2 & 1.000000 & 2.625000 & 0.075769 & 0.025944 \\
-Beam 3 & 1.000000 & 2.666667 & 0.088987 & 0.029421 \\
-\hline
-\end{tabular}%
-}
-\end{table}
-
-\begin{table}[H]
-\centering
-\caption{Partially observed decoding results for the U\_MAZE maze.}
-\label{tab:partial_u_maze_results_appendix}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lcccc}
-\hline
-Strategy & Completion Rate & Avg. Steps to Stop & Avg. Compute Time (s) & Avg. Time per Step (s) \\
-\hline
-Grid-Bug2 & 1.000000 & 4.666667 & 0.000102 & 0.000024 \\
-Greedy & 0.944444 & 4.833333 & 0.014477 & 0.003329 \\
-Beam 2 & 0.944444 & 4.944444 & 0.227514 & 0.031963 \\
-Beam 3 & 0.944444 & 4.944444 & 0.276001 & 0.035203 \\
-\hline
-\end{tabular}%
-}
-\end{table}
-
-\begin{table}[H]
-\centering
-\caption{Partially observed decoding results for the U\_MAZE\_EVAL maze.}
-\label{tab:partial_u_maze_eval_results_appendix}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lcccc}
-\hline
-Strategy & Completion Rate & Avg. Steps to Stop & Avg. Compute Time (s) & Avg. Time per Step (s) \\
-\hline
-Grid-Bug2 & 1.000000 & 5.555556 & 0.000109 & 0.000023 \\
-Greedy & 1.000000 & 4.333333 & 0.011755 & 0.002865 \\
-Beam 2 & 0.888889 & 4.833333 & 0.224188 & 0.029287 \\
-Beam 3 & 0.888889 & 4.833333 & 0.276476 & 0.034410 \\
-\hline
-\end{tabular}%
-}
-\end{table}
-
-\begin{table}[H]
-\centering
-\caption{Partially observed decoding results for the SMALL\_MAZE maze.}
-\label{tab:partial_small_maze_results_appendix}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lcccc}
-\hline
-Strategy & Completion Rate & Avg. Steps to Stop & Avg. Compute Time (s) & Avg. Time per Step (s) \\
-\hline
-Grid-Bug2 & 1.000000 & 1.600000 & 0.000042 & 0.000028 \\
-Greedy & 1.000000 & 1.600000 & 0.004541 & 0.003082 \\
-Beam 2 & 1.000000 & 1.600000 & 0.024918 & 0.013684 \\
-Beam 3 & 1.000000 & 1.600000 & 0.031388 & 0.016532 \\
-\hline
-\end{tabular}%
-}
-\end{table}
-
-\begin{table}[H]
-\centering
-\caption{Partially observed decoding results for the MEDIUM\_MAZE maze.}
-\label{tab:partial_medium_maze_results_appendix}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lcccc}
-\hline
-Strategy & Completion Rate & Avg. Steps to Stop & Avg. Compute Time (s) & Avg. Time per Step (s) \\
-\hline
-Grid-Bug2 & 0.630769 & 11.153846 & 0.000201 & 0.000020 \\
-Greedy & 0.930769 & 6.646154 & 0.016204 & 0.002583 \\
-Beam 2 & 0.946154 & 6.192308 & 0.284485 & 0.037189 \\
-Beam 3 & 0.938462 & 6.238462 & 0.346789 & 0.043624 \\
-\hline
-\end{tabular}%
-}
-\end{table}
-
-\begin{table}[H]
-\centering
-\caption{Partially observed decoding results for the MEDIUM\_MAZE\_EVAL maze.}
-\label{tab:partial_medium_maze_eval_results_appendix}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lcccc}
-\hline
-Strategy & Completion Rate & Avg. Steps to Stop & Avg. Compute Time (s) & Avg. Time per Step (s) \\
-\hline
-Grid-Bug2 & 0.653846 & 10.723077 & 0.000194 & 0.000021 \\
-Greedy & 0.853846 & 6.969231 & 0.018254 & 0.002739 \\
-Beam 2 & 0.853846 & 6.992308 & 0.366446 & 0.038627 \\
-Beam 3 & 0.846154 & 7.000000 & 0.448500 & 0.046109 \\
-\hline
-\end{tabular}%
-}
-\end{table}
-
-\begin{table}[H]
-\centering
-\caption{Partially observed decoding results for the LARGE\_MAZE maze.}
-\label{tab:partial_large_maze_results_appendix}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lcccc}
-\hline
-Strategy & Completion Rate & Avg. Steps to Stop & Avg. Compute Time (s) & Avg. Time per Step (s) \\
-\hline
-Grid-Bug2 & 0.345411 & 15.340580 & 0.000277 & 0.000019 \\
-Greedy & 0.867150 & 9.388889 & 0.023774 & 0.002598 \\
-Beam 2 & 0.833333 & 9.635266 & 0.532678 & 0.046158 \\
-Beam 3 & 0.804348 & 9.896135 & 0.673938 & 0.056137 \\
-\hline
-\end{tabular}%
-}
-\end{table}
-
-\begin{table}[H]
-\centering
-\caption{Partially observed decoding results for the LARGE\_MAZE\_EVAL maze.}
-\label{tab:partial_large_maze_eval_results_appendix}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lcccc}
-\hline
-Strategy & Completion Rate & Avg. Steps to Stop & Avg. Compute Time (s) & Avg. Time per Step (s) \\
-\hline
-Grid-Bug2 & 0.339492 & 14.752887 & 0.000270 & 0.000020 \\
-Greedy & 0.845266 & 9.508083 & 0.028677 & 0.002971 \\
-Beam 2 & 0.856813 & 9.270208 & 0.593554 & 0.052472 \\
-Beam 3 & 0.840647 & 9.385681 & 0.717095 & 0.062262 \\
-\hline
-\end{tabular}%
-}
-\end{table}
 \end{document}
 
 

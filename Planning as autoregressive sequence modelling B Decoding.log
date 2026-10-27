@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.1)  21 OCT 2026 12:01
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.1)  27 OCT 2026 20:11
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -521,87 +521,83 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 <example_trajectory.png, id=229, 458.71375pt x 481.8pt>
 File: example_trajectory.png Graphic file (type png)
 <use example_trajectory.png>
-Package pdftex.def Info: example_trajectory.png  used on input line 215.
-(pdftex.def)             Requested size: 136.5746pt x 143.44571pt.
+Package pdftex.def Info: example_trajectory.png  used on input line 213.
+(pdftex.def)             Requested size: 172.99496pt x 181.70378pt.
 
-
-Package caption Warning: The option `hypcap=true' will be ignored for this
-(caption)                particular \caption on input line 217.
-See the caption package documentation for explanation.
-
-[3 <./example_trajectory.png>] [4] [5]
-Underfull \hbox (badness 1852) in paragraph at lines 316--316
-[]| \T1/cmr/m/n/12 Keep any goal-reaching tra-jec-to-ries in $\OMS/cmsy/m/n/12 
-T[]$ \T1/cmr/m/n/12 un-changed as
+[3] [4 <./example_trajectory.png>] [5]
+Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
+nput line 338.
+ [6] [7] [8] [9] [10]
+Overfull \hbox (5.72195pt too wide) in paragraph at lines 564--571
+\T1/cmr/m/n/12 quences from a learned se-quence model, aim-ing to max-imise se-
+quence like-li-hoods. Sutskever
  []
 
-Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
-nput line 330.
-[6] [7] [8] [9] [10] [11] [12] [13] [14]
-<maze_layouts.png, id=368, 1132.4709pt x 643.203pt>
+[11] [12] [13]
+<maze_layouts.png, id=363, 1132.4709pt x 643.203pt>
 File: maze_layouts.png Graphic file (type png)
 <use maze_layouts.png>
-Package pdftex.def Info: maze_layouts.png  used on input line 780.
+Package pdftex.def Info: maze_layouts.png  used on input line 751.
 (pdftex.def)             Requested size: 409.71689pt x 232.70119pt.
- [15] [16 <./maze_layouts.png>]
-[17] [18] [19] [20]
-<partial_observation_vs_true_state.png, id=413, 1108.14pt x 499.8675pt>
+ [14] [15 <./maze_layouts.png>] [16] [17] [18] [19]
+<partial_observation_vs_true_state.png, id=411, 1108.14pt x 499.8675pt>
 File: partial_observation_vs_true_state.png Graphic file (type png)
 <use partial_observation_vs_true_state.png>
 Package pdftex.def Info: partial_observation_vs_true_state.png  used on input l
-ine 1075.
+ine 1096.
 (pdftex.def)             Requested size: 455.24408pt x 205.35124pt.
- [21 <./partial_observation_vs_true_state.png>] [22]
-[23] [24] [25] [26] [27] [28] [29] [30] [31] [32] [33]
-Underfull \hbox (badness 10000) in paragraph at lines 1803--1806
+ [20 <./partial_observation_vs_true_state.png>] [21] [22] [23] [24] [25] [26] [
+27] [28]
+[29] [30] [31] [32] [33]
+Underfull \hbox (badness 10000) in paragraph at lines 1880--1883
 []\T1/cmr/m/n/12 Farama Foun-da-tion. \T1/cmr/m/it/12 D4RL repos-i-tory, \T1/cm
 tt/m/it/12 d4rl/pointmaze/maze_model.py\T1/cmr/m/n/12 .
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1803--1806
+Underfull \hbox (badness 10000) in paragraph at lines 1880--1883
 [][]$\T1/cmr/m/n/12 https : / / github . com / Farama-[]Foundation / D4RL / blo
 b / master / d4rl / pointmaze /
  []
 
 
-Underfull \hbox (badness 4303) in paragraph at lines 1833--1834
+Underfull \hbox (badness 4303) in paragraph at lines 1910--1911
 []|\T1/cmr/m/n/12 Implementation of a min-i-mal end-to-end ex-per-i-men-tal
  []
 
 [34]
 ignored error: Infinite glue shrinkage found in box being split [35]
-Underfull \hbox (badness 1460) in paragraph at lines 1928--1929
+Underfull \hbox (badness 1460) in paragraph at lines 2005--2006
 []|\T1/cmr/m/n/12 Construction of a min-i-mal end-to-end Maze2D anal-y-sis
  []
 
 ignored error: Infinite glue shrinkage found in box being split [36]
 ignored error: Infinite glue shrinkage found in box being split [37] [38]
-[39] [40] (Planning as autoregressive sequence modelling B Decoding.aux)
+(Planning as autoregressive sequence modelling B Decoding.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
 Package rerunfilecheck Info: File `"Planning as autoregressive sequence modelli
 ng B Decoding".out' has not changed.
-(rerunfilecheck)             Checksum: 794106238396EC4EE94725053DA7E00A;7905.
+(rerunfilecheck)             Checksum: E29A99D8B0CAB328E25E5A501825AEC3;7802.
  ) 
 Here is how much of TeX's memory you used:
- 14026 strings out of 467871
- 221467 string characters out of 5418861
- 656908 words of memory out of 5000000
- 42489 multiletter control sequences out of 15000+600000
+ 13997 strings out of 467871
+ 220742 string characters out of 5418861
+ 655728 words of memory out of 5000000
+ 42475 multiletter control sequences out of 15000+600000
  652032 words of font info for 107 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,21n,79p,1233b,608s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,21n,79p,636b,608s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\User\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecit1
 200.pk> <C:\Users\User\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\
 ecrm1000.pk> <C:\Users\User\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dp
 i600\ectt0800.pk> <C:\Users\User\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/
 ec/dpi600\ecti1200.pk> <C:\Users\User\AppData\Local\MiKTeX\fonts/pk/ljfour/jkna
 ppen/ec/dpi600\ectt1200.pk> <C:\Users\User\AppData\Local\MiKTeX\fonts/pk/ljfour
-/jknappen/ec/dpi600\ecbx1200.pk> <C:\Users\User\AppData\Local\MiKTeX\fonts/pk/l
-jfour/jknappen/ec/dpi600\ecrm0800.pk> <C:\Users\User\AppData\Local\MiKTeX\fonts
+/jknappen/ec/dpi600\ecrm0800.pk> <C:\Users\User\AppData\Local\MiKTeX\fonts/pk/l
+jfour/jknappen/ec/dpi600\ecbx1200.pk> <C:\Users\User\AppData\Local\MiKTeX\fonts
 /pk/ljfour/jknappen/ec/dpi600\ecbx1440.pk> <C:\Users\User\AppData\Local\MiKTeX\
 fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1200.pk> <C:\Users\User\AppData\Local\Mi
 KTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1728.pk> <C:\Users\User\AppData\Loc
@@ -627,9 +623,9 @@ s/cm/cmsy10.pfb><C:/Users/User/AppData/Local/Programs/MiKTeX/fonts/type1/public
 /amsfonts/cm/cmsy8.pfb><C:/Users/User/AppData/Local/Programs/MiKTeX/fonts/type1
 /public/amsfonts/symbols/msbm10.pfb>
 Output written on "Planning as autoregressive sequence modelling B Decoding.pdf
-" (40 pages, 780597 bytes).
+" (38 pages, 775626 bytes).
 PDF statistics:
- 1205 PDF objects out of 1440 (max. 8388607)
- 157 named destinations out of 1000 (max. 500000)
+ 1180 PDF objects out of 1200 (max. 8388607)
+ 142 named destinations out of 1000 (max. 500000)
  404 words of extra memory for PDF output out of 10000 (max. 10000000)
 

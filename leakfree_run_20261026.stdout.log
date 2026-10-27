@@ -1,0 +1,1223 @@
+
+=== Experiment: fully_observed_optimal ===
+training dataset:
+{
+  "path": "C:\\Users\\User\\Documents\\4th year\\project\\maze2d_all_mazes_transformer_ready_4act_cv5.npz",
+  "sha256": "eea15ca527308415a86a1c7688673b95ba072c9f6c6309f523f7e291c62efaa3",
+  "episodes": 5976,
+  "sequence_length": 42,
+  "available_folds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "available_mazes": [
+    "OPEN",
+    "U_MAZE",
+    "U_MAZE_EVAL",
+    "SMALL_MAZE",
+    "MEDIUM_MAZE",
+    "MEDIUM_MAZE_EVAL",
+    "LARGE_MAZE",
+    "LARGE_MAZE_EVAL"
+  ],
+  "requested_fold_counts": {
+    "0": 1196,
+    "1": 1196,
+    "2": 1195,
+    "3": 1195,
+    "4": 1194
+  }
+}
+$ C:\Users\User\AppData\Local\Python\pythoncore-3.14-64\python.exe "C:\Users\User\Documents\4th year\project\train_maze2d_discrete_transformer.py" --dataset "C:\Users\User\Documents\4th year\project\maze2d_all_mazes_transformer_ready_4act_cv5.npz" --cv-fold 0 --output "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_0\checkpoint.pt" --epochs 20 --max-train-episodes 1000000 --max-val-episodes 1000000 --batch-size 128 --d-model 64 --nhead 4 --num-layers 2 --ffn-dim 128 --dropout 0.1 --lr 0.0003 --weight-decay 0.0001 --seed 7 --inner-val-fraction 0.1
+{
+  "dataset": "C:\\Users\\User\\Documents\\4th year\\project\\maze2d_all_mazes_transformer_ready_4act_cv5.npz",
+  "train_episodes": 4302,
+  "val_episodes": 478,
+  "seq_len": 42,
+  "vocab_size": 121,
+  "device": "cpu",
+  "value_head": false,
+  "value_loss_weight": 1.0,
+  "cpu_threads": 10,
+  "split_metadata": {
+    "test_fold": 0,
+    "inner_val_fraction": 0.1,
+    "split_seed": 7,
+    "train_queries": 4302,
+    "validation_queries": 478,
+    "test_queries": 1196,
+    "train_episodes": 4302,
+    "validation_episodes": 478,
+    "test_episodes": 1196
+  }
+}
+  epoch 1/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.1 min
+  epoch 1/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 1/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 01 | train_loss=3.5398 train_acc=0.2088 | val_loss=2.4669 val_acc=0.3101 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 2/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 2/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 2/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 02 | train_loss=2.0436 train_acc=0.3800 | val_loss=1.6523 val_acc=0.4437 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 3/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 3/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 3/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 03 | train_loss=1.4347 train_acc=0.4723 | val_loss=1.2197 val_acc=0.5324 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 4/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 4/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 4/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 04 | train_loss=1.0698 train_acc=0.5933 | val_loss=0.9267 val_acc=0.6687 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 5/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 5/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 5/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 05 | train_loss=0.8499 train_acc=0.6857 | val_loss=0.7650 val_acc=0.7290 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 6/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 6/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 6/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 06 | train_loss=0.7210 train_acc=0.7304 | val_loss=0.6602 val_acc=0.7589 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 7/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 7/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 7/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 07 | train_loss=0.6380 train_acc=0.7583 | val_loss=0.5959 val_acc=0.7771 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 8/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 8/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 8/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 08 | train_loss=0.5789 train_acc=0.7768 | val_loss=0.5296 val_acc=0.8022 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 9/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 9/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 9/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 09 | train_loss=0.5301 train_acc=0.7942 | val_loss=0.4797 val_acc=0.8192 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 10/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 10/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 10/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 10 | train_loss=0.4877 train_acc=0.8112 | val_loss=0.4360 val_acc=0.8455 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 11/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 11/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 11/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 11 | train_loss=0.4489 train_acc=0.8251 | val_loss=0.4011 val_acc=0.8569 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 12/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 12/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 12/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 12 | train_loss=0.4145 train_acc=0.8387 | val_loss=0.3721 val_acc=0.8644 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 13/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 13/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 13/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 13 | train_loss=0.3824 train_acc=0.8518 | val_loss=0.3456 val_acc=0.8790 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 14/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.1 min
+  epoch 14/20 train: 34/34 batches (100.0%) | elapsed 0.2 min | ETA 0.0 min
+  epoch 14/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 14 | train_loss=0.3595 train_acc=0.8622 | val_loss=0.3119 val_acc=0.8924 | val_value_mae=nan | epoch_time=0.2 min
+  epoch 15/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.1 min
+  epoch 15/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 15/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 15 | train_loss=0.3395 train_acc=0.8687 | val_loss=0.2893 val_acc=0.9029 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 16/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 16/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 16/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 16 | train_loss=0.3156 train_acc=0.8790 | val_loss=0.2673 val_acc=0.9089 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 17/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 17/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 17/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 17 | train_loss=0.2962 train_acc=0.8859 | val_loss=0.2445 val_acc=0.9187 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 18/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 18/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 18/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 18 | train_loss=0.2804 train_acc=0.8914 | val_loss=0.2329 val_acc=0.9190 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 19/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 19/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 19/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 19 | train_loss=0.2667 train_acc=0.8986 | val_loss=0.2155 val_acc=0.9295 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 20/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.1 min
+  epoch 20/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 20/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 20 | train_loss=0.2497 train_acc=0.9057 | val_loss=0.2009 val_acc=0.9334 | val_value_mae=nan | epoch_time=0.1 min
+preview rollout: {
+  "episode_id": 29,
+  "target_action_tokens": [
+    117,
+    117,
+    120,
+    120,
+    120
+  ],
+  "pred_action_tokens": [
+    120,
+    120,
+    120,
+    120,
+    120
+  ],
+  "target_actions_named": [
+    "ACTION_UP",
+    "ACTION_UP",
+    "ACTION_RIGHT",
+    "ACTION_RIGHT",
+    "ACTION_RIGHT"
+  ],
+  "pred_actions_named": [
+    "ACTION_RIGHT",
+    "ACTION_RIGHT",
+    "ACTION_RIGHT",
+    "ACTION_RIGHT",
+    "ACTION_RIGHT"
+  ]
+}
+saved checkpoint: C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_0\checkpoint.pt
+$ C:\Users\User\AppData\Local\Python\pythoncore-3.14-64\python.exe "C:\Users\User\Documents\4th year\project\benchmark_multi_maze_cv_decoding.py" --dataset "C:\Users\User\Documents\4th year\project\maze2d_all_mazes_transformer_ready_4act_cv5.npz" --checkpoint "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_0\checkpoint.pt" --cv-fold 0 --results-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_0\results.csv" --summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_0\summary.csv" --per-maze-summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_0\per_maze_summary.csv" --queries-per-maze 10000 --max-steps 19 --mazes OPEN U_MAZE U_MAZE_EVAL SMALL_MAZE MEDIUM_MAZE MEDIUM_MAZE_EVAL LARGE_MAZE LARGE_MAZE_EVAL
+{
+  "cv_fold": 0,
+  "results_csv": "C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\leakfree_20261026\\fully_observed_optimal\\fold_0\\results.csv",
+  "summary_csv": "C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\leakfree_20261026\\fully_observed_optimal\\fold_0\\summary.csv",
+  "per_maze_summary_csv": "C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\leakfree_20261026\\fully_observed_optimal\\fold_0\\per_maze_summary.csv"
+}
+strategy  completion_rate  average_steps_to_goal  average_compute_seconds  average_seconds_per_step
+  beam_2         0.938963               7.004452                 0.019181                  0.002476
+  beam_3         0.989967               6.902872                 0.017789                  0.002554
+  greedy         0.724080               7.444573                 0.025115                  0.002317
+$ C:\Users\User\AppData\Local\Python\pythoncore-3.14-64\python.exe "C:\Users\User\Documents\4th year\project\train_maze2d_discrete_transformer.py" --dataset "C:\Users\User\Documents\4th year\project\maze2d_all_mazes_transformer_ready_4act_cv5.npz" --cv-fold 1 --output "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_1\checkpoint.pt" --epochs 20 --max-train-episodes 1000000 --max-val-episodes 1000000 --batch-size 128 --d-model 64 --nhead 4 --num-layers 2 --ffn-dim 128 --dropout 0.1 --lr 0.0003 --weight-decay 0.0001 --seed 7 --inner-val-fraction 0.1
+{
+  "dataset": "C:\\Users\\User\\Documents\\4th year\\project\\maze2d_all_mazes_transformer_ready_4act_cv5.npz",
+  "train_episodes": 4302,
+  "val_episodes": 478,
+  "seq_len": 42,
+  "vocab_size": 121,
+  "device": "cpu",
+  "value_head": false,
+  "value_loss_weight": 1.0,
+  "cpu_threads": 10,
+  "split_metadata": {
+    "test_fold": 1,
+    "inner_val_fraction": 0.1,
+    "split_seed": 7,
+    "train_queries": 4302,
+    "validation_queries": 478,
+    "test_queries": 1196,
+    "train_episodes": 4302,
+    "validation_episodes": 478,
+    "test_episodes": 1196
+  }
+}
+  epoch 1/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 1/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 1/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 01 | train_loss=3.5429 train_acc=0.2040 | val_loss=2.4477 val_acc=0.3392 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 2/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 2/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 2/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 02 | train_loss=2.0444 train_acc=0.3770 | val_loss=1.6234 val_acc=0.4768 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 3/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 3/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 3/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 03 | train_loss=1.4365 train_acc=0.4732 | val_loss=1.1902 val_acc=0.5559 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 4/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 4/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 4/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 04 | train_loss=1.0768 train_acc=0.5930 | val_loss=0.9213 val_acc=0.6760 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 5/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 5/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 5/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 05 | train_loss=0.8590 train_acc=0.6829 | val_loss=0.7593 val_acc=0.7305 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 6/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 6/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 6/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 06 | train_loss=0.7306 train_acc=0.7262 | val_loss=0.6688 val_acc=0.7619 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 7/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 7/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 7/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 07 | train_loss=0.6489 train_acc=0.7538 | val_loss=0.6002 val_acc=0.7821 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 8/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 8/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 8/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 08 | train_loss=0.5941 train_acc=0.7710 | val_loss=0.5529 val_acc=0.7968 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 9/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 9/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 9/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 09 | train_loss=0.5478 train_acc=0.7862 | val_loss=0.5083 val_acc=0.8095 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 10/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 10/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 10/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 10 | train_loss=0.5105 train_acc=0.8001 | val_loss=0.4689 val_acc=0.8257 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 11/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 11/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 11/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 11 | train_loss=0.4718 train_acc=0.8149 | val_loss=0.4312 val_acc=0.8397 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 12/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 12/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 12/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 12 | train_loss=0.4413 train_acc=0.8251 | val_loss=0.3969 val_acc=0.8578 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 13/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 13/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 13/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 13 | train_loss=0.4102 train_acc=0.8412 | val_loss=0.3697 val_acc=0.8718 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 14/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 14/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 14/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 14 | train_loss=0.3857 train_acc=0.8504 | val_loss=0.3391 val_acc=0.8774 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 15/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 15/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 15/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 15 | train_loss=0.3615 train_acc=0.8588 | val_loss=0.3153 val_acc=0.8876 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 16/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 16/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 16/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 16 | train_loss=0.3374 train_acc=0.8683 | val_loss=0.2937 val_acc=0.9010 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 17/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 17/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 17/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 17 | train_loss=0.3181 train_acc=0.8771 | val_loss=0.2690 val_acc=0.9088 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 18/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 18/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 18/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 18 | train_loss=0.3020 train_acc=0.8824 | val_loss=0.2611 val_acc=0.9119 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 19/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 19/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 19/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 19 | train_loss=0.2885 train_acc=0.8896 | val_loss=0.2397 val_acc=0.9172 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 20/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 20/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 20/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 20 | train_loss=0.2700 train_acc=0.8967 | val_loss=0.2229 val_acc=0.9213 | val_value_mae=nan | epoch_time=0.1 min
+preview rollout: {
+  "episode_id": 25,
+  "target_action_tokens": [
+    117,
+    117,
+    120,
+    120
+  ],
+  "pred_action_tokens": [
+    117,
+    117,
+    120,
+    120
+  ],
+  "target_actions_named": [
+    "ACTION_UP",
+    "ACTION_UP",
+    "ACTION_RIGHT",
+    "ACTION_RIGHT"
+  ],
+  "pred_actions_named": [
+    "ACTION_UP",
+    "ACTION_UP",
+    "ACTION_RIGHT",
+    "ACTION_RIGHT"
+  ]
+}
+saved checkpoint: C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_1\checkpoint.pt
+$ C:\Users\User\AppData\Local\Python\pythoncore-3.14-64\python.exe "C:\Users\User\Documents\4th year\project\benchmark_multi_maze_cv_decoding.py" --dataset "C:\Users\User\Documents\4th year\project\maze2d_all_mazes_transformer_ready_4act_cv5.npz" --checkpoint "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_1\checkpoint.pt" --cv-fold 1 --results-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_1\results.csv" --summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_1\summary.csv" --per-maze-summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_1\per_maze_summary.csv" --queries-per-maze 10000 --max-steps 19 --mazes OPEN U_MAZE U_MAZE_EVAL SMALL_MAZE MEDIUM_MAZE MEDIUM_MAZE_EVAL LARGE_MAZE LARGE_MAZE_EVAL
+{
+  "cv_fold": 1,
+  "results_csv": "C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\leakfree_20261026\\fully_observed_optimal\\fold_1\\results.csv",
+  "summary_csv": "C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\leakfree_20261026\\fully_observed_optimal\\fold_1\\summary.csv",
+  "per_maze_summary_csv": "C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\leakfree_20261026\\fully_observed_optimal\\fold_1\\per_maze_summary.csv"
+}
+strategy  completion_rate  average_steps_to_goal  average_compute_seconds  average_seconds_per_step
+  beam_2         0.929766               7.021583                 0.013458                  0.001630
+  beam_3         0.987458               6.867062                 0.012972                  0.001726
+  greedy         0.712375               7.690141                 0.016889                  0.001521
+$ C:\Users\User\AppData\Local\Python\pythoncore-3.14-64\python.exe "C:\Users\User\Documents\4th year\project\train_maze2d_discrete_transformer.py" --dataset "C:\Users\User\Documents\4th year\project\maze2d_all_mazes_transformer_ready_4act_cv5.npz" --cv-fold 2 --output "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_2\checkpoint.pt" --epochs 20 --max-train-episodes 1000000 --max-val-episodes 1000000 --batch-size 128 --d-model 64 --nhead 4 --num-layers 2 --ffn-dim 128 --dropout 0.1 --lr 0.0003 --weight-decay 0.0001 --seed 7 --inner-val-fraction 0.1
+{
+  "dataset": "C:\\Users\\User\\Documents\\4th year\\project\\maze2d_all_mazes_transformer_ready_4act_cv5.npz",
+  "train_episodes": 4303,
+  "val_episodes": 478,
+  "seq_len": 42,
+  "vocab_size": 121,
+  "device": "cpu",
+  "value_head": false,
+  "value_loss_weight": 1.0,
+  "cpu_threads": 10,
+  "split_metadata": {
+    "test_fold": 2,
+    "inner_val_fraction": 0.1,
+    "split_seed": 7,
+    "train_queries": 4303,
+    "validation_queries": 478,
+    "test_queries": 1195,
+    "train_episodes": 4303,
+    "validation_episodes": 478,
+    "test_episodes": 1195
+  }
+}
+  epoch 1/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 1/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 1/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 01 | train_loss=3.5425 train_acc=0.2035 | val_loss=2.4529 val_acc=0.3236 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 2/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 2/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 2/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 02 | train_loss=2.0434 train_acc=0.3813 | val_loss=1.6433 val_acc=0.4458 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 3/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 3/20 train: 34/34 batches (100.0%) | elapsed 0.2 min | ETA 0.0 min
+  epoch 3/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 03 | train_loss=1.4252 train_acc=0.4744 | val_loss=1.1998 val_acc=0.5396 | val_value_mae=nan | epoch_time=0.2 min
+  epoch 4/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 4/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 4/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 04 | train_loss=1.0642 train_acc=0.5955 | val_loss=0.9221 val_acc=0.6704 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 5/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 5/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 5/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 05 | train_loss=0.8523 train_acc=0.6860 | val_loss=0.7729 val_acc=0.7257 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 6/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 6/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 6/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 06 | train_loss=0.7304 train_acc=0.7263 | val_loss=0.6721 val_acc=0.7585 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 7/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 7/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 7/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 07 | train_loss=0.6511 train_acc=0.7529 | val_loss=0.5995 val_acc=0.7862 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 8/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 8/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 8/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 08 | train_loss=0.5934 train_acc=0.7681 | val_loss=0.5513 val_acc=0.8011 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 9/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 9/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 9/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 09 | train_loss=0.5521 train_acc=0.7868 | val_loss=0.5093 val_acc=0.8190 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 10/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 10/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 10/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 10 | train_loss=0.5109 train_acc=0.8009 | val_loss=0.4729 val_acc=0.8269 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 11/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 11/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 11/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 11 | train_loss=0.4719 train_acc=0.8153 | val_loss=0.4348 val_acc=0.8419 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 12/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 12/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 12/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 12 | train_loss=0.4381 train_acc=0.8291 | val_loss=0.3982 val_acc=0.8575 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 13/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 13/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 13/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 13 | train_loss=0.4053 train_acc=0.8395 | val_loss=0.3695 val_acc=0.8676 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 14/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 14/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 14/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 14 | train_loss=0.3803 train_acc=0.8526 | val_loss=0.3366 val_acc=0.8813 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 15/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 15/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 15/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 15 | train_loss=0.3561 train_acc=0.8621 | val_loss=0.3153 val_acc=0.8871 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 16/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 16/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 16/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 16 | train_loss=0.3349 train_acc=0.8718 | val_loss=0.2920 val_acc=0.8991 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 17/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 17/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 17/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 17 | train_loss=0.3118 train_acc=0.8797 | val_loss=0.2770 val_acc=0.9042 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 18/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 18/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 18/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 18 | train_loss=0.2960 train_acc=0.8872 | val_loss=0.2575 val_acc=0.9103 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 19/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 19/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 19/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 19 | train_loss=0.2797 train_acc=0.8934 | val_loss=0.2457 val_acc=0.9170 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 20/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 20/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 20/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 20 | train_loss=0.2696 train_acc=0.8977 | val_loss=0.2281 val_acc=0.9189 | val_value_mae=nan | epoch_time=0.1 min
+preview rollout: {
+  "episode_id": 26,
+  "target_action_tokens": [
+    118,
+    120,
+    120,
+    120
+  ],
+  "pred_action_tokens": [
+    118,
+    120,
+    120,
+    120
+  ],
+  "target_actions_named": [
+    "ACTION_DOWN",
+    "ACTION_RIGHT",
+    "ACTION_RIGHT",
+    "ACTION_RIGHT"
+  ],
+  "pred_actions_named": [
+    "ACTION_DOWN",
+    "ACTION_RIGHT",
+    "ACTION_RIGHT",
+    "ACTION_RIGHT"
+  ]
+}
+saved checkpoint: C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_2\checkpoint.pt
+$ C:\Users\User\AppData\Local\Python\pythoncore-3.14-64\python.exe "C:\Users\User\Documents\4th year\project\benchmark_multi_maze_cv_decoding.py" --dataset "C:\Users\User\Documents\4th year\project\maze2d_all_mazes_transformer_ready_4act_cv5.npz" --checkpoint "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_2\checkpoint.pt" --cv-fold 2 --results-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_2\results.csv" --summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_2\summary.csv" --per-maze-summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_2\per_maze_summary.csv" --queries-per-maze 10000 --max-steps 19 --mazes OPEN U_MAZE U_MAZE_EVAL SMALL_MAZE MEDIUM_MAZE MEDIUM_MAZE_EVAL LARGE_MAZE LARGE_MAZE_EVAL
+{
+  "cv_fold": 2,
+  "results_csv": "C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\leakfree_20261026\\fully_observed_optimal\\fold_2\\results.csv",
+  "summary_csv": "C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\leakfree_20261026\\fully_observed_optimal\\fold_2\\summary.csv",
+  "per_maze_summary_csv": "C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\leakfree_20261026\\fully_observed_optimal\\fold_2\\per_maze_summary.csv"
+}
+strategy  completion_rate  average_steps_to_goal  average_compute_seconds  average_seconds_per_step
+  beam_2         0.944770               7.027458                 0.011374                  0.001450
+  beam_3         0.985774               6.923599                 0.010811                  0.001478
+  greedy         0.707950               7.763593                 0.014561                  0.001313
+$ C:\Users\User\AppData\Local\Python\pythoncore-3.14-64\python.exe "C:\Users\User\Documents\4th year\project\train_maze2d_discrete_transformer.py" --dataset "C:\Users\User\Documents\4th year\project\maze2d_all_mazes_transformer_ready_4act_cv5.npz" --cv-fold 3 --output "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_3\checkpoint.pt" --epochs 20 --max-train-episodes 1000000 --max-val-episodes 1000000 --batch-size 128 --d-model 64 --nhead 4 --num-layers 2 --ffn-dim 128 --dropout 0.1 --lr 0.0003 --weight-decay 0.0001 --seed 7 --inner-val-fraction 0.1
+{
+  "dataset": "C:\\Users\\User\\Documents\\4th year\\project\\maze2d_all_mazes_transformer_ready_4act_cv5.npz",
+  "train_episodes": 4303,
+  "val_episodes": 478,
+  "seq_len": 42,
+  "vocab_size": 121,
+  "device": "cpu",
+  "value_head": false,
+  "value_loss_weight": 1.0,
+  "cpu_threads": 10,
+  "split_metadata": {
+    "test_fold": 3,
+    "inner_val_fraction": 0.1,
+    "split_seed": 7,
+    "train_queries": 4303,
+    "validation_queries": 478,
+    "test_queries": 1195,
+    "train_episodes": 4303,
+    "validation_episodes": 478,
+    "test_episodes": 1195
+  }
+}
+  epoch 1/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 1/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 1/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 01 | train_loss=3.5411 train_acc=0.2066 | val_loss=2.4653 val_acc=0.3109 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 2/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 2/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 2/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 02 | train_loss=2.0430 train_acc=0.3747 | val_loss=1.6541 val_acc=0.4425 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 3/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 3/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 3/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 03 | train_loss=1.4278 train_acc=0.4743 | val_loss=1.2211 val_acc=0.5373 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 4/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 4/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 4/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 04 | train_loss=1.0716 train_acc=0.5889 | val_loss=0.9419 val_acc=0.6666 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 5/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 5/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 5/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 05 | train_loss=0.8623 train_acc=0.6829 | val_loss=0.7818 val_acc=0.7285 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 6/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 6/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 6/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 06 | train_loss=0.7384 train_acc=0.7238 | val_loss=0.6701 val_acc=0.7667 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 7/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 7/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 7/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 07 | train_loss=0.6564 train_acc=0.7516 | val_loss=0.5971 val_acc=0.7964 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 8/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 8/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 8/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 08 | train_loss=0.5949 train_acc=0.7699 | val_loss=0.5371 val_acc=0.8139 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 9/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 9/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 9/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 09 | train_loss=0.5472 train_acc=0.7868 | val_loss=0.4896 val_acc=0.8234 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 10/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 10/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 10/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 10 | train_loss=0.5014 train_acc=0.8030 | val_loss=0.4390 val_acc=0.8477 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 11/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 11/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 11/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 11 | train_loss=0.4578 train_acc=0.8222 | val_loss=0.3962 val_acc=0.8616 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 12/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 12/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 12/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 12 | train_loss=0.4250 train_acc=0.8339 | val_loss=0.3607 val_acc=0.8743 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 13/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 13/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 13/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 13 | train_loss=0.3930 train_acc=0.8481 | val_loss=0.3295 val_acc=0.8832 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 14/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 14/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 14/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 14 | train_loss=0.3740 train_acc=0.8540 | val_loss=0.3073 val_acc=0.8912 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 15/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 15/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 15/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 15 | train_loss=0.3459 train_acc=0.8650 | val_loss=0.2829 val_acc=0.9043 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 16/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 16/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 16/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 16 | train_loss=0.3270 train_acc=0.8722 | val_loss=0.2660 val_acc=0.9114 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 17/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 17/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 17/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 17 | train_loss=0.3115 train_acc=0.8790 | val_loss=0.2448 val_acc=0.9164 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 18/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 18/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 18/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 18 | train_loss=0.2908 train_acc=0.8884 | val_loss=0.2343 val_acc=0.9200 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 19/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 19/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 19/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 19 | train_loss=0.2789 train_acc=0.8935 | val_loss=0.2167 val_acc=0.9241 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 20/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 20/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 20/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 20 | train_loss=0.2578 train_acc=0.9006 | val_loss=0.2067 val_acc=0.9318 | val_value_mae=nan | epoch_time=0.1 min
+preview rollout: {
+  "episode_id": 0,
+  "target_action_tokens": [
+    117
+  ],
+  "pred_action_tokens": [
+    117
+  ],
+  "target_actions_named": [
+    "ACTION_UP"
+  ],
+  "pred_actions_named": [
+    "ACTION_UP"
+  ]
+}
+saved checkpoint: C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_3\checkpoint.pt
+$ C:\Users\User\AppData\Local\Python\pythoncore-3.14-64\python.exe "C:\Users\User\Documents\4th year\project\benchmark_multi_maze_cv_decoding.py" --dataset "C:\Users\User\Documents\4th year\project\maze2d_all_mazes_transformer_ready_4act_cv5.npz" --checkpoint "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_3\checkpoint.pt" --cv-fold 3 --results-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_3\results.csv" --summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_3\summary.csv" --per-maze-summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_3\per_maze_summary.csv" --queries-per-maze 10000 --max-steps 19 --mazes OPEN U_MAZE U_MAZE_EVAL SMALL_MAZE MEDIUM_MAZE MEDIUM_MAZE_EVAL LARGE_MAZE LARGE_MAZE_EVAL
+{
+  "cv_fold": 3,
+  "results_csv": "C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\leakfree_20261026\\fully_observed_optimal\\fold_3\\results.csv",
+  "summary_csv": "C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\leakfree_20261026\\fully_observed_optimal\\fold_3\\summary.csv",
+  "per_maze_summary_csv": "C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\leakfree_20261026\\fully_observed_optimal\\fold_3\\per_maze_summary.csv"
+}
+strategy  completion_rate  average_steps_to_goal  average_compute_seconds  average_seconds_per_step
+  beam_2         0.933891               7.186380                 0.011310                  0.001390
+  beam_3         0.986611               6.972010                 0.010647                  0.001442
+  greedy         0.726360               7.845622                 0.014192                  0.001289
+$ C:\Users\User\AppData\Local\Python\pythoncore-3.14-64\python.exe "C:\Users\User\Documents\4th year\project\train_maze2d_discrete_transformer.py" --dataset "C:\Users\User\Documents\4th year\project\maze2d_all_mazes_transformer_ready_4act_cv5.npz" --cv-fold 4 --output "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_4\checkpoint.pt" --epochs 20 --max-train-episodes 1000000 --max-val-episodes 1000000 --batch-size 128 --d-model 64 --nhead 4 --num-layers 2 --ffn-dim 128 --dropout 0.1 --lr 0.0003 --weight-decay 0.0001 --seed 7 --inner-val-fraction 0.1
+{
+  "dataset": "C:\\Users\\User\\Documents\\4th year\\project\\maze2d_all_mazes_transformer_ready_4act_cv5.npz",
+  "train_episodes": 4304,
+  "val_episodes": 478,
+  "seq_len": 42,
+  "vocab_size": 121,
+  "device": "cpu",
+  "value_head": false,
+  "value_loss_weight": 1.0,
+  "cpu_threads": 10,
+  "split_metadata": {
+    "test_fold": 4,
+    "inner_val_fraction": 0.1,
+    "split_seed": 7,
+    "train_queries": 4304,
+    "validation_queries": 478,
+    "test_queries": 1194,
+    "train_episodes": 4304,
+    "validation_episodes": 478,
+    "test_episodes": 1194
+  }
+}
+  epoch 1/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 1/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 1/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 01 | train_loss=3.5401 train_acc=0.2090 | val_loss=2.4510 val_acc=0.3243 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 2/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 2/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 2/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 02 | train_loss=2.0414 train_acc=0.3835 | val_loss=1.6352 val_acc=0.4495 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 3/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 3/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 3/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 03 | train_loss=1.4261 train_acc=0.4736 | val_loss=1.1921 val_acc=0.5479 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 4/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 4/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 4/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 04 | train_loss=1.0644 train_acc=0.5974 | val_loss=0.9230 val_acc=0.6741 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 5/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 5/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 5/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 05 | train_loss=0.8561 train_acc=0.6832 | val_loss=0.7713 val_acc=0.7338 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 6/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 6/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 6/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 06 | train_loss=0.7347 train_acc=0.7257 | val_loss=0.6732 val_acc=0.7637 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 7/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 7/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 7/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 07 | train_loss=0.6553 train_acc=0.7525 | val_loss=0.6106 val_acc=0.7820 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 8/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 8/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 8/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 08 | train_loss=0.5962 train_acc=0.7724 | val_loss=0.5578 val_acc=0.7978 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 9/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 9/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 9/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 09 | train_loss=0.5521 train_acc=0.7856 | val_loss=0.5195 val_acc=0.8047 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 10/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 10/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 10/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 10 | train_loss=0.5126 train_acc=0.7982 | val_loss=0.4844 val_acc=0.8186 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 11/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 11/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 11/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 11 | train_loss=0.4845 train_acc=0.8106 | val_loss=0.4661 val_acc=0.8196 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 12/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 12/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 12/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 12 | train_loss=0.4574 train_acc=0.8180 | val_loss=0.4354 val_acc=0.8397 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 13/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 13/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 13/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 13 | train_loss=0.4367 train_acc=0.8266 | val_loss=0.4190 val_acc=0.8423 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 14/20 train: 20/34 batches ( 58.8%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 14/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 14/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 14 | train_loss=0.4155 train_acc=0.8337 | val_loss=0.3963 val_acc=0.8445 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 15/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 15/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 15/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 15 | train_loss=0.3981 train_acc=0.8408 | val_loss=0.3752 val_acc=0.8562 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 16/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 16/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 16/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 16 | train_loss=0.3825 train_acc=0.8450 | val_loss=0.3582 val_acc=0.8637 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 17/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 17/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 17/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 17 | train_loss=0.3642 train_acc=0.8535 | val_loss=0.3426 val_acc=0.8669 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 18/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 18/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 18/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 18 | train_loss=0.3465 train_acc=0.8632 | val_loss=0.3227 val_acc=0.8785 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 19/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 19/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 19/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 19 | train_loss=0.3327 train_acc=0.8669 | val_loss=0.3019 val_acc=0.8858 | val_value_mae=nan | epoch_time=0.1 min
+  epoch 20/20 train: 20/34 batches ( 58.8%) | elapsed 0.0 min | ETA 0.0 min
+  epoch 20/20 train: 34/34 batches (100.0%) | elapsed 0.1 min | ETA 0.0 min
+  epoch 20/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 20 | train_loss=0.3123 train_acc=0.8783 | val_loss=0.2843 val_acc=0.8937 | val_value_mae=nan | epoch_time=0.1 min
+preview rollout: {
+  "episode_id": 30,
+  "target_action_tokens": [
+    118,
+    118
+  ],
+  "pred_action_tokens": [
+    118,
+    118
+  ],
+  "target_actions_named": [
+    "ACTION_DOWN",
+    "ACTION_DOWN"
+  ],
+  "pred_actions_named": [
+    "ACTION_DOWN",
+    "ACTION_DOWN"
+  ]
+}
+saved checkpoint: C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_4\checkpoint.pt
+$ C:\Users\User\AppData\Local\Python\pythoncore-3.14-64\python.exe "C:\Users\User\Documents\4th year\project\benchmark_multi_maze_cv_decoding.py" --dataset "C:\Users\User\Documents\4th year\project\maze2d_all_mazes_transformer_ready_4act_cv5.npz" --checkpoint "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_4\checkpoint.pt" --cv-fold 4 --results-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_4\results.csv" --summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_4\summary.csv" --per-maze-summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal\fold_4\per_maze_summary.csv" --queries-per-maze 10000 --max-steps 19 --mazes OPEN U_MAZE U_MAZE_EVAL SMALL_MAZE MEDIUM_MAZE MEDIUM_MAZE_EVAL LARGE_MAZE LARGE_MAZE_EVAL
+{
+  "cv_fold": 4,
+  "results_csv": "C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\leakfree_20261026\\fully_observed_optimal\\fold_4\\results.csv",
+  "summary_csv": "C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\leakfree_20261026\\fully_observed_optimal\\fold_4\\summary.csv",
+  "per_maze_summary_csv": "C:\\Users\\User\\Documents\\4th year\\project\\experiment_runs\\leakfree_20261026\\fully_observed_optimal\\fold_4\\per_maze_summary.csv"
+}
+strategy  completion_rate  average_steps_to_goal  average_compute_seconds  average_seconds_per_step
+  beam_2         0.860972               7.341440                 0.013391                  0.001465
+  beam_3         0.943886               7.050577                 0.012079                  0.001516
+  greedy         0.579564               7.787572                 0.017166                  0.001354
+strategy  completion_rate  average_steps_to_goal  average_compute_seconds  average_seconds_per_step  cv_fold
+  beam_2         0.921687               7.112382                 0.013744                  0.001682 1.999163
+  beam_3         0.978748               6.942212                 0.012861                  0.001743 1.999163
+  greedy         0.690094               7.702716                 0.017586                  0.001559 1.999163
+Artifacts: C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\fully_observed_optimal
+
+=== Experiment: partially_observed_optimal ===
+training dataset:
+{
+  "path": "C:\\Users\\User\\Documents\\4th year\\project\\maze2d_partial_obs_3x3_joint_obs_action_optimal_4act_cv5.npz",
+  "sha256": "2d8c595de5e58e1928b047843b0374f4187dc0824caa7beef69c639881861fe1",
+  "episodes": 5976,
+  "sequence_length": 100,
+  "available_folds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "available_mazes": [
+    "OPEN",
+    "U_MAZE",
+    "U_MAZE_EVAL",
+    "SMALL_MAZE",
+    "MEDIUM_MAZE",
+    "MEDIUM_MAZE_EVAL",
+    "LARGE_MAZE",
+    "LARGE_MAZE_EVAL"
+  ],
+  "requested_fold_counts": {
+    "0": 1196
+  }
+}
+$ C:\Users\User\AppData\Local\Python\pythoncore-3.14-64\python.exe "C:\Users\User\Documents\4th year\project\train_maze2d_discrete_transformer.py" --dataset "C:\Users\User\Documents\4th year\project\maze2d_partial_obs_3x3_joint_obs_action_optimal_4act_cv5.npz" --cv-fold 0 --output "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\partially_observed_optimal\fold_0\checkpoint.pt" --epochs 20 --max-train-episodes 1000000 --max-val-episodes 1000000 --batch-size 128 --d-model 64 --nhead 4 --num-layers 2 --ffn-dim 128 --dropout 0.1 --lr 0.0003 --weight-decay 0.0001 --seed 7 --inner-val-fraction 0.1
+{
+  "dataset": "C:\\Users\\User\\Documents\\4th year\\project\\maze2d_partial_obs_3x3_joint_obs_action_optimal_4act_cv5.npz",
+  "train_episodes": 4302,
+  "val_episodes": 478,
+  "seq_len": 100,
+  "vocab_size": 551,
+  "device": "cpu",
+  "value_head": false,
+  "value_loss_weight": 1.0,
+  "cpu_threads": 10,
+  "split_metadata": {
+    "test_fold": 0,
+    "inner_val_fraction": 0.1,
+    "split_seed": 7,
+    "train_queries": 4302,
+    "validation_queries": 478,
+    "test_queries": 1196,
+    "train_episodes": 4302,
+    "validation_episodes": 478,
+    "test_episodes": 1196
+  }
+}
+  epoch 1/20 train: 20/34 batches ( 58.8%) | elapsed 0.2 min | ETA 0.1 min
+  epoch 1/20 train: 34/34 batches (100.0%) | elapsed 0.3 min | ETA 0.0 min
+  epoch 1/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 01 | train_loss=5.6015 train_acc=0.0875 | val_loss=4.7771 val_acc=0.1545 | val_value_mae=nan | epoch_time=0.3 min
+  epoch 2/20 train: 20/34 batches ( 58.8%) | elapsed 0.2 min | ETA 0.1 min
+  epoch 2/20 train: 34/34 batches (100.0%) | elapsed 0.3 min | ETA 0.0 min
+  epoch 2/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 02 | train_loss=4.2379 train_acc=0.1696 | val_loss=3.6886 val_acc=0.1554 | val_value_mae=nan | epoch_time=0.3 min
+  epoch 3/20 train: 20/34 batches ( 58.8%) | elapsed 0.2 min | ETA 0.1 min
+  epoch 3/20 train: 34/34 batches (100.0%) | elapsed 0.3 min | ETA 0.0 min
+  epoch 3/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 03 | train_loss=3.3670 train_acc=0.2067 | val_loss=3.0158 val_acc=0.3573 | val_value_mae=nan | epoch_time=0.3 min
+  epoch 4/20 train: 20/34 batches ( 58.8%) | elapsed 0.2 min | ETA 0.1 min
+  epoch 4/20 train: 34/34 batches (100.0%) | elapsed 0.3 min | ETA 0.0 min
+  epoch 4/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 04 | train_loss=2.8416 train_acc=0.3846 | val_loss=2.6346 val_acc=0.4834 | val_value_mae=nan | epoch_time=0.3 min
+  epoch 5/20 train: 20/34 batches ( 58.8%) | elapsed 0.2 min | ETA 0.1 min
+  epoch 5/20 train: 34/34 batches (100.0%) | elapsed 0.3 min | ETA 0.0 min
+  epoch 5/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 05 | train_loss=2.5347 train_acc=0.5068 | val_loss=2.3843 val_acc=0.5650 | val_value_mae=nan | epoch_time=0.3 min
+  epoch 6/20 train: 20/34 batches ( 58.8%) | elapsed 0.2 min | ETA 0.1 min
+  epoch 6/20 train: 34/34 batches (100.0%) | elapsed 0.3 min | ETA 0.0 min
+  epoch 6/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 06 | train_loss=2.3164 train_acc=0.5653 | val_loss=2.1822 val_acc=0.5981 | val_value_mae=nan | epoch_time=0.3 min
+  epoch 7/20 train: 20/34 batches ( 58.8%) | elapsed 0.2 min | ETA 0.1 min
+  epoch 7/20 train: 34/34 batches (100.0%) | elapsed 0.3 min | ETA 0.0 min
+  epoch 7/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 07 | train_loss=2.1432 train_acc=0.5931 | val_loss=2.0381 val_acc=0.6122 | val_value_mae=nan | epoch_time=0.3 min
+  epoch 8/20 train: 20/34 batches ( 58.8%) | elapsed 0.2 min | ETA 0.1 min
+  epoch 8/20 train: 34/34 batches (100.0%) | elapsed 0.3 min | ETA 0.0 min
+  epoch 8/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 08 | train_loss=2.0167 train_acc=0.6167 | val_loss=1.9173 val_acc=0.6382 | val_value_mae=nan | epoch_time=0.3 min
+  epoch 9/20 train: 20/34 batches ( 58.8%) | elapsed 0.2 min | ETA 0.1 min
+  epoch 9/20 train: 34/34 batches (100.0%) | elapsed 0.3 min | ETA 0.0 min
+  epoch 9/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 09 | train_loss=1.9082 train_acc=0.6355 | val_loss=1.8140 val_acc=0.6415 | val_value_mae=nan | epoch_time=0.3 min
+  epoch 10/20 train: 20/34 batches ( 58.8%) | elapsed 0.2 min | ETA 0.1 min
+  epoch 10/20 train: 34/34 batches (100.0%) | elapsed 0.3 min | ETA 0.0 min
+  epoch 10/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 10 | train_loss=1.8128 train_acc=0.6477 | val_loss=1.7163 val_acc=0.6588 | val_value_mae=nan | epoch_time=0.3 min
+  epoch 11/20 train: 20/34 batches ( 58.8%) | elapsed 0.2 min | ETA 0.1 min
+  epoch 11/20 train: 34/34 batches (100.0%) | elapsed 0.3 min | ETA 0.0 min
+  epoch 11/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 11 | train_loss=1.7260 train_acc=0.6528 | val_loss=1.6242 val_acc=0.6821 | val_value_mae=nan | epoch_time=0.3 min
+  epoch 12/20 train: 20/34 batches ( 58.8%) | elapsed 0.2 min | ETA 0.1 min
+  epoch 12/20 train: 34/34 batches (100.0%) | elapsed 0.3 min | ETA 0.0 min
+  epoch 12/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 12 | train_loss=1.6425 train_acc=0.6575 | val_loss=1.5361 val_acc=0.6845 | val_value_mae=nan | epoch_time=0.3 min
+  epoch 13/20 train: 20/34 batches ( 58.8%) | elapsed 0.2 min | ETA 0.1 min
+  epoch 13/20 train: 34/34 batches (100.0%) | elapsed 0.3 min | ETA 0.0 min
+  epoch 13/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 13 | train_loss=1.5618 train_acc=0.6637 | val_loss=1.4515 val_acc=0.6860 | val_value_mae=nan | epoch_time=0.3 min
+  epoch 14/20 train: 20/34 batches ( 58.8%) | elapsed 0.2 min | ETA 0.1 min
+  epoch 14/20 train: 34/34 batches (100.0%) | elapsed 0.3 min | ETA 0.0 min
+  epoch 14/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 14 | train_loss=1.4855 train_acc=0.6713 | val_loss=1.3729 val_acc=0.7000 | val_value_mae=nan | epoch_time=0.3 min
+  epoch 15/20 train: 20/34 batches ( 58.8%) | elapsed 0.2 min | ETA 0.1 min
+  epoch 15/20 train: 34/34 batches (100.0%) | elapsed 0.3 min | ETA 0.0 min
+  epoch 15/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 15 | train_loss=1.4134 train_acc=0.6779 | val_loss=1.2936 val_acc=0.7075 | val_value_mae=nan | epoch_time=0.3 min
+  epoch 16/20 train: 20/34 batches ( 58.8%) | elapsed 0.2 min | ETA 0.1 min
+  epoch 16/20 train: 34/34 batches (100.0%) | elapsed 0.3 min | ETA 0.0 min
+  epoch 16/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 16 | train_loss=1.3470 train_acc=0.6887 | val_loss=1.2224 val_acc=0.7254 | val_value_mae=nan | epoch_time=0.3 min
+  epoch 17/20 train: 20/34 batches ( 58.8%) | elapsed 0.2 min | ETA 0.1 min
+  epoch 17/20 train: 34/34 batches (100.0%) | elapsed 0.3 min | ETA 0.0 min
+  epoch 17/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 17 | train_loss=1.2817 train_acc=0.6999 | val_loss=1.1574 val_acc=0.7386 | val_value_mae=nan | epoch_time=0.3 min
+  epoch 18/20 train: 20/34 batches ( 58.8%) | elapsed 0.2 min | ETA 0.2 min
+  epoch 18/20 train: 34/34 batches (100.0%) | elapsed 0.4 min | ETA 0.0 min
+  epoch 18/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 18 | train_loss=1.2242 train_acc=0.7100 | val_loss=1.0985 val_acc=0.7511 | val_value_mae=nan | epoch_time=0.4 min
+  epoch 19/20 train: 20/34 batches ( 58.8%) | elapsed 0.2 min | ETA 0.2 min
+  epoch 19/20 train: 34/34 batches (100.0%) | elapsed 0.4 min | ETA 0.0 min
+  epoch 19/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 19 | train_loss=1.1713 train_acc=0.7181 | val_loss=1.0477 val_acc=0.7682 | val_value_mae=nan | epoch_time=0.4 min
+  epoch 20/20 train: 20/34 batches ( 58.8%) | elapsed 0.2 min | ETA 0.1 min
+  epoch 20/20 train: 34/34 batches (100.0%) | elapsed 0.3 min | ETA 0.0 min
+  epoch 20/20 validation: 4/4 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 20 | train_loss=1.1181 train_acc=0.7329 | val_loss=0.9914 val_acc=0.7750 | val_value_mae=nan | epoch_time=0.3 min
+preview rollout: {
+  "episode_id": 29,
+  "target_action_tokens": [
+    547,
+    547,
+    550,
+    550,
+    550
+  ],
+  "pred_action_tokens": [
+    547,
+    550,
+    550,
+    547,
+    547
+  ],
+  "target_actions_named": [
+    "ACTION_UP",
+    "ACTION_UP",
+    "ACTION_RIGHT",
+    "ACTION_RIGHT",
+    "ACTION_RIGHT"
+  ],
+  "pred_actions_named": [
+    "ACTION_UP",
+    "ACTION_RIGHT",
+    "ACTION_RIGHT",
+    "ACTION_UP",
+    "ACTION_UP"
+  ]
+}
+saved checkpoint: C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\partially_observed_optimal\fold_0\checkpoint.pt
+$ C:\Users\User\AppData\Local\Python\pythoncore-3.14-64\python.exe "C:\Users\User\Documents\4th year\project\benchmark_partial_observation_token_level_beam.py" --dataset "C:\Users\User\Documents\4th year\project\maze2d_partial_obs_3x3_joint_obs_action_optimal_4act_cv5.npz" --checkpoint "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\partially_observed_optimal\fold_0\checkpoint.pt" --cv-fold 0 --results-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\partially_observed_optimal\fold_0\results.csv" --summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\partially_observed_optimal\fold_0\summary.csv" --per-maze-summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\partially_observed_optimal\fold_0\per_maze_summary.csv" --queries-per-maze 10000 --max-steps 19 --planning-horizon 5 --device auto --strategies receding_greedy token_level_beam_2 token_level_beam_3 --resume --mazes OPEN U_MAZE U_MAZE_EVAL SMALL_MAZE MEDIUM_MAZE MEDIUM_MAZE_EVAL LARGE_MAZE LARGE_MAZE_EVAL
+{
+  "device": "cpu",
+  "fold": 0,
+  "strategies": [
+    "receding_greedy",
+    "token_level_beam_2",
+    "token_level_beam_3"
+  ],
+  "existing_rows": 0
+}
+Completed OPEN: 144 rows saved
+Completed U_MAZE: 198 rows saved
+Completed U_MAZE_EVAL: 252 rows saved
+Completed SMALL_MAZE: 267 rows saved
+Completed MEDIUM_MAZE: 657 rows saved
+Completed MEDIUM_MAZE_EVAL: 1047 rows saved
+Completed LARGE_MAZE: 2289 rows saved
+Completed LARGE_MAZE_EVAL: 3588 rows saved
+          strategy  completion_rate  average_steps_to_goal  average_compute_seconds  average_seconds_per_step  invalid_real_action_count  invalid_real_action_rate  first_wall_mask_accuracy  first_visible_goal_accuracy  first_goal_row_accuracy  first_goal_column_accuracy  complete_next_observation_accuracy
+   receding_greedy         0.848662               6.689655                 0.028726                  0.003441                          0                       0.0                       NaN                          NaN                      NaN                         NaN                                 NaN
+token_level_beam_2         0.839465               6.654382                 0.632495                  0.058940                          0                       0.0                  0.277440                     0.853902                      1.0                         1.0                            0.248674
+token_level_beam_3         0.823579               6.608122                 0.763056                  0.068274                          0                       0.0                  0.276685                     0.877100                      1.0                         1.0                            0.251463
+          strategy  completion_rate  average_steps_to_goal  average_compute_seconds  average_seconds_per_step  cv_fold  invalid_real_action_count  invalid_real_action_rate  first_wall_mask_accuracy  first_visible_goal_accuracy  first_goal_row_accuracy  first_goal_column_accuracy  complete_next_observation_accuracy
+   receding_greedy         0.848662               6.689655                 0.028726                  0.003441      0.0                          0                       0.0                       NaN                          NaN                      NaN                         NaN                                 NaN
+token_level_beam_2         0.839465               6.654382                 0.632495                  0.058940      0.0                          0                       0.0                  0.277440                     0.853902                      1.0                         1.0                            0.248674
+token_level_beam_3         0.823579               6.608122                 0.763056                  0.068274      0.0                          0                       0.0                  0.276685                     0.877100                      1.0                         1.0                            0.251463
+Artifacts: C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\partially_observed_optimal
+
+=== Experiment: partially_observed_mixed ===
+training dataset:
+{
+  "path": "C:\\Users\\User\\Documents\\4th year\\project\\maze2d_partial_obs_3x3_joint_obs_action_mixed3_4act_cv5.npz",
+  "sha256": "5a228c6c58f211a566fba3772c207992934f1b85d4f7c666f8d88c4af18814ea",
+  "episodes": 17928,
+  "sequence_length": 100,
+  "available_folds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "available_mazes": [
+    "OPEN",
+    "U_MAZE",
+    "U_MAZE_EVAL",
+    "SMALL_MAZE",
+    "MEDIUM_MAZE",
+    "MEDIUM_MAZE_EVAL",
+    "LARGE_MAZE",
+    "LARGE_MAZE_EVAL"
+  ],
+  "requested_fold_counts": {
+    "0": 3588
+  }
+}
+evaluation dataset:
+{
+  "path": "C:\\Users\\User\\Documents\\4th year\\project\\maze2d_partial_obs_3x3_joint_obs_action_optimal_4act_cv5.npz",
+  "sha256": "2d8c595de5e58e1928b047843b0374f4187dc0824caa7beef69c639881861fe1",
+  "episodes": 5976,
+  "sequence_length": 100,
+  "available_folds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "available_mazes": [
+    "OPEN",
+    "U_MAZE",
+    "U_MAZE_EVAL",
+    "SMALL_MAZE",
+    "MEDIUM_MAZE",
+    "MEDIUM_MAZE_EVAL",
+    "LARGE_MAZE",
+    "LARGE_MAZE_EVAL"
+  ],
+  "requested_fold_counts": {
+    "0": 1196
+  }
+}
+$ C:\Users\User\AppData\Local\Python\pythoncore-3.14-64\python.exe "C:\Users\User\Documents\4th year\project\train_maze2d_discrete_transformer.py" --dataset "C:\Users\User\Documents\4th year\project\maze2d_partial_obs_3x3_joint_obs_action_mixed3_4act_cv5.npz" --cv-fold 0 --output "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\partially_observed_mixed\fold_0\checkpoint.pt" --epochs 20 --max-train-episodes 1000000 --max-val-episodes 1000000 --batch-size 128 --d-model 64 --nhead 4 --num-layers 2 --ffn-dim 128 --dropout 0.1 --lr 0.0003 --weight-decay 0.0001 --seed 7 --inner-val-fraction 0.1
+{
+  "dataset": "C:\\Users\\User\\Documents\\4th year\\project\\maze2d_partial_obs_3x3_joint_obs_action_mixed3_4act_cv5.npz",
+  "train_episodes": 12906,
+  "val_episodes": 1434,
+  "seq_len": 100,
+  "vocab_size": 551,
+  "device": "cpu",
+  "value_head": false,
+  "value_loss_weight": 1.0,
+  "cpu_threads": 10,
+  "split_metadata": {
+    "test_fold": 0,
+    "inner_val_fraction": 0.1,
+    "split_seed": 7,
+    "train_queries": 4302,
+    "validation_queries": 478,
+    "test_queries": 1196,
+    "train_episodes": 12906,
+    "validation_episodes": 1434,
+    "test_episodes": 3588
+  }
+}
+  epoch 1/20 train: 20/101 batches ( 19.8%) | elapsed 0.2 min | ETA 0.8 min
+  epoch 1/20 train: 40/101 batches ( 39.6%) | elapsed 0.4 min | ETA 0.6 min
+  epoch 1/20 train: 60/101 batches ( 59.4%) | elapsed 0.6 min | ETA 0.4 min
+  epoch 1/20 train: 80/101 batches ( 79.2%) | elapsed 0.8 min | ETA 0.2 min
+  epoch 1/20 train: 100/101 batches ( 99.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 1/20 train: 101/101 batches (100.0%) | elapsed 1.0 min | ETA 0.0 min
+  epoch 1/20 validation: 12/12 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 01 | train_loss=4.4244 train_acc=0.1763 | val_loss=3.0590 val_acc=0.2277 | val_value_mae=nan | epoch_time=1.0 min
+  epoch 2/20 train: 20/101 batches ( 19.8%) | elapsed 0.2 min | ETA 0.9 min
+  epoch 2/20 train: 40/101 batches ( 39.6%) | elapsed 0.4 min | ETA 0.7 min
+  epoch 2/20 train: 60/101 batches ( 59.4%) | elapsed 0.6 min | ETA 0.4 min
+  epoch 2/20 train: 80/101 batches ( 79.2%) | elapsed 0.8 min | ETA 0.2 min
+  epoch 2/20 train: 100/101 batches ( 99.0%) | elapsed 1.0 min | ETA 0.0 min
+  epoch 2/20 train: 101/101 batches (100.0%) | elapsed 1.0 min | ETA 0.0 min
+  epoch 2/20 validation: 12/12 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 02 | train_loss=2.6631 train_acc=0.3660 | val_loss=2.3626 val_acc=0.4830 | val_value_mae=nan | epoch_time=1.0 min
+  epoch 3/20 train: 20/101 batches ( 19.8%) | elapsed 0.2 min | ETA 0.8 min
+  epoch 3/20 train: 40/101 batches ( 39.6%) | elapsed 0.4 min | ETA 0.6 min
+  epoch 3/20 train: 60/101 batches ( 59.4%) | elapsed 0.6 min | ETA 0.4 min
+  epoch 3/20 train: 80/101 batches ( 79.2%) | elapsed 0.7 min | ETA 0.2 min
+  epoch 3/20 train: 100/101 batches ( 99.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 3/20 train: 101/101 batches (100.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 3/20 validation: 12/12 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 03 | train_loss=2.2016 train_acc=0.4917 | val_loss=2.0157 val_acc=0.5171 | val_value_mae=nan | epoch_time=1.0 min
+  epoch 4/20 train: 20/101 batches ( 19.8%) | elapsed 0.2 min | ETA 0.8 min
+  epoch 4/20 train: 40/101 batches ( 39.6%) | elapsed 0.4 min | ETA 0.6 min
+  epoch 4/20 train: 60/101 batches ( 59.4%) | elapsed 0.6 min | ETA 0.4 min
+  epoch 4/20 train: 80/101 batches ( 79.2%) | elapsed 0.8 min | ETA 0.2 min
+  epoch 4/20 train: 100/101 batches ( 99.0%) | elapsed 1.0 min | ETA 0.0 min
+  epoch 4/20 train: 101/101 batches (100.0%) | elapsed 1.0 min | ETA 0.0 min
+  epoch 4/20 validation: 12/12 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 04 | train_loss=1.9312 train_acc=0.5162 | val_loss=1.7681 val_acc=0.5501 | val_value_mae=nan | epoch_time=1.0 min
+  epoch 5/20 train: 20/101 batches ( 19.8%) | elapsed 0.2 min | ETA 0.8 min
+  epoch 5/20 train: 40/101 batches ( 39.6%) | elapsed 0.4 min | ETA 0.6 min
+  epoch 5/20 train: 60/101 batches ( 59.4%) | elapsed 0.5 min | ETA 0.4 min
+  epoch 5/20 train: 80/101 batches ( 79.2%) | elapsed 0.7 min | ETA 0.2 min
+  epoch 5/20 train: 100/101 batches ( 99.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 5/20 train: 101/101 batches (100.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 5/20 validation: 12/12 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 05 | train_loss=1.7047 train_acc=0.5231 | val_loss=1.5365 val_acc=0.5396 | val_value_mae=nan | epoch_time=0.9 min
+  epoch 6/20 train: 20/101 batches ( 19.8%) | elapsed 0.2 min | ETA 0.8 min
+  epoch 6/20 train: 40/101 batches ( 39.6%) | elapsed 0.4 min | ETA 0.6 min
+  epoch 6/20 train: 60/101 batches ( 59.4%) | elapsed 0.6 min | ETA 0.4 min
+  epoch 6/20 train: 80/101 batches ( 79.2%) | elapsed 0.7 min | ETA 0.2 min
+  epoch 6/20 train: 100/101 batches ( 99.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 6/20 train: 101/101 batches (100.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 6/20 validation: 12/12 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 06 | train_loss=1.5143 train_acc=0.5403 | val_loss=1.3573 val_acc=0.5681 | val_value_mae=nan | epoch_time=0.9 min
+  epoch 7/20 train: 20/101 batches ( 19.8%) | elapsed 0.2 min | ETA 0.7 min
+  epoch 7/20 train: 40/101 batches ( 39.6%) | elapsed 0.4 min | ETA 0.5 min
+  epoch 7/20 train: 60/101 batches ( 59.4%) | elapsed 0.5 min | ETA 0.4 min
+  epoch 7/20 train: 80/101 batches ( 79.2%) | elapsed 0.7 min | ETA 0.2 min
+  epoch 7/20 train: 100/101 batches ( 99.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 7/20 train: 101/101 batches (100.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 7/20 validation: 12/12 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 07 | train_loss=1.3636 train_acc=0.5578 | val_loss=1.2126 val_acc=0.5820 | val_value_mae=nan | epoch_time=0.9 min
+  epoch 8/20 train: 20/101 batches ( 19.8%) | elapsed 0.2 min | ETA 0.7 min
+  epoch 8/20 train: 40/101 batches ( 39.6%) | elapsed 0.4 min | ETA 0.5 min
+  epoch 8/20 train: 60/101 batches ( 59.4%) | elapsed 0.5 min | ETA 0.4 min
+  epoch 8/20 train: 80/101 batches ( 79.2%) | elapsed 0.7 min | ETA 0.2 min
+  epoch 8/20 train: 100/101 batches ( 99.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 8/20 train: 101/101 batches (100.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 8/20 validation: 12/12 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 08 | train_loss=1.2391 train_acc=0.5747 | val_loss=1.0907 val_acc=0.5982 | val_value_mae=nan | epoch_time=0.9 min
+  epoch 9/20 train: 20/101 batches ( 19.8%) | elapsed 0.2 min | ETA 0.7 min
+  epoch 9/20 train: 40/101 batches ( 39.6%) | elapsed 0.4 min | ETA 0.6 min
+  epoch 9/20 train: 60/101 batches ( 59.4%) | elapsed 0.5 min | ETA 0.4 min
+  epoch 9/20 train: 80/101 batches ( 79.2%) | elapsed 0.7 min | ETA 0.2 min
+  epoch 9/20 train: 100/101 batches ( 99.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 9/20 train: 101/101 batches (100.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 9/20 validation: 12/12 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 09 | train_loss=1.1313 train_acc=0.5905 | val_loss=0.9782 val_acc=0.6218 | val_value_mae=nan | epoch_time=0.9 min
+  epoch 10/20 train: 20/101 batches ( 19.8%) | elapsed 0.2 min | ETA 0.8 min
+  epoch 10/20 train: 40/101 batches ( 39.6%) | elapsed 0.4 min | ETA 0.6 min
+  epoch 10/20 train: 60/101 batches ( 59.4%) | elapsed 0.6 min | ETA 0.4 min
+  epoch 10/20 train: 80/101 batches ( 79.2%) | elapsed 0.7 min | ETA 0.2 min
+  epoch 10/20 train: 100/101 batches ( 99.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 10/20 train: 101/101 batches (100.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 10/20 validation: 12/12 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 10 | train_loss=1.0316 train_acc=0.6092 | val_loss=0.8714 val_acc=0.6396 | val_value_mae=nan | epoch_time=1.0 min
+  epoch 11/20 train: 20/101 batches ( 19.8%) | elapsed 0.2 min | ETA 0.7 min
+  epoch 11/20 train: 40/101 batches ( 39.6%) | elapsed 0.4 min | ETA 0.5 min
+  epoch 11/20 train: 60/101 batches ( 59.4%) | elapsed 0.5 min | ETA 0.4 min
+  epoch 11/20 train: 80/101 batches ( 79.2%) | elapsed 0.7 min | ETA 0.2 min
+  epoch 11/20 train: 100/101 batches ( 99.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 11/20 train: 101/101 batches (100.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 11/20 validation: 12/12 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 11 | train_loss=0.9396 train_acc=0.6229 | val_loss=0.7791 val_acc=0.6539 | val_value_mae=nan | epoch_time=0.9 min
+  epoch 12/20 train: 20/101 batches ( 19.8%) | elapsed 0.2 min | ETA 0.9 min
+  epoch 12/20 train: 40/101 batches ( 39.6%) | elapsed 0.4 min | ETA 0.6 min
+  epoch 12/20 train: 60/101 batches ( 59.4%) | elapsed 0.6 min | ETA 0.4 min
+  epoch 12/20 train: 80/101 batches ( 79.2%) | elapsed 0.8 min | ETA 0.2 min
+  epoch 12/20 train: 100/101 batches ( 99.0%) | elapsed 1.0 min | ETA 0.0 min
+  epoch 12/20 train: 101/101 batches (100.0%) | elapsed 1.0 min | ETA 0.0 min
+  epoch 12/20 validation: 12/12 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 12 | train_loss=0.8581 train_acc=0.6414 | val_loss=0.6913 val_acc=0.6800 | val_value_mae=nan | epoch_time=1.1 min
+  epoch 13/20 train: 20/101 batches ( 19.8%) | elapsed 0.2 min | ETA 0.8 min
+  epoch 13/20 train: 40/101 batches ( 39.6%) | elapsed 0.4 min | ETA 0.6 min
+  epoch 13/20 train: 60/101 batches ( 59.4%) | elapsed 0.6 min | ETA 0.4 min
+  epoch 13/20 train: 80/101 batches ( 79.2%) | elapsed 0.8 min | ETA 0.2 min
+  epoch 13/20 train: 100/101 batches ( 99.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 13/20 train: 101/101 batches (100.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 13/20 validation: 12/12 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 13 | train_loss=0.7833 train_acc=0.6577 | val_loss=0.6155 val_acc=0.6973 | val_value_mae=nan | epoch_time=1.0 min
+  epoch 14/20 train: 20/101 batches ( 19.8%) | elapsed 0.2 min | ETA 0.7 min
+  epoch 14/20 train: 40/101 batches ( 39.6%) | elapsed 0.4 min | ETA 0.6 min
+  epoch 14/20 train: 60/101 batches ( 59.4%) | elapsed 0.5 min | ETA 0.4 min
+  epoch 14/20 train: 80/101 batches ( 79.2%) | elapsed 0.7 min | ETA 0.2 min
+  epoch 14/20 train: 100/101 batches ( 99.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 14/20 train: 101/101 batches (100.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 14/20 validation: 12/12 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 14 | train_loss=0.7145 train_acc=0.6754 | val_loss=0.5430 val_acc=0.7231 | val_value_mae=nan | epoch_time=0.9 min
+  epoch 15/20 train: 20/101 batches ( 19.8%) | elapsed 0.2 min | ETA 0.7 min
+  epoch 15/20 train: 40/101 batches ( 39.6%) | elapsed 0.3 min | ETA 0.5 min
+  epoch 15/20 train: 60/101 batches ( 59.4%) | elapsed 0.5 min | ETA 0.4 min
+  epoch 15/20 train: 80/101 batches ( 79.2%) | elapsed 0.7 min | ETA 0.2 min
+  epoch 15/20 train: 100/101 batches ( 99.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 15/20 train: 101/101 batches (100.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 15/20 validation: 12/12 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 15 | train_loss=0.6550 train_acc=0.6913 | val_loss=0.4832 val_acc=0.7373 | val_value_mae=nan | epoch_time=0.9 min
+  epoch 16/20 train: 20/101 batches ( 19.8%) | elapsed 0.2 min | ETA 0.8 min
+  epoch 16/20 train: 40/101 batches ( 39.6%) | elapsed 0.4 min | ETA 0.6 min
+  epoch 16/20 train: 60/101 batches ( 59.4%) | elapsed 0.6 min | ETA 0.4 min
+  epoch 16/20 train: 80/101 batches ( 79.2%) | elapsed 0.8 min | ETA 0.2 min
+  epoch 16/20 train: 100/101 batches ( 99.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 16/20 train: 101/101 batches (100.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 16/20 validation: 12/12 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 16 | train_loss=0.6022 train_acc=0.7053 | val_loss=0.4284 val_acc=0.7545 | val_value_mae=nan | epoch_time=1.0 min
+  epoch 17/20 train: 20/101 batches ( 19.8%) | elapsed 0.2 min | ETA 0.8 min
+  epoch 17/20 train: 40/101 batches ( 39.6%) | elapsed 0.4 min | ETA 0.6 min
+  epoch 17/20 train: 60/101 batches ( 59.4%) | elapsed 0.6 min | ETA 0.4 min
+  epoch 17/20 train: 80/101 batches ( 79.2%) | elapsed 0.8 min | ETA 0.2 min
+  epoch 17/20 train: 100/101 batches ( 99.0%) | elapsed 1.0 min | ETA 0.0 min
+  epoch 17/20 train: 101/101 batches (100.0%) | elapsed 1.0 min | ETA 0.0 min
+  epoch 17/20 validation: 12/12 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 17 | train_loss=0.5552 train_acc=0.7206 | val_loss=0.3893 val_acc=0.7684 | val_value_mae=nan | epoch_time=1.0 min
+  epoch 18/20 train: 20/101 batches ( 19.8%) | elapsed 0.2 min | ETA 0.8 min
+  epoch 18/20 train: 40/101 batches ( 39.6%) | elapsed 0.4 min | ETA 0.6 min
+  epoch 18/20 train: 60/101 batches ( 59.4%) | elapsed 0.6 min | ETA 0.4 min
+  epoch 18/20 train: 80/101 batches ( 79.2%) | elapsed 0.7 min | ETA 0.2 min
+  epoch 18/20 train: 100/101 batches ( 99.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 18/20 train: 101/101 batches (100.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 18/20 validation: 12/12 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 18 | train_loss=0.5161 train_acc=0.7306 | val_loss=0.3518 val_acc=0.7785 | val_value_mae=nan | epoch_time=0.9 min
+  epoch 19/20 train: 20/101 batches ( 19.8%) | elapsed 0.2 min | ETA 0.7 min
+  epoch 19/20 train: 40/101 batches ( 39.6%) | elapsed 0.4 min | ETA 0.6 min
+  epoch 19/20 train: 60/101 batches ( 59.4%) | elapsed 0.5 min | ETA 0.4 min
+  epoch 19/20 train: 80/101 batches ( 79.2%) | elapsed 0.7 min | ETA 0.2 min
+  epoch 19/20 train: 100/101 batches ( 99.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 19/20 train: 101/101 batches (100.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 19/20 validation: 12/12 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 19 | train_loss=0.4813 train_acc=0.7387 | val_loss=0.3235 val_acc=0.7862 | val_value_mae=nan | epoch_time=0.9 min
+  epoch 20/20 train: 20/101 batches ( 19.8%) | elapsed 0.2 min | ETA 0.7 min
+  epoch 20/20 train: 40/101 batches ( 39.6%) | elapsed 0.4 min | ETA 0.6 min
+  epoch 20/20 train: 60/101 batches ( 59.4%) | elapsed 0.5 min | ETA 0.4 min
+  epoch 20/20 train: 80/101 batches ( 79.2%) | elapsed 0.7 min | ETA 0.2 min
+  epoch 20/20 train: 100/101 batches ( 99.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 20/20 train: 101/101 batches (100.0%) | elapsed 0.9 min | ETA 0.0 min
+  epoch 20/20 validation: 12/12 batches (100.0%) | elapsed 0.0 min | ETA 0.0 min
+epoch 20 | train_loss=0.4509 train_acc=0.7462 | val_loss=0.2969 val_acc=0.7955 | val_value_mae=nan | epoch_time=1.0 min
+preview rollout: {
+  "episode_id": 87,
+  "target_action_tokens": [
+    547,
+    547,
+    550,
+    550,
+    550
+  ],
+  "pred_action_tokens": [
+    547,
+    550,
+    550,
+    547,
+    550
+  ],
+  "target_actions_named": [
+    "ACTION_UP",
+    "ACTION_UP",
+    "ACTION_RIGHT",
+    "ACTION_RIGHT",
+    "ACTION_RIGHT"
+  ],
+  "pred_actions_named": [
+    "ACTION_UP",
+    "ACTION_RIGHT",
+    "ACTION_RIGHT",
+    "ACTION_UP",
+    "ACTION_RIGHT"
+  ]
+}
+saved checkpoint: C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\partially_observed_mixed\fold_0\checkpoint.pt
+$ C:\Users\User\AppData\Local\Python\pythoncore-3.14-64\python.exe "C:\Users\User\Documents\4th year\project\benchmark_partial_observation_token_level_beam.py" --dataset "C:\Users\User\Documents\4th year\project\maze2d_partial_obs_3x3_joint_obs_action_optimal_4act_cv5.npz" --checkpoint "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\partially_observed_mixed\fold_0\checkpoint.pt" --cv-fold 0 --results-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\partially_observed_mixed\fold_0\results.csv" --summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\partially_observed_mixed\fold_0\summary.csv" --per-maze-summary-csv "C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\partially_observed_mixed\fold_0\per_maze_summary.csv" --queries-per-maze 10000 --max-steps 19 --planning-horizon 5 --device auto --strategies receding_greedy token_level_beam_2 token_level_beam_3 --resume --mazes OPEN U_MAZE U_MAZE_EVAL SMALL_MAZE MEDIUM_MAZE MEDIUM_MAZE_EVAL LARGE_MAZE LARGE_MAZE_EVAL
+{
+  "device": "cpu",
+  "fold": 0,
+  "strategies": [
+    "receding_greedy",
+    "token_level_beam_2",
+    "token_level_beam_3"
+  ],
+  "existing_rows": 0
+}
+Completed OPEN: 144 rows saved
+Completed U_MAZE: 198 rows saved
+Completed U_MAZE_EVAL: 252 rows saved
+Completed SMALL_MAZE: 267 rows saved
+Completed MEDIUM_MAZE: 657 rows saved
+Completed MEDIUM_MAZE_EVAL: 1047 rows saved
+Completed LARGE_MAZE: 2289 rows saved
+Completed LARGE_MAZE_EVAL: 3588 rows saved
+          strategy  completion_rate  average_steps_to_goal  average_compute_seconds  average_seconds_per_step  invalid_real_action_count  invalid_real_action_rate  first_wall_mask_accuracy  first_visible_goal_accuracy  first_goal_row_accuracy  first_goal_column_accuracy  complete_next_observation_accuracy
+   receding_greedy         0.889632               7.024436                 0.023758                  0.002980                          0                       0.0                       NaN                          NaN                      NaN                         NaN                                 NaN
+token_level_beam_2         0.938963               6.961710                 0.445396                  0.048447                          0                       0.0                  0.805791                     0.989547                      1.0                         1.0                            0.800699
+token_level_beam_3         0.945652               6.956676                 0.548068                  0.061362                          0                       0.0                  0.808971                     0.995456                      1.0                         1.0                            0.806363
+          strategy  completion_rate  average_steps_to_goal  average_compute_seconds  average_seconds_per_step  cv_fold  invalid_real_action_count  invalid_real_action_rate  first_wall_mask_accuracy  first_visible_goal_accuracy  first_goal_row_accuracy  first_goal_column_accuracy  complete_next_observation_accuracy
+   receding_greedy         0.889632               7.024436                 0.023758                  0.002980      0.0                          0                       0.0                       NaN                          NaN                      NaN                         NaN                                 NaN
+token_level_beam_2         0.938963               6.961710                 0.445396                  0.048447      0.0                          0                       0.0                  0.805791                     0.989547                      1.0                         1.0                            0.800699
+token_level_beam_3         0.945652               6.956676                 0.548068                  0.061362      0.0                          0                       0.0                  0.808971                     0.995456                      1.0                         1.0                            0.806363
+Artifacts: C:\Users\User\Documents\4th year\project\experiment_runs\leakfree_20261026\partially_observed_mixed

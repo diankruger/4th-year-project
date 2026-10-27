@@ -1,0 +1,83 @@
+
+Fully observed, optimal data (five folds)
+  beam_2: completion 0.9187 -> 0.9217 (+0.30 pp); steps/all 8.086 -> 8.043; compute/query 14.5 -> 13.7 ms
+  beam_3: completion 0.9794 -> 0.9787 (-0.07 pp); steps/all 7.177 -> 7.198; compute/query 13.5 -> 12.9 ms
+  greedy: completion 0.6916 -> 0.6901 (-0.15 pp); steps/all 11.199 -> 11.204; compute/query 18.6 -> 17.6 ms
+  Completion ranking by maze (old -> new):
+    LARGE_MAZE: beam_3 0.985, beam_2 0.921, greedy 0.666 -> beam_3 0.984, beam_2 0.917, greedy 0.660
+    LARGE_MAZE_EVAL: beam_3 0.970, beam_2 0.899, greedy 0.690 -> beam_3 0.967, beam_2 0.902, greedy 0.696
+    MEDIUM_MAZE: beam_3 0.988, beam_2 0.945, greedy 0.749 -> beam_3 0.991, beam_2 0.954, greedy 0.731
+    MEDIUM_MAZE_EVAL: beam_3 0.972, beam_2 0.908, greedy 0.629 -> beam_3 0.978, beam_2 0.928, greedy 0.637
+    OPEN: beam_3 1.000, beam_2 0.971, greedy 0.829 -> beam_3 0.996, beam_2 0.967, greedy 0.817
+    SMALL_MAZE: beam_2 1.000, beam_3 1.000, greedy 1.000 -> beam_2 1.000, beam_3 1.000, greedy 1.000
+    U_MAZE: beam_3 1.000, beam_2 0.978, greedy 0.733 -> beam_2 1.000, beam_3 1.000, greedy 0.756
+    U_MAZE_EVAL: beam_2 1.000, beam_3 1.000, greedy 0.867 -> beam_2 1.000, beam_3 1.000, greedy 0.856
+  Paired decoder comparisons (old):
+    beam_2 vs greedy: +22.71 pp; beam-only successes 1368, greedy-only successes 11
+    beam_3 vs greedy: +28.78 pp; beam-only successes 1722, greedy-only successes 2
+  Paired decoder comparisons (new):
+    beam_2 vs greedy: +23.16 pp; beam-only successes 1389, greedy-only successes 5
+    beam_3 vs greedy: +28.87 pp; beam-only successes 1729, greedy-only successes 4
+
+Partially observed, optimal data (fold 0)
+  receding_greedy: completion 0.8737 -> 0.8487 (-2.51 pp); steps/all 8.424 -> 8.553; compute/query 23.1 -> 28.7 ms
+  token_level_beam_2: completion 0.8662 -> 0.8395 (-2.68 pp); steps/all 8.384 -> 8.636; compute/query 480.0 -> 632.5 ms; wall agreement 0.3347 -> 0.2774
+  token_level_beam_3: completion 0.8487 -> 0.8236 (-2.51 pp); steps/all 8.523 -> 8.794; compute/query 591.4 -> 763.1 ms; wall agreement 0.3202 -> 0.2767
+  Completion ranking by maze (old -> new):
+    LARGE_MAZE: receding_greedy 0.867, token_level_beam_2 0.833, token_level_beam_3 0.804 -> receding_greedy 0.843, token_level_beam_2 0.812, token_level_beam_3 0.790
+    LARGE_MAZE_EVAL: token_level_beam_2 0.857, receding_greedy 0.845, token_level_beam_3 0.841 -> token_level_beam_2 0.808, receding_greedy 0.804, token_level_beam_3 0.790
+    MEDIUM_MAZE: token_level_beam_2 0.946, token_level_beam_3 0.938, receding_greedy 0.931 -> token_level_beam_2 0.946, token_level_beam_3 0.931, receding_greedy 0.923
+    MEDIUM_MAZE_EVAL: receding_greedy 0.854, token_level_beam_2 0.854, token_level_beam_3 0.846 -> receding_greedy 0.854, token_level_beam_2 0.838, token_level_beam_3 0.838
+    OPEN: receding_greedy 1.000, token_level_beam_2 1.000, token_level_beam_3 1.000 -> receding_greedy 1.000, token_level_beam_2 1.000, token_level_beam_3 1.000
+    SMALL_MAZE: receding_greedy 1.000, token_level_beam_2 1.000, token_level_beam_3 1.000 -> receding_greedy 1.000, token_level_beam_2 1.000, token_level_beam_3 1.000
+    U_MAZE: receding_greedy 0.944, token_level_beam_2 0.944, token_level_beam_3 0.944 -> receding_greedy 0.944, token_level_beam_2 0.944, token_level_beam_3 0.944
+    U_MAZE_EVAL: receding_greedy 1.000, token_level_beam_2 0.889, token_level_beam_3 0.889 -> receding_greedy 0.944, token_level_beam_2 0.889, token_level_beam_3 0.889
+  Paired decoder comparisons (old):
+    token_level_beam_2 vs receding_greedy: -0.75 pp; beam-only successes 29, greedy-only successes 38
+    token_level_beam_3 vs receding_greedy: -2.51 pp; beam-only successes 27, greedy-only successes 57
+  Paired decoder comparisons (new):
+    token_level_beam_2 vs receding_greedy: -0.92 pp; beam-only successes 34, greedy-only successes 45
+    token_level_beam_3 vs receding_greedy: -2.51 pp; beam-only successes 32, greedy-only successes 62
+
+Partially observed, mixed-quality data (fold 0)
+  receding_greedy: completion 0.9038 -> 0.8896 (-1.42 pp); steps/all 8.103 -> 8.346; compute/query 27.3 -> 23.8 ms
+  token_level_beam_2: completion 0.9448 -> 0.9390 (-0.59 pp); steps/all 7.554 -> 7.696; compute/query 524.5 -> 445.4 ms; wall agreement 0.8283 -> 0.8058
+  token_level_beam_3: completion 0.9523 -> 0.9457 (-0.67 pp); steps/all 7.501 -> 7.611; compute/query 638.5 -> 548.1 ms; wall agreement 0.8318 -> 0.8090
+  Completion ranking by maze (old -> new):
+    LARGE_MAZE: token_level_beam_3 0.930, token_level_beam_2 0.923, receding_greedy 0.882 -> token_level_beam_3 0.918, token_level_beam_2 0.911, receding_greedy 0.860
+    LARGE_MAZE_EVAL: token_level_beam_3 0.965, token_level_beam_2 0.952, receding_greedy 0.901 -> token_level_beam_3 0.968, token_level_beam_2 0.954, receding_greedy 0.880
+    MEDIUM_MAZE: token_level_beam_2 1.000, token_level_beam_3 1.000, receding_greedy 0.931 -> token_level_beam_3 0.969, token_level_beam_2 0.962, receding_greedy 0.923
+    MEDIUM_MAZE_EVAL: token_level_beam_2 0.954, token_level_beam_3 0.946, receding_greedy 0.923 -> token_level_beam_2 0.946, token_level_beam_3 0.931, receding_greedy 0.923
+    OPEN: token_level_beam_3 1.000, receding_greedy 0.979, token_level_beam_2 0.979 -> token_level_beam_2 1.000, token_level_beam_3 1.000, receding_greedy 0.979
+    SMALL_MAZE: receding_greedy 1.000, token_level_beam_2 1.000, token_level_beam_3 1.000 -> receding_greedy 1.000, token_level_beam_2 1.000, token_level_beam_3 1.000
+    U_MAZE: receding_greedy 0.944, token_level_beam_2 0.833, token_level_beam_3 0.833 -> receding_greedy 1.000, token_level_beam_2 0.944, token_level_beam_3 0.944
+    U_MAZE_EVAL: receding_greedy 0.889, token_level_beam_2 0.833, token_level_beam_3 0.833 -> receding_greedy 0.944, token_level_beam_2 0.833, token_level_beam_3 0.833
+  Paired decoder comparisons (old):
+    token_level_beam_2 vs receding_greedy: +4.10 pp; beam-only successes 64, greedy-only successes 15
+    token_level_beam_3 vs receding_greedy: +4.85 pp; beam-only successes 71, greedy-only successes 13
+  Paired decoder comparisons (new):
+    token_level_beam_2 vs receding_greedy: +4.93 pp; beam-only successes 71, greedy-only successes 12
+    token_level_beam_3 vs receding_greedy: +5.60 pp; beam-only successes 81, greedy-only successes 14
+
+Observation-prediction diagnostic (fold 0)
+  oracle_context_only_beam_2: completion 0.9808 -> 0.9716 (-0.92 pp); steps/all 7.145 -> 7.180; compute/query 115.9 -> 149.2 ms; wall agreement 1.0000 -> 1.0000
+  oracle_context_only_beam_3: completion 0.9858 -> 0.9799 (-0.59 pp); steps/all 7.074 -> 7.089; compute/query 139.8 -> 176.7 ms; wall agreement 1.0000 -> 1.0000
+  predicted_context_only_beam_2: completion 0.8303 -> 0.8035 (-2.68 pp); steps/all 9.099 -> 9.279; compute/query 294.4 -> 370.5 ms; wall agreement 0.3163 -> 0.2672
+  predicted_context_only_beam_3: completion 0.8035 -> 0.7793 (-2.42 pp); steps/all 9.382 -> 9.561; compute/query 346.6 -> 442.8 ms; wall agreement 0.3081 -> 0.2628
+
+Local-bonus decoding (fold 0)
+  0.0 / receding_greedy: completion 0.9038 -> 0.8896 (-1.42 pp); steps/all 8.103 -> 8.346; compute/query 28.4 -> 30.4 ms
+  0.0 / token_level_beam_2: completion 0.9448 -> 0.9390 (-0.59 pp); steps/all 7.554 -> 7.696; compute/query 523.5 -> 539.4 ms; wall agreement 0.8283 -> 0.8058
+  0.0 / token_level_beam_3: completion 0.9523 -> 0.9457 (-0.67 pp); steps/all 7.501 -> 7.611; compute/query 633.9 -> 672.4 ms; wall agreement 0.8318 -> 0.8090
+  0.25 / receding_greedy: completion 0.8871 -> 0.8704 (-1.67 pp); steps/all 8.184 -> 8.457; compute/query 28.4 -> 30.9 ms
+  0.25 / token_level_beam_2: completion 0.9365 -> 0.9298 (-0.67 pp); steps/all 7.574 -> 7.733; compute/query 520.1 -> 539.0 ms; wall agreement 0.8289 -> 0.8043
+  0.25 / token_level_beam_3: completion 0.9423 -> 0.9365 (-0.59 pp); steps/all 7.502 -> 7.610; compute/query 633.8 -> 665.4 ms; wall agreement 0.8287 -> 0.8043
+  0.5 / receding_greedy: completion 0.8687 -> 0.8520 (-1.67 pp); steps/all 8.329 -> 8.581; compute/query 29.3 -> 31.6 ms
+  0.5 / token_level_beam_2: completion 0.9247 -> 0.9181 (-0.67 pp); steps/all 7.670 -> 7.811; compute/query 533.5 -> 544.5 ms; wall agreement 0.8275 -> 0.7997
+  0.5 / token_level_beam_3: completion 0.9348 -> 0.9247 (-1.00 pp); steps/all 7.548 -> 7.695; compute/query 637.6 -> 671.1 ms; wall agreement 0.8270 -> 0.8014
+  1.0 / receding_greedy: completion 0.8294 -> 0.8152 (-1.42 pp); steps/all 8.657 -> 8.874; compute/query 30.3 -> 32.5 ms
+  1.0 / token_level_beam_2: completion 0.8963 -> 0.8888 (-0.75 pp); steps/all 7.904 -> 8.019; compute/query 921.7 -> 562.9 ms; wall agreement 0.8203 -> 0.7935
+  1.0 / token_level_beam_3: completion 0.9156 -> 0.9055 (-1.00 pp); steps/all 7.751 -> 7.818; compute/query 652.9 -> 679.8 ms; wall agreement 0.8213 -> 0.7933
+  2.0 / receding_greedy: completion 0.7617 -> 0.7400 (-2.17 pp); steps/all 9.097 -> 9.373; compute/query 32.2 -> 34.8 ms
+  2.0 / token_level_beam_2: completion 0.8370 -> 0.8386 (+0.17 pp); steps/all 8.415 -> 8.454; compute/query 1180.3 -> 614.9 ms; wall agreement 0.8080 -> 0.7795
+  2.0 / token_level_beam_3: completion 0.8671 -> 0.8537 (-1.34 pp); steps/all 8.397 -> 8.302; compute/query 718.0 -> 737.1 ms; wall agreement 0.8058 -> 0.7794
