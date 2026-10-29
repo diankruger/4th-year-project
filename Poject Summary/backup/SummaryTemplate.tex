@@ -1,0 +1,161 @@
+%% One-page Honours Project Summary Template (N Hale 09/12/2025)
+
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+% Clean, reliable margins
+\usepackage[a4paper,margin=25mm]{geometry}
+
+\usepackage{xcolor}
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	filecolor=blue,
+	citecolor=blue,
+	urlcolor=blue
+}
+
+\usepackage{url}
+\urlstyle{same}
+
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[expansion=false]{microtype}
+\usepackage{lipsum}
+
+% If you aren't using natbib commands, you can remove this.
+\usepackage[sort,numbers]{natbib}
+\renewcommand{\bibsection}{}
+
+\usepackage{enumitem}
+\setlist[itemize]{nosep,leftmargin=*}
+
+% For non-floating captions (keeps figure on the page)
+\usepackage{caption}
+
+% Paragraph behaviour
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{2mm plus 1pt}
+
+
+
+\usepackage{titling}
+
+% Pull the whole title block upward
+\setlength{\droptitle}{-3.5cm}
+
+% Tighten the internal spacing too (optional but nice)
+\pretitle{\begin{center}\Large\bfseries}
+	\posttitle{\par\end{center}\vspace{-1.0em}}
+\preauthor{\begin{center}\normalsize}
+	\postauthor{\par\end{center}\vspace{-2.0em}}
+\predate{\begin{center}\normalsize}
+	\postdate{\par\end{center}\vspace{-4.0em}}
+
+% -------------------------------------------------------
+% Title info
+% -------------------------------------------------------
+\title{\textbf{Planning as Autoregressive Sequence Modelling: Decoding Strategies}\\[-.75em]}
+\author{Dian\ Kruger\\[-0.8em]
+	\hspace*{0cm}\\
+	Supervisor: Dr S.\ Josias}
+\date{}
+
+\begin{document}
+	
+	\maketitle
+	% No page numbers
+	\thispagestyle{empty}
+	
+	% -------------------------------------------------------
+	% One-page structure
+	% -------------------------------------------------------
+	
+	The problem of finding a sequence of actions that achieves a goal in a given environment is known as 
+	planning. This project investigates the planning problem of finding sequences of moves, called a trajectories,
+	from a starting position to a goal position in different grid-based
+	mazes. Figure~\ref{fig:fig1} shows an example of such a trajectory.
+	A transformer is a type of neural network
+	commonly used in language models to predict probabilities of sequences of words.
+	This project, however, trains a Transformer to predict probabilities of sequences of actions.
+	The rule that is used to choose the next move in a trajectory from these probabilities
+	is known as the decoding strategy. 
+	The central research question for this project then is: how does the choice of decoding strategy affect 
+	the quality of the generated trajectories for maze planning?
+
+	\begin{figure}[htbp]
+		\centering
+		\captionsetup{font=footnotesize,skip=3pt}
+		\begin{minipage}[t]{0.36\linewidth}
+			\centering
+			\includegraphics[width=0.61\linewidth]{../example_trajectory.png}
+			\caption{Example of a valid trajectory.}
+			\label{fig:fig1}
+		\end{minipage}\hfill
+		\begin{minipage}[t]{0.61\linewidth}
+			\centering
+			\includegraphics[width=0.94\linewidth]{../partial_observation_vs_true_state_V2.png}
+			\caption{The complete maze state (left) and the information available to the model in the partially observed setting (right).}
+			\label{fig:partial_observation}
+		\end{minipage}
+	\end{figure}
+
+	A series of experiments was conducted to compare three decoding strategies: greedy 
+	decoding, beam search with width $B=2$, and beam search with width $B=3$. They were compared
+	in terms of how often they reached the goal, how many steps they made until completion and
+	how much computation time they required. 
+	Greedy decoding always chooses the move with the highest predicted probability.
+	Beam search keeps track of
+	the $B$ most probable sequences of moves at each step, extending by one move
+	and choosing the most probable out of the at $B$ retained sequences at the end~\cite{jurafsky2026speech}.
+
+	The first experiment was conducted in maze environments where the model was given 
+	the entire maze layout and the start and goal positions.
+	The model therefore knows its exact position in the maze at every step.
+	Beam search reached the goal more often and took fewer moves than greedy decoding,
+	with the wider beam performing best. Although each move took slightly longer to compute,
+	beam search required less computation time per planning attempt overall.
+
+	The second experiment compared the same decoding strategies, but used a larger training dataset
+	consisting of trajectories which 
+	the model was not given the complete maze layout or the coordinates of its position and the goal. 
+	Instead, at each position, it received a $3\times3$ view of the surrounding squares, the goal’s 
+	position relative to its current position, and the previous observations and moves. 
+	At every position in the maze, the model only "sees" the information shown in 
+	Figure~\ref{fig:partial_observation}.  
+	In this setting, beam search reached the goal more often and in fewer moves than
+	greedy decoding, with the wider beam performing slightly better. Greedy decoding,
+	however, was much faster both per move and per planning attempt.
+
+	\begin{thebibliography}{2}
+		\bibitem{jurafsky2026speech}
+		Daniel Jurafsky and James H. Martin.\ \textit{Speech and Language Processing}, 3rd edition, online manuscript, 2026.
+	\end{thebibliography}
+
+
+	
+	
+	
+	
+	
+	% These probability for each move
+	% be thought of as: to what degree does the sequence of moves resemble those found in the trainng dataset 
+	% if the sequence of moves is extended by this next move. When such a model is trained, it can generate
+	% entire sequences of moves, by determining the probabilities of possible first move, chosing one of them
+	% according to some rule, plug that move as input into the same model, repeat the previous process to 
+	% decide on a second move, plug the first two moves into the mode to determine the third, and repeat
+	% untill the goal is reached. The process of generating a sequence of moves, by repeatedly extending the 
+	% sequence by one move at a time, is kown as autoregressive sequence modelling, and the rule used to
+	% decide what move to take given the predicted probabilities is known as the decoding strategy. This
+	% is the focus of the research project: how does the choice of decoding strategy affect the quality
+	% of the generated trajectories under autoregressive sequence modelling of maze planning?
+	
+	
+
+	
+
+\end{document}

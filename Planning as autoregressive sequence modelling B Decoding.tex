@@ -28,8 +28,6 @@
 \usepackage{nicefrac}
 \usepackage[sort,numbers]{natbib}
 \bibliographystyle{plainnat}
-\usepackage[title]{appendix}
-\usepackage{longtable}
 \usepackage{listings}
 \usepackage{needspace}
 \setcounter{secnumdepth}{3}
@@ -89,9 +87,9 @@ from a trained sequence model in order to solve a discrete maze navigation probl
 both fully observed scenarios, where the complete maze layout is available to the planner,
 and partially observed scenarios, where the model can only see a local neighbourhood and a
 goal displacement vector at each position in the maze. This work compares
-greedy decoding and beam search as decoding strategies. The strategies were evaluated in terms
-of completion rate, average steps until termination, average computation time per trajectory, and
-average computation time per step. In vast majority of cases, beam search required more computation time
+greedy decoding and beam search as decoding strategies for the generative sequence model. The strategies were evaluated in terms
+of completion rate, average steps until termination, average computation time per trajectory and
+average computation time per step. In most cases, beam search required more computation time
 per step compared to greedy decoding in the experiments that were conducted,
 and in the fully observed maze environment investigated, beam search also achieved a higher 
 completion rate and lower average steps until termination than greedy decoding. In the
@@ -113,11 +111,11 @@ One way to approach such a problem is to treat trajectories as data and learn a 
 distribution over successful trajectories from examples. From this perspective, planning can be
 viewed as inference in a learned generative model~\cite{janner2021trajectory}. If the model is trained on valid and efficient
 demonstration trajectories, then complete plans can be generated autoregressively by repeatedly
-predicting the next token in a trajectory sequence. The process of generating a trajecotry from a trained model is known as decoding.
+predicting the next token in a trajectory sequence. The process of generating a trajectory from a trained model is known as decoding.
 
 The decoding rule used during this generation process is important. At each step, the learned model
 may assign non-negligible probability to multiple possible continuations, and different decoding
-strategies can therefore produce trajectories with different levels of validity, efficiency, and
+strategies can therefore produce trajectories with different levels of validity, efficiency and
 computational cost~\cite{jurafsky2026speech,janner2021trajectory}. Adjusting the decoding algorithm,
 therefore has potential to improve planning performance without retraining the model, which 
 is attractive because training a generative model can be computationally expensive and time-consuming.
@@ -131,7 +129,7 @@ This report investigates how the choice of decoding strategy affects planning pe
 formulation. A Transformer-based trajectory model is trained through next-token prediction on a
 dataset of valid maze trajectories, and the resulting model is evaluated using greedy decoding and
 beam search with different beam widths. The aim is to determine how these decoding rules affect
-goal-reaching success, steps until termination, and computational cost. 
+goal-reaching success, steps until termination and computational cost. 
 
 The comparison is conducted in
 both fully observed and partially observed settings. In the fully observed setting, the model
@@ -141,7 +139,7 @@ local neighbourhood around its current position together with the relative displ
 the goal, requiring it to use trajectory history to reason about unobserved aspects of the 
 environment.
 The models used in these comparisons are trained on optimal trajectories, while some 
-experiments in the partially observed setting investigates how decoding performance changes 
+experiments in the partially observed setting investigate how decoding performance changes 
 when the model is trained on a larger dataset containing trajectories of varying degrees of 
 optimality.
 
@@ -212,7 +210,7 @@ corresponds to adjacent non-wall cells, with adjacency restricted to horizontal 
     \centering
     \includegraphics[width=0.38\textwidth]{example_trajectory.png}
     \captionsetup{font=small}
-    \caption{Example of a valid trajectory in a discrete 2D maze environment.}
+    \caption{Example of a valid trajectory in a discrete 2D maze environment. The green dot marks the start, the yellow star marks the goal, and the blue cells show the path between them.}
     \label{fig:example_trajectory}
 \end{figure}
 
@@ -231,7 +229,7 @@ demonstrated in a dataset. Similarly to offline RL, imitation learning can be ap
 trajectories, but the objective is to generate trajectories that are similar to those in the dataset,
 as opposed to maximising cumulative reward as in offline RL~\cite{janner2021trajectory}.
 Similarly to RL, imitation learning can solve a planning problem, but only if the dataset
-contains trajectories that are valid and efficient for the planning task at hand~\cite{janner2021trajectory}.
+contains trajectories that are valid and reasonably efficient for the planning task at hand~\cite{janner2021trajectory}.
 
 In reinforcement learning, the term ``planning'' often refers to using a model of the environment to 
 consider the likely consequences of possible actions before deciding which action to take. 
@@ -417,12 +415,12 @@ refines word representations, the self-attention mechanism allows the representa
 light of the representations of all other words in the sequence. For example, if the word ``fly'' is preceded by the 
 word ``the'', the model may adjust its representation in a way that reflects the nominal sense of ``fly'' (the insect)
 rather than the verbal sense, which is the action of flying.
-Each input vector $x_i$ is mapped into three learned representations: a Query ($Q$), a Key ($K$), and a Value ($V$).
+Each input vector $x_i$ is mapped into three learned representations: a Query ($Q$), a Key ($K$) and a Value ($V$).
 For an input matrix $X$, these are obtained by learned linear projections:
 \begin{equation}
 Q = XW_Q,\qquad K = XW_K,\qquad V = XW_V
 \end{equation}
-where $W_Q$, $W_K$, and $W_V$ are learned weight matrices~\cite{jurafsky2026speech}.
+where $W_Q$, $W_K$ and $W_V$ are learned weight matrices~\cite{jurafsky2026speech}.
 
 The attention for a single head is computed as:
 \begin{equation}
@@ -630,32 +628,31 @@ The problem investigated in the present study, however, is discrete by design.
 The objective of this work is to compare different decoding strategies when 
 modelling maze planning as autoregressive inference in a learned conditional 
 trajectory model trained through next-token prediction. The performance of 
-greedy decoding and beam search with different beam widths are evaluated in terms of 
-trajectory validity, goal-reaching success, steps until termination, and computational cost.
+greedy decoding and beam search with different beam widths is evaluated in terms of 
+goal-reaching success, steps until termination and computational cost.
 
 Five experiments were conducted to compare the decoding strategies.
 The first experiment is conducted in a maze environment where the maze
-indentity as well as the exact coordinates of the goal position, starting position and subsequent
+identity as well as the exact coordinates of the goal position, starting position and subsequent
 states are provided. Decoding algorithms are thus evaluated in a fully observable setting, where the 
 model has access to all relevant information about the environment.
 
 The second experiment utilises the same maze layouts and training trajectories as the
 first, but the model is not provided with the maze layout or the exact coordinates of 
-the goal position. The model is instead provided with the relative direction of the 
-goal position, and a layout of the 3x3 grid surrounding the current position istead of the 
+the goal position. The model is instead provided with the relative displacement of the 
+goal position and a layout of the $3 \times 3$ grid surrounding the current position instead of the 
 complete states.
 This formulation is therefore a partially observable setting, and the model will 
 need to rely on previously observed trajectory information to infer unobserved 
 information about the maze layout.
-A third experiment served as a supplemtary diagnostic to the second experiment,
+A third experiment serves as a supplementary diagnostic to the second experiment,
 investigating how predicted observations affect beam search.
 
-Both of the preceding experiments compare decoding strategies using models trained on
- datasets of optimal trajectories. A third experiment uses the same partially 
- observed setting as the second experiment, but trains the model on a larger dataset 
- containing a mixture of optimal, suboptimal, and unsuccessful trajectories. This 
- experiment investigates how decoding performance changes when the training data 
- contains multiple trajectories of varying quality per start-goal pair.
+The first and second experiments compare decoding strategies using models trained on
+datasets of optimal trajectories. A fourth experiment considers a model trained on a mixture
+of optimal, suboptimal and unsuccessful trajectories in the partially observed setting. This
+experiment investigates how decoding performance changes when the training data
+contains multiple trajectories of varying quality per start-goal pair.
 
 A final experiment modifies the decoding algorithms used with the model trained on the mixed-quality
 dataset in the partially observed setting. Rather than ranking candidate trajectories solely by their
@@ -679,7 +676,7 @@ experiment instead calculates a local bonus during decoding.
 The experiments to follow evaluate different decoding strategies
 by training a conditional trajectory model through next-token prediction in a fully
 observed maze environment.
-Given a maze layout identifier, a start state, a goal state, and a trajectory prefix consisting
+Given a maze layout identifier, a start state, a goal state and a trajectory prefix consisting
 of previous actions and explicit coordinates of previous states in the maze, the model 
 predicts the next action in the trajectory sequence. At inference time, decoding algorithms are
 then used to construct complete trajectories by selecting continuations with high probability 
@@ -695,7 +692,7 @@ environment, the state immediately following an action is fully determined by th
 preceding state. Supervision is therefore applied only at action-token positions, meaning that only
 errors in action-token predictions contribute to the training loss. The learning problem is thus
 more precisely to predict the next action conditioned on the maze layout, the start state, the goal
-state, and the previously observed trajectory prefix. 
+state and the previously observed trajectory prefix. 
 
 Let $m$ denote a maze layout identifier, let $s_{\mathrm{start}}$ and $s_{\mathrm{goal}}$ denote the start and goal states. 
 The model therefore learns conditional predictions of the form
@@ -711,7 +708,7 @@ p_{\hat{\boldsymbol{\theta}}}(a_1, a_2, \dots, a_T \mid m, s_{\mathrm{start}}, s
 p_{\hat{\boldsymbol{\theta}}}(a_t \mid m, s_{\mathrm{start}}, s_{\mathrm{goal}}, s_1, a_1, \dots, s_t).
 \end{equation}
 Ideally, generating a complete plan would require sampling from the full joint conditional
-distribution over actions and observations above; in practice, the decoding algorithms instead operate on
+distribution over actions above; in practice, the decoding algorithms instead operate on
 its autoregressive conditional factors.
 
 A Transformer was selected as the parameterisation of the generative model because of its demonstrated
@@ -720,7 +717,7 @@ the wide range of Python libraries available for working with it, and its comput
 kept small. The research question, however, is not whether a Transformer can represent such a distribution in principle, but
 how different decoding strategies affect the quality of the generated plans once the model has been trained.
 In particular, the methodology compares the performance of greedy decoding and beam search in a fully observed  maze environment.
-The performance is measured in terms of trajectory validity, goal-reaching success,
+The performance is measured in terms of goal-reaching success,
 steps until termination, and computational cost.
 
 
@@ -756,9 +753,9 @@ problems.
 Each maze is defined as a matrix, 
 and the row and column indices of this matrix determine the corresponding grid cells in 
 the discrete maze representations used throughout this work.
-To represent the states, actions, and maze layouts as Transformer inputs, 
+To represent the states, actions and maze layouts as Transformer inputs, 
 each is encoded as a discrete integer token. Distinct token ranges are reserved for 
-different token classes by defining token offsets, so that maze tokens, state tokens, and action 
+different token classes by defining token offsets, so that maze tokens, state tokens and action 
 tokens occupy non-overlapping regions of the overall vocabulary.
 
 States are encoded by assigning each grid location a unique integer index. This is done using the
@@ -833,7 +830,7 @@ To compare decoding strategies on unseen queries, the transformer-ready dataset 
 5-fold cross-validation. The dataset contains exactly one trajectory for each ordered start-goal pair
 that is connected by a valid shortest path in a given maze. Within each maze, trajectories were 
 ordered lexicographically by path length,
-start row, start column, goal row, and goal column. They were then assigned to
+start row, start column, goal row and goal column. They were then assigned to
 the five folds in round-robin order: the first trajectory was assigned to \texttt{fold
 1}, the second to \texttt{fold 2}, and so on, returning to \texttt{fold 1} after every fifth
 trajectory. This deterministic
@@ -887,7 +884,7 @@ then determines how these conditional predictions are converted into a complete 
 For a given evaluation query, decoding begins from the token prefix consisting of the maze
 identifier, the start token, the goal token, and the initial state token. The model is
 then queried autoregressively for the next action token. 
-Candidated actions are restricted to be valid in the given maze environment. Once an
+Candidate actions are restricted to be valid in the given maze environment. Once an
 action has been selected, the corresponding next state is deterministically computed from the current
 state and appended to the trajectory prefix, and the procedure repeats until the goal is reached or a
 step limit is exceeded. This procedure assumes that the environment's transition dynamics are known to
@@ -930,7 +927,7 @@ computational efficiency.
 
 Tables~\ref{tab:completion_rate_all8}--\ref{tab:time_per_step_all8} report decoding performance across the eight fully observed maze layouts, aggregated over the
 full cross-validation evaluation. They show completion rate, average steps until termination,
-average compute time per query, and average time per step.
+average compute time per query and average time per step.
 
 \begin{table}[H]
 \centering
@@ -1118,9 +1115,9 @@ imitation learning, and observation prediction allows beam search to evaluate im
 continuations, which refer to predicted values of unknown future observations that 
 would follow candidate action sequences. 
 
-A modified version of the decoding algorthim where a predefined rule influence action choices
-is also investigated. This rule alongside model probability determine what candidate trajectories
-is preferred by the decoders.
+A modified version of the decoding algorithm in which a predefined rule influences action choices
+is also investigated. This rule, alongside model probability, determines which candidate trajectories
+are preferred by the decoders.
 
 During decoding, beam search needs to form a set of candidate trajectories. In the previous experiment,
 beam search could calculate the exact trajectories corresponding to each candidate action sequence, 
@@ -1201,7 +1198,7 @@ p_{\hat{\boldsymbol{\theta}}}
 
 The dataset for the first partially observed experiment is constructed from the same eight mazes and the same
 optimal BFS trajectories as the fully observed dataset. The ordered start-goal queries,
-action sequences, path lengths, episode identifiers, maze assignments, and five-fold
+action sequences, path lengths, episode identifiers, maze assignments and five-fold
 split assignments are retained unchanged. The trajectories are therefore not generated
 again; instead, the fully observed state representation is replaced by the partial
 observation representation defined above. This preserves a controlled comparison between
@@ -1214,7 +1211,7 @@ for each query. At every step, the trajectory-generation algorithm selects a val
 that reduces the shortest-path distance to the goal with probability $0.8$, or selects a
 random valid action with probability $0.2$. A trajectory ends when it reaches the goal or
 after $19$ actions. The random choices allow the resulting trajectories to be optimal,
-suboptimal, or unsuccessful, and all three types are retained. This produces $17{,}928$
+suboptimal, or unsuccessful and all three types are retained. This produces $17{,}928$
 trajectories in total. The shortest-path distances are used only to generate the training
 trajectories and are not provided to the Transformer.
 
@@ -1264,14 +1261,14 @@ experiment are used, although the vocabulary size and maximum sequence length ar
 for the new token representation. The hidden dimension, attention heads, Transformer
 layers, feedforward dimension, dropout, optimiser, learning rate, weight decay, batch size,
 and 20-epoch training limit are unchanged. Supervision is also applied to both actions and post-action
-observations. Consequently, rather than repeating training for the complete five-fold
+observations, increasing training time. Consequently, rather than repeating training for the complete five-fold
 cross-validation procedure, folds $2$--$5$ are used for training, while fold $1$ is used
 for the final decoding evaluation. As
-before, the checkpoint with the lowest validation loss is retained for decoding evaluation.
+before, the checkpoint with the lowest validation loss was determined from a subset of folds $2$--$5$, and is retained for decoding evaluation.
 
-The input, token-type, label, and padding-mask matrices are constructed in the same manner
+The input, token-type, label and padding-mask matrices are constructed in the same manner
 as before, but the trajectory-token types now identify wall-mask, visible-goal,
-goal-displacement, and action tokens. The loss remains categorical cross-entropy for causal
+goal-displacement and action tokens. The loss remains categorical cross-entropy for causal
 next-token prediction, but its supervision mask is expanded. Active targets are placed at
 every action-token position and at each of the four tokens representing the subsequent
 observation. The same Transformer is therefore trained jointly to predict
@@ -1361,7 +1358,7 @@ $19$-action limit as the decoding strategies.
 
 \subsubsection{Experiment Overview}
 
-Four experiments are conducted in the partially observed setting. The first compares decoding
+Experiments are conducted in the partially observed setting. The first compares decoding
 strategies using a model trained on optimal trajectories. The second examines how predicted
 observations affect beam search. The third repeats the decoding comparison using a model trained
 on the larger mixed-quality dataset. The fourth tests the local bonus added during decoding
@@ -1372,24 +1369,27 @@ without retraining that model.
 
 The decoding strategies are evaluated using the same metrics as in the fully observed
 experiment: completion rate, average steps until termination over all queries, average compute
-time per query, and average compute time per executed step. These metrics respectively measure
+time per query and average compute time per executed step. These metrics respectively measure
 how often the goal is reached within the $19$-action limit, how many steps are taken before termination,
 and the computational cost of each decoding strategy.
 
-Wall-mask accuracy is also measured for beam search. It is the proportion of real decision
-steps at which the first predicted wall mask in the selected candidate trajectory matches
-the true wall mask revealed after executing the selected action:
+Wall-mask accuracy is also measured for beam search. For each evaluation query, it is the
+proportion of real decision steps at which the first predicted wall mask in the selected
+candidate trajectory matches the true wall mask revealed after executing the selected action.
+These proportions are then averaged across queries:
 \begin{equation}
 \operatorname{WallMaskAccuracy}
 =
-\frac{1}{N_{\mathrm{steps}}}
-\sum_{t=1}^{N_{\mathrm{steps}}}
-\mathbf{1}\left\{\hat{w}_{t+1}=w_{t+1}\right\},
+\frac{1}{N_{\mathrm{queries}}}
+\sum_{i=1}^{N_{\mathrm{queries}}}
+\frac{1}{T_i}\sum_{t=1}^{T_i}
+\mathbf{1}\left\{\hat{w}_{i,t+1}=w_{i,t+1}\right\},
 \end{equation}
-where $N_{\mathrm{steps}}$ is the total number of decoded steps across all evaluation queries,
-$\hat{w}_{t+1}$ is the first predicted wall mask in the selected candidate trajectory at step $t$,
-and $w_{t+1}$ is the true wall mask at the resulting position. The resulting proportion is
-reported as a percentage. This metric does not measure the accuracy of every observation
+where $N_{\mathrm{queries}}$ is the number of evaluation queries, $T_i$ is the number of
+executed steps in query $i$, $\hat{w}_{i,t+1}$ is the first predicted wall mask in the
+selected candidate trajectory at step $t$ of that query, and $w_{i,t+1}$ is the true
+wall mask at the resulting position. The resulting average is reported as a percentage.
+This metric does not measure the accuracy of every observation
 in every imagined trajectory.
 
 \subsection{Results and Discussion}\
@@ -1490,19 +1490,20 @@ LARGE\_MAZE\_EVAL & 0.020 & 3.388 & 61.844 & 72.514 \\
 \normalsize
 \end{table}
 
-The three decoding strategies yielded similar completion rates across the eight maze layouts, 
-and beam search with width $B=3$ performed slightly worse than the other two strategies in most layouts.
+The three decoding strategies yielded similar completion rates across the eight maze layouts.
 The three decoding strategies also yielded similar average steps until termination in the smaller
 maze layouts, but differed more in the larger layouts.
 Wider searches had longer average compute times and longer average time per step across all maze layouts
 (Tables~\ref{tab:partial_compute_time} and~\ref{tab:partial_time_per_step}).
 The performance of Grid-Bug2 in terms of completion rate and average steps until termination was competitive
-with the decoding strategies in the OPEN, U\_MAZE, U\_MAZE\_EVAL, and SMALL\_MAZE layouts, but its
+with the decoding strategies in the OPEN, U\_MAZE, U\_MAZE\_EVAL and SMALL\_MAZE layouts, but its
 performance degraded more sharply than that of the decoding strategies as the maze layouts became
 more complex.
 
-The results indicate that retaining and comparing more candidate trajectory prefixes did not provide
-a significant advantage over greedy decoding. This result in isolation could indicate
+Across the maze layouts, increasing beam width did not consistently improve completion 
+rate or average steps until termination, suggesting that retaining and comparing more 
+candidate trajectory prefixes did not provide a clear advantage over greedy decoding.
+This result in isolation could indicate	
 that the current framework of training a Transformer on optimal trajectories and decoding based on model 
 probability is not effective in the partially observed setting, and the results represent blindly
 selecting valid actions in the maze without any meaningful guidance from the model. However, the fact that the decoding strategies
@@ -1510,13 +1511,14 @@ outperformed Grid-Bug2 in the more complex maze layouts is consistent with the m
 guidance for action selection. This result does not prove that the learned guidance caused the improvement,
 because Grid-Bug2 may simply be less well suited to the more complex layouts.
 
-Another hypothesis for the lack of performance improvement with beam search is that the model
+Another hypothesis for the lack of performance improvement with beam search, when compared with greedy
+decoding, is that the model
 is not able to accurately predict the observation tokens associated with imagined future actions,
 so a candidate trajectory contains predicted observations that are not consistent with the true maze layout. Considering
 more candidate trajectories therefore does not provide useful information for selecting the next action
 over simply selecting the highest-probability valid action at the current position. 
 
-In the current experiment, the model performed poorly when predicting the first wall mask associated
+In this experiment, the model performed poorly when predicting the first wall mask associated
 with the selected candidate trajectory at each real decision step. The wall-mask accuracy was $27.74\%$
 for beam search with width $B=2$ and $27.67\%$ for beam search with width $B=3$. These values were obtained
 from the beam-search evaluation on the fold-$1$ queries. This low accuracy suggests that the model often fails
@@ -1573,7 +1575,7 @@ Oracle Beam & 3 & 0.9799 & 7.0895 & 100.00\% \\
 \end{table}
 
 Table~\ref{tab:partial_observation_ablation} reports the completion rate, average steps until termination over
-all queries, and wall-mask agreement for Beam Search, Context-Only Beam, and Oracle Beam.
+all queries, and wall-mask agreement for Beam Search, Context-Only Beam and Oracle Beam.
 For Beam Search and Context-Only Beam, wall-mask agreement is the proportion of decoded steps at which
 the first predicted wall mask in the selected candidate trajectory matches the true wall mask at the
 resulting position after executing the selected action. For Oracle Beam, the wall mask is supplied by
@@ -1582,9 +1584,9 @@ the hidden maze simulator rather than predicted by the model, so its agreement i
 Oracle Beam substantially outperformed both Beam Search and Context-Only Beam in terms of completion
 rate and had lower average steps until termination. Since unsuccessful queries reach the $19$-step
 limit, this average reflects both the different completion rates and the lengths of the trajectories.
-It does not by itself show that Oracle Beam found shorter paths among successful queries.
 
-Beam Search outperformed Context-Only Beam in terms of completion rate, average steps until termination, and
+
+Beam Search outperformed Context-Only Beam in terms of completion rate, average steps until termination and
 wall-mask agreement at both beam widths. This suggests that including the probabilities assigned to
 predicted observation tokens in the trajectory score was beneficial for selecting the next action under
 the current experimental setup, even though the wall-mask predictions were often incorrect.
@@ -1628,12 +1630,12 @@ in the training trajectories. Training the model on trajectories that contain su
 that were corrected is therefore hypothesised to improve exploration capabilities during decoding.
 
 Table~\ref{tab:partial_mixed_quality_results} reports the completion rate, average steps until termination over
-all queries, and wall-mask accuracy for the decoding strategies applied to a model trained on the mixed-quality
+all queries and wall-mask accuracy for the decoding strategies applied to a model trained on the mixed-quality
 training dataset.
 
 \begin{table}[H]
 \centering
-\caption{Results on the partially observed fold-$1$ evaluation queries after training on the mixed-quality dataset. Average steps until termination are calculated over all queries.}
+\caption{Results on the partially observed fold-$1$ evaluation queries after training on the mixed-quality dataset. Average steps until termination are calculated over all queries. Wall-mask accuracy is not reported for Greedy Decoding because it does not predict post-action wall masks during decoding.}
 \label{tab:partial_mixed_quality_results}
 \footnotesize
 \begin{tabular}{lccc}
@@ -1647,13 +1649,9 @@ Beam Search ($B=3$) & $0.9457$ & $7.6112$ & $80.90\%$ \\
 \end{tabular}
 \end{table}
 
-Wall-mask accuracy is not reported for Greedy Decoding because it does not predict
-post-action wall masks during decoding.
-
 Unlike the results from the optimal-trajectory training experiment, wider searches
 outperformed narrower searches in terms of completion rate. Wider searches also had lower
-average steps until termination. Because this metric includes unsuccessful queries that reach
-the step limit, this does not by itself show that wider searches found shorter successful paths.
+average steps until termination.
 
 As in all the previous experiments, actions are selected according to the probabilities
  assigned by the model, either to individual actions or to candidate token sequences. Since the training data in this experiment contains suboptimal trajectories
@@ -1678,7 +1676,7 @@ the amount and the nature of the training data were changed. The primary
 goal of the experiment remains to compare decoding strategies in a partially observed maze problem, where the model
 was trained on multiple trajectories of varying quality for each start-goal pair, not to investigate the
 effects of training data or wall-mask prediction accuracy on trajectory-generation performance.
-Nonetheless, the observed changes between training data, wall-mask accuracy, and overall decoding performance
+Nonetheless, the observed changes between training data, wall-mask accuracy and overall decoding performance
 remain useful in understanding what factors should be considered in choosing a decoding algorithm
 for similar problems. 
 
@@ -1739,7 +1737,7 @@ formulated as autoregressive sequence modelling under a learned generative model
 greedy decoding and beam search were compared in terms of goal-reaching success, steps until termination,
 and computational cost in a fully- and partially observed discrete 2D maze setting.
 
-The results demonstrate that in a fully observed maze environment, beam search is a more effective decoding strategy than greedy
+The results demonstrate that in the fully observed maze environment, beam search is a more effective decoding strategy than greedy
 decoding for the maze planning problem under the learned trajectory model, both in terms of
 goal-reaching success and average steps until termination. Beam width
 $B=3$ achieved the highest completion rate and the lowest average steps until termination across the
@@ -1769,6 +1767,7 @@ is used for planning, the choice of decoding algorithm merits attention. The dec
 affect both trajectory quality and generation speed, so comparing different algorithms can help in
 designing a more effective planner, especially in practical applications where both trajectory quality and 
 generation speed are critical.
+
 
 \section{Future Work}
 
@@ -1804,14 +1803,21 @@ reinforcement learning, and the planner could be evaluated on these datasets usi
 decoding strategies. This would allow its performance and that of the decoding strategies
 to be compared with other offline reinforcement learning methods.
 
-Furthermore, temperature sampling, top-$k$ sampling, and nucleus sampling could be investigated
+Furthermore, temperature sampling, top-$k$ sampling and nucleus sampling could be investigated
 as additional decoding strategies~\cite{holtzman2020curious}. Unlike greedy decoding, these
 strategies can select lower-probability actions, which may help the planner explore alternative
 routes when its most likely move is unproductive. Top-$k$ and nucleus sampling can also exclude
 very unlikely actions while retaining some diversity. Their performance and computational cost
 could be compared with those of greedy decoding and beam search in maze planning problems.
 
+\section{AI Declaration}
 
+AI tools, specifically ChatGPT and Codex by OpenAI, assisted with writing and debugging code. 
+I developed the report’s content, structure, and progression of ideas myself, using AI tools for 
+suggestions on spelling, grammar, and clarity. I independently formulated the research questions, 
+designed the experiments, selected and interpreted the evaluation metrics, analysed the results, 
+and determined the conclusions. I reviewed and verified AI-assisted code and text before including 
+them in the project.
 
 
 \begin{thebibliography}{99}
@@ -1821,38 +1827,26 @@ Richard S. Sutton and Andrew G. Barto.
 \textit{Reinforcement Learning: An Introduction}.
 MIT Press, 2nd edition, 2018.
 
-\bibitem{parr1995partial}
-Ronald Parr and Stuart Russell.
-Approximating Optimal Policies for Partially Observable Stochastic Domains.
-In \textit{Proceedings of the 14th International Joint Conference on Artificial
-Intelligence (IJCAI)}, pages 1088--1094, 1995.
-
 \bibitem[Janner et al.(2021)]{janner2021trajectory}
-Michael Janner, Qiyang Li, and Sergey Levine.
+Michael Janner, Qiyang Li and Sergey Levine.
 Offline Reinforcement Learning as One Big Sequence Modeling Problem.
 \textit{Advances in Neural Information Processing Systems}, 2021.
 
 \bibitem[Sutskever et al.(2014)]{sutskever2014sequence}
-Ilya Sutskever, Oriol Vinyals, and Quoc V. Le.
+Ilya Sutskever, Oriol Vinyals and Quoc V. Le.
 Sequence to Sequence Learning with Neural Networks.
 \textit{Advances in Neural Information Processing Systems}, 27, 2014.
 
 \bibitem[Britz et al.(2017)]{britz2017massive}
-Denny Britz, Anna Goldie, Minh-Thang Luong, and Quoc Le.
+Denny Britz, Anna Goldie, Minh-Thang Luong and Quoc Le.
 Massive Exploration of Neural Machine Translation Architectures.
 In \textit{Proceedings of the 2017 Conference on Empirical Methods in Natural Language Processing},
-pages 1442--1451, 2017.
+2017.
 
 \bibitem{holtzman2020curious}
-Ari Holtzman, Jan Buys, Li Du, Maxwell Forbes, and Yejin Choi.
+Ari Holtzman, Jan Buys, Li Du, Maxwell Forbes and Yejin Choi.
 The Curious Case of Neural Text Degeneration.
 In \textit{International Conference on Learning Representations}, 2020.
-
-\bibitem{huggingface2026generation}
-Hugging Face.
-\textit{Transformers: Generation}.
-Online documentation, accessed 19 October 2026.
-\url{https://huggingface.co/docs/transformers/main_classes/text_generation}.
 
 \bibitem[Hausknecht and Stone(2015)]{hausknecht2015deep}
 Matthew Hausknecht and Peter Stone.
@@ -1883,206 +1877,11 @@ Farama Foundation.
 
 \bibitem{vaswani2017attention}
 Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones,
-Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin.
+Aidan N. Gomez, Lukasz Kaiser and Illia Polosukhin.
 \textit{Attention Is All You Need}.
 Advances in Neural Information Processing Systems, 30, 2017.
 
 \end{thebibliography}
-
-\appendix
-\section{Project Plans}
-\label{app:project_plans}
-
-This appendix includes both the original project plan and the revised project plan submitted for the project.
-
-\begin{longtable}{|p{3cm}|p{11cm}|}
-\caption{Original Project Plan.}\label{tab:original_project_plan_appendix}\\
-\hline
-\textbf{Date} & \textbf{Planned Progress} \\
-\hline
-\endfirsthead
-\hline
-\textbf{Date} & \textbf{Planned Progress} \\
-\hline
-\endhead
-
-7 April &
-Implementation of a minimal end-to-end experimental pipeline. This includes a simple 2D gridworld environment, generation of shortest paths using A*, training of a basic autoregressive trajectory model on the generated paths, and implementation of at least one decoding strategy to produce trajectories from the learned model. The environment will be kept deliberately simple to validate the modelling and decoding pipeline while avoiding triviality. \\
-\hline
-
-4 May &
-Development of a more robust gridworld environment with configurable obstacles, start and goal states, and automated generation of shortest-path trajectories using A*. The environment should support systematic experimentation and dataset generation. \\
-\hline
-
-19 May &
-Implementation of two decoding strategies (e.g., greedy decoding and stochastic sampling) and integration with the autoregressive trajectory model. Initial experiments verifying that trajectories can be generated reliably from the trained model. \\
-\hline
-
-26 May &
-Preliminary evaluation of decoding strategies in the experimental environment. Initial analysis of trajectory quality and success rate. Identification of limitations of the current environment and model. \\
-\hline
-
-2 June &
-Integration of the Maze2D dataset from the D4RL benchmark and adaptation of the modelling pipeline to support training and evaluation on this dataset. Verification that the autoregressive model and decoding procedures operate correctly on the benchmark data. \\
-\hline
-
-10 June &
-Implementation refinements and additional experiments comparing decoding strategies. Collection of experimental results and figures to be included in the interim report. \\
-\hline
-
-16 June &
-Drafting of the interim report, including description of the experimental setup, modelling approach, decoding strategies, and preliminary results. \\
-\hline
-
-20 June &
-Revision and refinement of the interim report. Preparation of figures, tables, and final formatting. \\
-\hline
-
-24 June &
-Final proofreading and preparation for submission of the interim report. \\
-\hline
-
-20 July &
-Submission of the interim report. \\
-\hline
-
-20--24 July &
-Interim presentations. \\
-\hline
-
-8 August &
-Implementation of improvements to the autoregressive trajectory model to better capture trajectory structure in the dataset. Initial experiments validating the training procedure and model behaviour. \\
-\hline
-
-20 August &
-Implementation and integration of additional decoding strategies, allowing systematic comparison with previously implemented decoding methods. \\
-\hline
-
-30 August &
-Execution of the main experimental evaluation. This will involve systematic comparison of decoding strategies across multiple parameter settings, analysing metrics such as trajectory success rate, path optimality, diversity, and computational cost. \\
-\hline
-
-5 September &
-Analysis of experimental results and preparation of figures and tables summarising the performance of the different decoding strategies. \\
-\hline
-
-10 September &
-Writing and revision of the first full draft of the report describing the modelling approach, decoding strategies, experimental setup, and results obtained so far. \\
-\hline
-
-20 October &
-Implementation of an application demonstrating the practical use of the proposed planning framework. This may involve applying the trained model and decoding procedures to a more complex navigation or planning scenario. Completion and refinement of the final written report will also occur during this stage. \\
-\hline
-
-30 October &
-Submission of final report. \\
-\hline
-
-6 November &
-Submission of the project summary document. \\
-\hline
-
-16--20 November &
-Final project presentation. \\
-\hline
-
-\end{longtable}
-
-\vspace{1em}
-
-\begin{longtable}{|p{3cm}|p{11cm}|}
-\caption{Revised Project Plan.}\label{tab:revised_project_plan_appendix}\\
-\hline
-\textbf{Date} & \textbf{Planned Progress} \\
-\hline
-\endfirsthead
-\hline
-\textbf{Date} & \textbf{Planned Progress} \\
-\hline
-\endhead
-
-7 April &
-Construction of a minimal end-to-end Maze2D analysis pipeline. This includes inspection of the D4RL / Maze2D environment structure, loading and visualisation of trajectories, and initial verification of how observations, \texttt{qpos}, \texttt{qvel}, actions, and goals are represented in the benchmark data. \\
-\hline
-
-4 May &
-Detailed investigation of the geometric relationship between stored Maze2D positions and maze wall layouts. Development of continuous and discrete trajectory visualisations, together with validation procedures to ensure that the plotted trajectories are consistent with the benchmark maze geometry. \\
-\hline
-
-19 May &
-Construction of a discrete trajectory dataset from Maze2D-style mazes. This includes representing trajectories as alternating state and action tokens, discretising maze layouts into grid-based paths, and preparing data in a form suitable for autoregressive sequence modelling. \\
-\hline
-
-26 May &
-Implementation of greedy decoding and beam search for the discrete planning setting, together with initial experiments verifying that a trained autoregressive model can generate valid trajectories from start-goal queries. \\
-\hline
-
-2 June &
-Expansion from a single Maze2D example to multiple D4RL maze layouts. Construction of a benchmark dataset containing shortest valid trajectories for all connected start-goal pairs across the selected maze family. \\
-\hline
-
-10 June &
-Implementation refinements to the multi-maze pipeline, including tokenisation, trajectory encoding, training-set construction, and preparation of transformer-ready inputs, labels, token-type information, and masks. \\
-\hline
-
-16 June &
-Training of a small causal Transformer on the discrete trajectory data and execution of initial decoding experiments comparing greedy decoding with beam search under multiple maze layouts. \\
-\hline
-
-20 June &
-Aggregation and analysis of preliminary results, including completion rate, average steps to goal, and computational-cost metrics. Preparation of figures, tables, and explanations for inclusion in the interim report. \\
-\hline
-
-24 June &
-Revision and refinement of the interim report, including clarification of the probabilistic modelling formulation, dataset construction, Transformer training procedure, and decoding methodology. \\
-\hline
-
-20 July &
-Submission of the interim report. \\
-\hline
-
-20--24 July &
-Interim presentations. \\
-\hline
-
-8 August &
-Investigation of how decoding performance changes when the trajectory model is trained on sub-optimal trajectories rather than shortest paths, testing the dependence of the current imitation-learning formulation on optimal training data. \\
-\hline
-
-20 August &
-Extension of the planning framework toward an offline reinforcement learning setting, where decoding is guided by predicted reward or return rather than model probability alone. \\
-\hline
-
-30 August &
-Implementation and evaluation of additional decoding strategies, such as stochastic decoding or nucleus sampling, for comparison with greedy decoding and beam search. \\
-\hline
-
-5 September &
-Analysis of the expanded experimental results and preparation of additional figures and tables comparing decoding strategies under the revised settings. \\
-\hline
-
-10 September &
-Writing and revision of the first full draft of the final report, consolidating the modelling formulation, experimental methodology, decoding evaluation, and discussion of results. \\
-\hline
-
-20 October &
-Final refinement of the report and completion of any remaining experimental or presentation material needed for the project submission stage. \\
-\hline
-
-30 October &
-Submission of final report. \\
-\hline
-
-6 November &
-Submission of the project summary document. \\
-\hline
-
-16--20 November &
-Final project presentation. \\
-\hline
-
-\end{longtable}
-
 \end{document}
 
 

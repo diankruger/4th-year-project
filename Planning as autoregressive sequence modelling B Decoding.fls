@@ -128,10 +128,6 @@ INPUT c:/texlive/2026/texmf-dist/tex/latex/base/ifthen.sty
 INPUT c:/texlive/2026/texmf-dist/tex/latex/base/ifthen.sty
 INPUT c:/texlive/2026/texmf-dist/tex/latex/natbib/natbib.sty
 INPUT c:/texlive/2026/texmf-dist/tex/latex/natbib/natbib.sty
-INPUT c:/texlive/2026/texmf-dist/tex/latex/appendix/appendix.sty
-INPUT c:/texlive/2026/texmf-dist/tex/latex/appendix/appendix.sty
-INPUT c:/texlive/2026/texmf-dist/tex/latex/tools/longtable.sty
-INPUT c:/texlive/2026/texmf-dist/tex/latex/tools/longtable.sty
 INPUT c:/texlive/2026/texmf-dist/tex/latex/listings/listings.sty
 INPUT c:/texlive/2026/texmf-dist/tex/latex/listings/listings.sty
 INPUT c:/texlive/2026/texmf-dist/tex/latex/listings/lstpatch.sty
@@ -167,8 +163,6 @@ INPUT Planning as autoregressive sequence modelling B Decoding.out
 INPUT ./Planning as autoregressive sequence modelling B Decoding.out
 INPUT ./Planning as autoregressive sequence modelling B Decoding.out
 OUTPUT Planning as autoregressive sequence modelling B Decoding.out
-INPUT c:/texlive/2026/texmf-dist/tex/latex/caption/ltcaption.sty
-INPUT c:/texlive/2026/texmf-dist/tex/latex/caption/ltcaption.sty
 INPUT c:/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/ecrm2074.tfm
 INPUT c:/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/ecrm1440.tfm
 INPUT c:/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/ecrm1095.tfm
@@ -271,6 +265,7 @@ INPUT c:/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb
 INPUT c:/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb
 INPUT c:/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb
 INPUT c:/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb
+INPUT c:/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb
 INPUT c:/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb
 INPUT c:/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb
 INPUT c:/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb

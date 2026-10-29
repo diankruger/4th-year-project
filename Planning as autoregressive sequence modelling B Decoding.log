@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.1)  27 OCT 2026 20:11
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.1)  29 OCT 2026 18:23
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -366,53 +366,28 @@ Package: natbib 2010/09/13 8.31b (PWD, AO)
 LaTeX Info: Redefining \cite on input line 694.
 \c@NAT@ctr=\count314
 )
-(C:\Users\User\AppData\Local\Programs\MiKTeX\tex/latex/appendix\appendix.sty
-Package: appendix 2020/02/08 v1.2c extra appendix facilities
-\c@@pps=\count315
-\c@@ppsavesec=\count316
-\c@@ppsaveapp=\count317
-)
-(C:\Users\User\AppData\Local\Programs\MiKTeX\tex/latex/tools\longtable.sty
-Package: longtable 2025-10-13 v4.24 Multi-page Table package (DPC)
-\LTleft=\skip63
-\LTright=\skip64
-\LTpre=\skip65
-\LTpost=\skip66
-\LTchunksize=\count318
-\LTcapwidth=\dimen185
-\LT@head=\box57
-\LT@firsthead=\box58
-\LT@foot=\box59
-\LT@lastfoot=\box60
-\LT@gbox=\box61
-\LT@cols=\count319
-\LT@rows=\count320
-\c@LT@tables=\count321
-\c@LT@chunks=\count322
-\LT@p@ftn=\toks34
-)
 (C:\Users\User\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.sty
-\lst@mode=\count323
-\lst@gtempboxa=\box62
-\lst@token=\toks35
-\lst@length=\count324
-\lst@currlwidth=\dimen186
-\lst@column=\count325
-\lst@pos=\count326
-\lst@lostspace=\dimen187
-\lst@width=\dimen188
-\lst@newlines=\count327
-\lst@lineno=\count328
-\lst@maxwidth=\dimen189
+\lst@mode=\count315
+\lst@gtempboxa=\box57
+\lst@token=\toks34
+\lst@length=\count316
+\lst@currlwidth=\dimen185
+\lst@column=\count317
+\lst@pos=\count318
+\lst@lostspace=\dimen186
+\lst@width=\dimen187
+\lst@newlines=\count319
+\lst@lineno=\count320
+\lst@maxwidth=\dimen188
 
 (C:\Users\User\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstpatch.sty
 File: lstpatch.sty 2025/11/14 1.11b (Carsten Heinz)
 )
 (C:\Users\User\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstmisc.sty
 File: lstmisc.sty 2025/11/14 1.11b (Carsten Heinz)
-\c@lstnumber=\count329
-\lst@skipnumbers=\count330
-\lst@framebox=\box63
+\c@lstnumber=\count321
+\lst@skipnumbers=\count322
+\lst@framebox=\box58
 )
 (C:\Users\User\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.cfg
 File: listings.cfg 2025/11/14 1.11b listings configuration
@@ -428,54 +403,54 @@ Package: listings 2025/11/14 1.11b (Carsten Heinz)
 (C:\Users\User\AppData\Local\Programs\MiKTeX\tex/latex/needspace\needspace.sty
 Package: needspace 2025/03/13 v1.3e reserve vertical space
 )
-\c@theorem=\count331
-\c@lemma=\count332
-\c@proposition=\count333
-\c@corollary=\count334
-\c@definition=\count335
-\c@remark=\count336
-\extraspace=\skip67
+\c@theorem=\count323
+\c@lemma=\count324
+\c@proposition=\count325
+\c@corollary=\count326
+\c@definition=\count327
+\c@remark=\count328
+\extraspace=\skip63
 
 (C:\Users\User\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdft
 ex.def
 File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count337
+\l__color_backend_stack_int=\count329
 ) (Planning as autoregressive sequence modelling B Decoding.aux)
 \openout1 = `"Planning as autoregressive sequence modelling B Decoding.aux"'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 76.
-LaTeX Font Info:    ... okay on input line 76.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 76.
-LaTeX Font Info:    ... okay on input line 76.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 76.
-LaTeX Font Info:    ... okay on input line 76.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 76.
-LaTeX Font Info:    ... okay on input line 76.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 76.
-LaTeX Font Info:    ... okay on input line 76.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 76.
-LaTeX Font Info:    ... okay on input line 76.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 76.
-LaTeX Font Info:    ... okay on input line 76.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 76.
-LaTeX Font Info:    ... okay on input line 76.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 76.
-LaTeX Font Info:    ... okay on input line 76.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 74.
+LaTeX Font Info:    ... okay on input line 74.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 74.
+LaTeX Font Info:    ... okay on input line 74.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 74.
+LaTeX Font Info:    ... okay on input line 74.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 74.
+LaTeX Font Info:    ... okay on input line 74.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 74.
+LaTeX Font Info:    ... okay on input line 74.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 74.
+LaTeX Font Info:    ... okay on input line 74.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 74.
+LaTeX Font Info:    ... okay on input line 74.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 74.
+LaTeX Font Info:    ... okay on input line 74.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 74.
+LaTeX Font Info:    ... okay on input line 74.
 
 (C:\Users\User\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mki
 i
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count338
-\scratchdimen=\dimen190
-\scratchbox=\box64
-\nofMPsegments=\count339
-\nofMParguments=\count340
-\everyMPshowfont=\toks36
-\MPscratchCnt=\count341
-\MPscratchDim=\dimen191
-\MPnumerator=\count342
-\makeMPintoPDFobject=\count343
-\everyMPtoPDFconversion=\toks37
+\scratchcounter=\count330
+\scratchdimen=\dimen189
+\scratchbox=\box59
+\nofMPsegments=\count331
+\nofMParguments=\count332
+\everyMPshowfont=\toks35
+\MPscratchCnt=\count333
+\MPscratchDim=\dimen190
+\MPnumerator=\count334
+\makeMPintoPDFobject=\count335
+\everyMPtoPDFconversion=\toks36
 )
 (C:\Users\User\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-ba
 se.sty
@@ -487,7 +462,7 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 g
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-Package hyperref Info: Link coloring ON on input line 76.
+Package hyperref Info: Link coloring ON on input line 74.
  (Planning as autoregressive sequence modelling B Decoding.out)
 (Planning as autoregressive sequence modelling B Decoding.out)
 \@outlinefile=\write3
@@ -495,21 +470,16 @@ Package hyperref Info: Link coloring ON on input line 76.
 
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: listings package is loaded.
-Package caption Info: longtable package is loaded.
-
-(C:\Users\User\AppData\Local\Programs\MiKTeX\tex/latex/caption\ltcaption.sty
-Package: ltcaption 2021/01/08 v1.4c longtable captions (AR)
-)
 Package caption Info: End \AtBeginDocument code.
-\c@lstlisting=\count344
+\c@lstlisting=\count336
 <<ot1.cmap>><<oml.cmap>><<oms.cmap>><<omx.cmap>>
-LaTeX Font Info:    Trying to load font information for U+msa on input line 79.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 77.
 
 
 (C:\Users\User\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 79.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 77.
 
 
 (C:\Users\User\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
@@ -521,14 +491,14 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 <example_trajectory.png, id=229, 458.71375pt x 481.8pt>
 File: example_trajectory.png Graphic file (type png)
 <use example_trajectory.png>
-Package pdftex.def Info: example_trajectory.png  used on input line 213.
+Package pdftex.def Info: example_trajectory.png  used on input line 211.
 (pdftex.def)             Requested size: 172.99496pt x 181.70378pt.
 
 [3] [4 <./example_trajectory.png>] [5]
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
-nput line 338.
+nput line 336.
  [6] [7] [8] [9] [10]
-Overfull \hbox (5.72195pt too wide) in paragraph at lines 564--571
+Overfull \hbox (5.72195pt too wide) in paragraph at lines 562--569
 \T1/cmr/m/n/12 quences from a learned se-quence model, aim-ing to max-imise se-
 quence like-li-hoods. Sutskever
  []
@@ -537,59 +507,46 @@ quence like-li-hoods. Sutskever
 <maze_layouts.png, id=363, 1132.4709pt x 643.203pt>
 File: maze_layouts.png Graphic file (type png)
 <use maze_layouts.png>
-Package pdftex.def Info: maze_layouts.png  used on input line 751.
+Package pdftex.def Info: maze_layouts.png  used on input line 748.
 (pdftex.def)             Requested size: 409.71689pt x 232.70119pt.
  [14] [15 <./maze_layouts.png>] [16] [17] [18] [19]
 <partial_observation_vs_true_state.png, id=411, 1108.14pt x 499.8675pt>
 File: partial_observation_vs_true_state.png Graphic file (type png)
 <use partial_observation_vs_true_state.png>
 Package pdftex.def Info: partial_observation_vs_true_state.png  used on input l
-ine 1096.
+ine 1093.
 (pdftex.def)             Requested size: 455.24408pt x 205.35124pt.
  [20 <./partial_observation_vs_true_state.png>] [21] [22] [23] [24] [25] [26] [
 27] [28]
 [29] [30] [31] [32] [33]
-Underfull \hbox (badness 10000) in paragraph at lines 1880--1883
+Underfull \hbox (badness 10000) in paragraph at lines 1874--1877
 []\T1/cmr/m/n/12 Farama Foun-da-tion. \T1/cmr/m/it/12 D4RL repos-i-tory, \T1/cm
 tt/m/it/12 d4rl/pointmaze/maze_model.py\T1/cmr/m/n/12 .
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1880--1883
+Underfull \hbox (badness 10000) in paragraph at lines 1874--1877
 [][]$\T1/cmr/m/n/12 https : / / github . com / Farama-[]Foundation / D4RL / blo
 b / master / d4rl / pointmaze /
  []
 
-
-Underfull \hbox (badness 4303) in paragraph at lines 1910--1911
-[]|\T1/cmr/m/n/12 Implementation of a min-i-mal end-to-end ex-per-i-men-tal
- []
-
-[34]
-ignored error: Infinite glue shrinkage found in box being split [35]
-Underfull \hbox (badness 1460) in paragraph at lines 2005--2006
-[]|\T1/cmr/m/n/12 Construction of a min-i-mal end-to-end Maze2D anal-y-sis
- []
-
-ignored error: Infinite glue shrinkage found in box being split [36]
-ignored error: Infinite glue shrinkage found in box being split [37] [38]
-(Planning as autoregressive sequence modelling B Decoding.aux)
+[34] (Planning as autoregressive sequence modelling B Decoding.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
 Package rerunfilecheck Info: File `"Planning as autoregressive sequence modelli
 ng B Decoding".out' has not changed.
-(rerunfilecheck)             Checksum: E29A99D8B0CAB328E25E5A501825AEC3;7802.
+(rerunfilecheck)             Checksum: 95B367C920ADB070CF2C58DCB1D01655;7806.
  ) 
 Here is how much of TeX's memory you used:
- 13997 strings out of 467871
- 220742 string characters out of 5418861
- 655728 words of memory out of 5000000
- 42475 multiletter control sequences out of 15000+600000
+ 13716 strings out of 467871
+ 215892 string characters out of 5418861
+ 640794 words of memory out of 5000000
+ 42211 multiletter control sequences out of 15000+600000
  652032 words of font info for 107 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,21n,79p,636b,608s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,21n,79p,636b,559s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\User\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecit1
 200.pk> <C:\Users\User\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\
 ecrm1000.pk> <C:\Users\User\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dp
@@ -611,21 +568,22 @@ bx8.pfb><C:/Users/User/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfont
 s/cm/cmex10.pfb><C:/Users/User/AppData/Local/Programs/MiKTeX/fonts/type1/public
 /amsfonts/cm/cmmi10.pfb><C:/Users/User/AppData/Local/Programs/MiKTeX/fonts/type
 1/public/amsfonts/cm/cmmi12.pfb><C:/Users/User/AppData/Local/Programs/MiKTeX/fo
-nts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/User/AppData/Local/Programs/Mi
-KTeX/fonts/type1/public/amsfonts/cm/cmmib10.pfb><C:/Users/User/AppData/Local/Pr
-ograms/MiKTeX/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb><C:/Users/User/App
-Data/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/U
-ser/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/
-Users/User/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr6.pf
-b><C:/Users/User/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/c
-mr8.pfb><C:/Users/User/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfont
-s/cm/cmsy10.pfb><C:/Users/User/AppData/Local/Programs/MiKTeX/fonts/type1/public
-/amsfonts/cm/cmsy8.pfb><C:/Users/User/AppData/Local/Programs/MiKTeX/fonts/type1
-/public/amsfonts/symbols/msbm10.pfb>
+nts/type1/public/amsfonts/cm/cmmi6.pfb><C:/Users/User/AppData/Local/Programs/Mi
+KTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/User/AppData/Local/Prog
+rams/MiKTeX/fonts/type1/public/amsfonts/cm/cmmib10.pfb><C:/Users/User/AppData/L
+ocal/Programs/MiKTeX/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb><C:/Users/U
+ser/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/
+Users/User/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.p
+fb><C:/Users/User/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/
+cmr6.pfb><C:/Users/User/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfon
+ts/cm/cmr8.pfb><C:/Users/User/AppData/Local/Programs/MiKTeX/fonts/type1/public/
+amsfonts/cm/cmsy10.pfb><C:/Users/User/AppData/Local/Programs/MiKTeX/fonts/type1
+/public/amsfonts/cm/cmsy8.pfb><C:/Users/User/AppData/Local/Programs/MiKTeX/font
+s/type1/public/amsfonts/symbols/msbm10.pfb>
 Output written on "Planning as autoregressive sequence modelling B Decoding.pdf
-" (38 pages, 775626 bytes).
+" (34 pages, 770347 bytes).
 PDF statistics:
- 1180 PDF objects out of 1200 (max. 8388607)
- 142 named destinations out of 1000 (max. 500000)
+ 1151 PDF objects out of 1200 (max. 8388607)
+ 134 named destinations out of 1000 (max. 500000)
  404 words of extra memory for PDF output out of 10000 (max. 10000000)
 
